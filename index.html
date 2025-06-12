@@ -2,53 +2,314 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estacionamento - Corrigido</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sistema de Estacionamento - Mobile Responsivo</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         
-        /* Modal Login */
-        .modal-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        /* MOBILE FIRST DESIGN */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            padding: 10px; 
+            overflow-x: hidden;
+        }
+        
+        /* Modal Login - MOBILE OTIMIZADO */
+        .modal-login { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.95); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 10000; 
+            padding: 20px;
+        }
         .modal-login.show { display: flex !important; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; animation: slideIn 0.3s ease; }
+        
+        .login-box { 
+            background: white; 
+            padding: 30px 20px; 
+            border-radius: 15px; 
+            text-align: center; 
+            width: 100%; 
+            max-width: 350px; 
+            animation: slideIn 0.3s ease; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
         @keyframes slideIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .login-box h2 { color: #2c3e50; margin-bottom: 30px; font-size: 2em; }
-        .login-input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ecf0f1; border-radius: 10px; font-size: 1.1em; }
-        .login-input:focus { outline: none; border-color: #3498db; }
-        .login-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2em; cursor: pointer; color: #7f8c8d; }
-        .credentials-info { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 0.9em; color: #2c3e50; }
+        
+        .login-box h2 { 
+            color: #2c3e50; 
+            margin-bottom: 25px; 
+            font-size: 1.8em; 
+        }
+        
+        .login-input { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 8px 0; 
+            border: 2px solid #ecf0f1; 
+            border-radius: 8px; 
+            font-size: 16px; /* Evita zoom no iOS */
+            background: #f8f9fa;
+        }
+        .login-input:focus { 
+            outline: none; 
+            border-color: #3498db; 
+            background: white;
+        }
+        
+        .login-btn { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(135deg, #3498db, #2980b9); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1.1em; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            touch-action: manipulation;
+        }
+        
+        .close-modal { 
+            position: absolute; 
+            top: 10px; 
+            right: 15px; 
+            background: none; 
+            border: none; 
+            font-size: 1.8em; 
+            cursor: pointer; 
+            color: #7f8c8d; 
+            padding: 5px;
+            touch-action: manipulation;
+        }
+        
+        .credentials-info { 
+            margin-top: 15px; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 10px; 
+            font-size: 0.9em; 
+            color: #2c3e50; 
+        }
 
-        /* Container Principal */
-        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; padding: 30px; text-align: center; position: relative; padding-top: 100px; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .user-info { position: absolute; top: 40px; right: 20px; background: rgba(255,255,255,0.25); padding: 15px 30px; border-radius: 30px; backdrop-filter: blur(15px); display: flex; align-items: center; gap: 15px; }
-        .user-badge { background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+        /* Container Principal - MOBILE FIRST */
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            overflow: hidden; 
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, #2c3e50, #3498db); 
+            color: white; 
+            padding: 20px 15px; 
+            text-align: center; 
+            position: relative; 
+            padding-top: 70px; 
+        }
+        
+        .header h1 { 
+            font-size: 1.5em; 
+            margin-bottom: 8px; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3); 
+            line-height: 1.2;
+        }
+        
+        /* User Info - MOBILE OTIMIZADO */
+        .user-info { 
+            position: absolute; 
+            top: 15px; 
+            right: 10px; 
+            background: rgba(255,255,255,0.25); 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            backdrop-filter: blur(10px); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.8em;
+            flex-wrap: wrap;
+        }
+        
+        .user-badge { 
+            background: #27ae60; 
+            color: white; 
+            padding: 4px 8px; 
+            border-radius: 12px; 
+            font-size: 0.75em; 
+            font-weight: bold; 
+        }
         .user-badge.admin { background: #f39c12; }
-        .admin-login-btn, .logout-btn { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: all 0.3s; }
+        
+        .admin-login-btn, .logout-btn { 
+            background: #3498db; 
+            color: white; 
+            border: none; 
+            padding: 6px 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 0.75em; 
+            font-weight: bold; 
+            transition: all 0.3s; 
+            touch-action: manipulation;
+        }
         .logout-btn { background: #e74c3c; }
-        .admin-login-btn:hover { background: #2980b9; transform: translateY(-2px); }
-        .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
+        .admin-login-btn:hover { background: #2980b9; }
+        .logout-btn:hover { background: #c0392b; }
 
-        /* Estacionamento */
-        .estacionamento-wrapper { padding: 40px; background: #f8f9fa; min-height: 400px; }
-        .estacionamento-container { position: relative; width: 100%; max-width: 1400px; height: 900px; margin: 0 auto; background: #e8e8e8; border-radius: 15px; border: 4px solid #34495e; overflow: visible; }
-        .vaga { position: absolute; width: 40px; height: 70px; border: 2px solid #2c3e50; background-color: rgba(39, 174, 96, 0.9); display: flex !important; justify-content: center; align-items: center; font-size: 9px; font-weight: bold; color: white; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 10; user-select: none; }
-        .vaga:hover { transform: scale(1.1); z-index: 100; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        /* Estacionamento - MOBILE OTIMIZADO */
+        .estacionamento-wrapper { 
+            padding: 15px; 
+            background: #f8f9fa; 
+            min-height: 300px; 
+        }
+        
+        .estacionamento-container { 
+            position: relative; 
+            width: 100%; 
+            height: 400px; 
+            margin: 0 auto; 
+            background: #e8e8e8; 
+            border-radius: 10px; 
+            border: 2px solid #34495e; 
+            overflow: hidden; 
+            touch-action: pan-x pan-y;
+        }
+
+        /* Vagas - MOBILE TOUCH FRIENDLY */
+        .vaga { 
+            position: absolute; 
+            width: 25px; 
+            height: 40px; 
+            border: 1px solid #2c3e50; 
+            background-color: rgba(39, 174, 96, 0.9); 
+            display: flex !important; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 7px; 
+            font-weight: bold; 
+            color: white; 
+            border-radius: 3px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.7); 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3); 
+            z-index: 10; 
+            user-select: none; 
+            touch-action: manipulation;
+            min-width: 25px;
+            min-height: 40px;
+        }
+        
+        .vaga:hover, .vaga:active { 
+            transform: scale(1.2); 
+            z-index: 100; 
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4); 
+        }
+        
         .livre { background-color: rgba(39, 174, 96, 0.9) !important; border-color: #27ae60 !important; }
         .ocupada { background-color: rgba(231, 76, 60, 0.9) !important; border-color: #e74c3c !important; }
 
-        /* Notificações */
-        .notificacao { position: fixed; bottom: 20px; right: 20px; background: #2c3e50; color: white; padding: 15px 20px; border-radius: 10px; z-index: 1000; max-width: 350px; transform: translateX(400px); transition: transform 0.3s ease; }
-        .notificacao.mostrar { transform: translateX(0); }
+        /* Notificações - MOBILE */
+        .notificacao { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(100px); 
+            background: #2c3e50; 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 25px; 
+            z-index: 1000; 
+            max-width: 90%; 
+            text-align: center; 
+            transition: transform 0.3s ease; 
+            font-size: 0.9em;
+        }
+        .notificacao.mostrar { transform: translateX(-50%) translateY(0); }
         .notificacao.sucesso { background: #27ae60; }
         .notificacao.erro { background: #e74c3c; }
         .notificacao.info { background: #3498db; }
+
+        /* RESPONSIVIDADE ESPECÍFICA */
+        
+        /* Smartphones pequenos (até 375px) */
+        @media (max-width: 375px) {
+            body { padding: 5px; }
+            .header h1 { font-size: 1.3em; }
+            .user-info { top: 10px; right: 5px; padding: 6px 8px; }
+            .estacionamento-container { height: 300px; }
+            .vaga { width: 20px; height: 35px; font-size: 6px; }
+        }
+        
+        /* Smartphones médios (376px - 414px) */
+        @media (min-width: 376px) and (max-width: 414px) {
+            .estacionamento-container { height: 350px; }
+            .vaga { width: 22px; height: 38px; font-size: 6px; }
+        }
+        
+        /* Smartphones grandes (415px - 568px) */
+        @media (min-width: 415px) and (max-width: 568px) {
+            .header h1 { font-size: 1.6em; }
+            .estacionamento-container { height: 400px; }
+            .vaga { width: 25px; height: 40px; font-size: 7px; }
+        }
+        
+        /* Tablets pequenos (569px - 768px) */
+        @media (min-width: 569px) and (max-width: 768px) {
+            body { padding: 15px; }
+            .header h1 { font-size: 2em; }
+            .estacionamento-container { height: 500px; }
+            .vaga { width: 30px; height: 50px; font-size: 8px; }
+        }
+        
+        /* Tablets grandes (769px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container { max-width: 95%; }
+            .header { padding-top: 80px; }
+            .estacionamento-container { height: 600px; }
+            .vaga { width: 35px; height: 60px; font-size: 9px; }
+            .user-info { top: 20px; right: 20px; padding: 10px 15px; }
+        }
+        
+        /* Desktop (1025px+) */
+        @media (min-width: 1025px) {
+            body { padding: 20px; }
+            .container { max-width: 1600px; }
+            .header { padding-top: 100px; }
+            .header h1 { font-size: 2.5em; }
+            .estacionamento-container { height: 900px; }
+            .vaga { width: 40px; height: 70px; font-size: 9px; }
+            .user-info { top: 40px; right: 20px; padding: 15px 30px; }
+        }
+        
+        /* Orientação paisagem em dispositivos móveis */
+        @media (orientation: landscape) and (max-height: 568px) {
+            .header { padding-top: 60px; }
+            .header h1 { font-size: 1.4em; }
+            .estacionamento-container { height: 250px; }
+        }
+        
+        /* Touch devices específicos */
+        @media (pointer: coarse) {
+            .vaga { min-width: 30px; min-height: 44px; }
+            .admin-login-btn, .logout-btn { min-height: 44px; padding: 8px 12px; }
+        }
     </style>
 </head>
 <body>
@@ -106,24 +367,24 @@
                 tipoUsuario = 'admin';
                 fecharModalLogin();
                 
-                document.getElementById('user-name').textContent = 'Administrador';
+                document.getElementById('user-name').textContent = 'Admin';
                 document.getElementById('user-badge').textContent = 'ADMIN';
                 document.getElementById('user-badge').className = 'user-badge admin';
                 document.getElementById('admin-login-btn').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'inline-block';
                 
-                mostrarNotificacao('🔧 Login de administrador realizado!', 'sucesso');
+                mostrarNotificacao('🔧 Login admin realizado!', 'sucesso');
             } else {
                 mostrarNotificacao('❌ Credenciais inválidas', 'erro');
             }
         }
 
         function logout() {
-            if (confirm('Sair do modo administrador?')) {
+            if (confirm('Sair do modo admin?')) {
                 usuarioAtual = 'viewer';
                 tipoUsuario = 'viewer';
                 
-                document.getElementById('user-name').textContent = 'Visualizador Público';
+                document.getElementById('user-name').textContent = 'Público';
                 document.getElementById('user-badge').textContent = 'VIEWER';
                 document.getElementById('user-badge').className = 'user-badge';
                 document.getElementById('admin-login-btn').style.display = 'inline-block';
@@ -142,11 +403,103 @@
             vaga.style.top = y + 'px';
             vaga.style.position = 'absolute';
             
+            // Eventos touch e mouse para mobile
+            vaga.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(1.2)';
+            }, {passive: false});
+            
+            vaga.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(1)';
+            }, {passive: false});
+            
+            vaga.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (tipoUsuario === 'admin') {
+                    alternarStatusVaga(this);
+                } else {
+                    mostrarNotificacao('ℹ️ Vaga ' + this.id + ' - Status: ' + (this.classList.contains('livre') ? 'Livre' : 'Ocupada'), 'info');
+                }
+            });
+            
             document.getElementById('mapa-estacionamento').appendChild(vaga);
             estadoVagas[id] = 'livre';
-            posicaoVagas[id] = {x: x, y: y, angle: 0, width: 40, height: 70};
+            posicaoVagas[id] = {x: x, y: y, angle: 0, width: getVagaWidth(), height: getVagaHeight()};
             
             return vaga;
+        }
+
+        function alternarStatusVaga(elemento) {
+            if (tipoUsuario !== 'admin') {
+                mostrarNotificacao('❌ Apenas admin pode alterar vagas', 'erro');
+                return;
+            }
+            
+            var vagaId = elemento.id;
+            var novoStatus = elemento.classList.contains('livre') ? 'ocupada' : 'livre';
+            
+            estadoVagas[vagaId] = novoStatus;
+            elemento.classList.remove('livre', 'ocupada');
+            elemento.classList.add(novoStatus);
+            
+            mostrarNotificacao('✅ Vaga ' + vagaId + ' agora está ' + novoStatus, 'sucesso');
+        }
+
+        function getVagaWidth() {
+            if (window.innerWidth <= 375) return 20;
+            if (window.innerWidth <= 414) return 22;
+            if (window.innerWidth <= 568) return 25;
+            if (window.innerWidth <= 768) return 30;
+            if (window.innerWidth <= 1024) return 35;
+            return 40;
+        }
+
+        function getVagaHeight() {
+            if (window.innerWidth <= 375) return 35;
+            if (window.innerWidth <= 414) return 38;
+            if (window.innerWidth <= 568) return 40;
+            if (window.innerWidth <= 768) return 50;
+            if (window.innerWidth <= 1024) return 60;
+            return 70;
+        }
+
+        function calcularPosicaoVaga(index) {
+            var containerWidth = document.getElementById('mapa-estacionamento').offsetWidth;
+            var vagaWidth = getVagaWidth();
+            var vagaHeight = getVagaHeight();
+            
+            var vagasPorLinha = Math.floor((containerWidth - 20) / (vagaWidth + 10));
+            var linha = Math.floor(index / vagasPorLinha);
+            var coluna = index % vagasPorLinha;
+            
+            var x = 10 + coluna * (vagaWidth + 10);
+            var y = 10 + linha * (vagaHeight + 10);
+            
+            return {x: x, y: y};
+        }
+
+        function redimensionarVagas() {
+            var vagas = document.querySelectorAll('.vaga');
+            var novaLargura = getVagaWidth();
+            var novaAltura = getVagaHeight();
+            
+            vagas.forEach(function(vaga, index) {
+                var posicao = calcularPosicaoVaga(index);
+                vaga.style.left = posicao.x + 'px';
+                vaga.style.top = posicao.y + 'px';
+                vaga.style.width = novaLargura + 'px';
+                vaga.style.height = novaAltura + 'px';
+                
+                // Atualizar dados de posição
+                posicaoVagas[vaga.id] = {
+                    x: posicao.x,
+                    y: posicao.y,
+                    width: novaLargura,
+                    height: novaAltura,
+                    angle: 0
+                };
+            });
         }
 
         function mostrarNotificacao(mensagem, tipo) {
@@ -173,17 +526,37 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM carregado, inicializando sistema...');
             
-            // Criar 62 vagas
-            for (var i = 1; i <= 62; i++) {
-                var vagaId = 'V' + (i < 10 ? '0' + i : i);
-                var x = 80 + ((i - 1) % 10) * 120;
-                var y = 80 + Math.floor((i - 1) / 10) * 120;
-                criarVaga(vagaId, x, y);
-            }
-            
-            console.log('Sistema inicializado com sucesso');
-            mostrarNotificacao('🚀 Sistema inicializado!', 'sucesso');
+            // Aguardar o container estar pronto
+            setTimeout(function() {
+                // Criar 62 vagas com posicionamento responsivo
+                for (var i = 0; i < 62; i++) {
+                    var vagaId = 'V' + ((i + 1) < 10 ? '0' + (i + 1) : (i + 1));
+                    var posicao = calcularPosicaoVaga(i);
+                    criarVaga(vagaId, posicao.x, posicao.y);
+                }
+                
+                console.log('Sistema inicializado com sucesso');
+                mostrarNotificacao('🚀 Sistema inicializado!', 'sucesso');
+            }, 100);
         });
+
+        // Redimensionar vagas quando a tela mudar
+        window.addEventListener('resize', function() {
+            clearTimeout(window.resizeTimeout);
+            window.resizeTimeout = setTimeout(function() {
+                redimensionarVagas();
+            }, 250);
+        });
+
+        // Prevenir zoom duplo toque no iOS
+        var lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            var now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
 
         // Teste da função no console
         console.log('Função mostrarModalLogin definida:', typeof mostrarModalLogin);
@@ -193,10 +566,10 @@
     <div class="modal-login" id="modal-login">
         <div class="login-box">
             <button class="close-modal" onclick="fecharModalLogin()">×</button>
-            <h2>🔐 Login Administrador</h2>
+            <h2>🔐 Login Admin</h2>
             <input type="text" class="login-input" id="username" placeholder="Usuário" value="admin">
             <input type="password" class="login-input" id="password" placeholder="Senha" value="admin123">
-            <button class="login-btn" onclick="fazerLoginAdmin()">Entrar como Admin</button>
+            <button class="login-btn" onclick="fazerLoginAdmin()">Entrar</button>
             <div class="credentials-info"><strong>Credenciais:</strong> admin / admin123</div>
         </div>
     </div>
@@ -204,14 +577,14 @@
     <div class="container">
         <div class="header">
             <div class="user-info">
-                <span id="user-name">Visualizador Público</span>
+                <span id="user-name">Público</span>
                 <span class="user-badge" id="user-badge">VIEWER</span>
-                <button class="admin-login-btn" id="admin-login-btn" onclick="mostrarModalLogin()">Login Admin</button>
+                <button class="admin-login-btn" id="admin-login-btn" onclick="mostrarModalLogin()">Admin</button>
                 <button class="logout-btn" id="logout-btn" onclick="logout()" style="display: none;">Sair</button>
             </div>
             
-            <h1>🚗 Sistema de Estacionamento - Consulta em Tempo Real</h1>
-            <p>Consulte a disponibilidade das vagas em tempo real</p>
+            <h1>🚗 Sistema de Estacionamento</h1>
+            <p>Consulta em tempo real das vagas</p>
         </div>
 
         <div class="estacionamento-wrapper">
