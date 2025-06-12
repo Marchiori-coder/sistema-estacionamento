@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Controle de Estacionamento - 62 Vagas</title>
+    
+    <!-- ADICIONE ESTAS LINHAS DO FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Mantenha todo o CSS que você já tem -->
+    <style>
+        /* TODO SEU CSS ATUAL AQUI */
+    </style>
+</head>
+<body>
+    <!-- TODO SEU HTML ATUAL AQUI -->
+    
+    <script>
+        // SUBSTITUA ESTAS CONFIGURAÇÕES PELAS SUAS DO FIREBASE
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY_AQUI",
+            authDomain: "seu-projeto.firebaseapp.com",
+            databaseURL: "https://seu-projeto-default-rtdb.firebaseio.com/",
+            projectId: "seu-projeto",
+            storageBucket: "seu-projeto.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "sua-app-id"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // SUBSTITUA SUAS FUNÇÕES ANTIGAS POR ESTAS:
+        
+        // Função para salvar no Firebase
+        function salvarEstadoFirebase() {
+            database.ref('estacionamento').set({
+                vagas: estadoVagas,
+                posicoes: posicaoVagas,
+                timestamp: new Date().toISOString()
+            }).then(() => {
+                mostrarStatusSync('✅ Sincronizado com sucesso!', 'sucesso');
+            }).catch((error) => {
+                mostrarStatusSync('❌ Erro: ' + error.message, 'erro');
+            });
+        }
+
+        // Função para carregar do Firebase
+        function carregarEstadoFirebase() {
+            database.ref('estacionamento').on('value', (snapshot) => {
+                const dados = snapshot.val();
+                if (dados) {
+                    // Atualizar vagas
+                    if (dados.vagas) {
+                        const estadoAnterior = {...estadoVagas};
+                        estadoVagas = dados.vagas;
+                        
+                        // Aplicar mudanças visuais
+                        for (const [vagaId, novoStatus] of Object.entries(estadoVagas)) {
+                            const elemento = document.getElementById(vagaId);
+                            if (elemento) {
+                                // Animação se mudou
+                                if (estadoAnterior[vagaId] !== novoStatus) {
+                                    elemento.classList.add('atualizando');
+                                    setTimeout(() => elemento.classList.remove('atualizando'), 500);
+                                }
+                                
+                                elemento.classList.remove('livre', 'ocupada');
+                                elemento.classList.add(novoStatus);
+                            }
+                        }
+                        atualizarEstatisticas();
+                    }
+                    
+                    // Atualizar posições
+                    if (dados.posicoes) {
+                        posicaoVagas = dados.posicoes;
+                        for (const [vagaId, posicao] of Object.entries(posicaoVagas)) {
+                            const elemento = document.getElementById(vagaId);
+                            if (elemento) {
+                                elemento.style.left = posicao.x + 'px';
+                                elemento.style.top = posicao.y + 'px';
+                                elemento.style.transform = `rotate(${posicao.angle || 0}deg)`;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // MODIFIQUE A FUNÇÃO alternarStatusVaga
+        function alternarStatusVaga(elemento) {
+            if (modoEdicaoAtivo) return;
+            
+            const vagaId = elemento.id;
+            const novoStatus = elemento.classList.contains('livre') ? 'ocupada' : 'livre';
+            
+            // Atualizar localmente primeiro
+            estadoVagas[vagaId] = novoStatus;
+            elemento.classList.remove('livre', 'ocupada');
+            elemento.classList.add(novoStatus);
+            elemento.classList.add('recente');
+            setTimeout(() => elemento.classList.remove('recente'), 600);
+            
+            // Salvar no Firebase
+            salvarEstadoFirebase();
+            atualizarEstatisticas();
+        }
+
+        // MODIFIQUE A FUNÇÃO salvarLayoutGlobal
+        function salvarLayoutGlobal() {
+            salvarEstadoFirebase();
+        }
+
+        // TODO O RESTO DO SEU JAVASCRIPT ATUAL...
+        // (mantenha todas as outras funções que você já tem)
+
+        // ADICIONE NO FINAL DO DOMContentLoaded:
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... seu código atual ...
+            
+            // ADICIONE ESTA LINHA NO FINAL:
+            carregarEstadoFirebase();
+        });
+    </script>
+</body>
+</html>
