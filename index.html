@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estacionamento - Admin Completo</title>
+    <title>Sistema de Estacionamento - Visualização Pública</title>
     
     <!-- Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -38,7 +38,7 @@
         }
 
         .modal-login.show {
-            display: flex !important;
+            display: flex;
             animation: fadeIn 0.3s ease;
         }
 
@@ -138,7 +138,6 @@
             padding: 30px;
             text-align: center;
             position: relative;
-            padding-top: 80px; /* Espaço para o painel do usuário */
         }
 
         .header h1 {
@@ -147,25 +146,23 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        /* Painel do usuário - REPOSICIONADO */
         .user-info {
             position: absolute;
-            top: 30px; /* Movido mais para baixo */
+            top: 20px;
             right: 20px;
             background: rgba(255,255,255,0.2);
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: 25px;
             backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            gap: 10px;
         }
 
         .user-badge {
             background: #27ae60;
             color: white;
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 15px;
             font-size: 0.8em;
             font-weight: bold;
@@ -217,7 +214,7 @@
         }
 
         .admin-panel.show {
-            display: block !important;
+            display: block;
             animation: slideDown 0.3s ease;
         }
 
@@ -325,7 +322,6 @@
         .estacionamento-wrapper {
             padding: 40px;
             background: #f8f9fa;
-            min-height: 400px;
         }
 
         .estacionamento-container {
@@ -337,7 +333,7 @@
             background: #e8e8e8;
             border-radius: 15px;
             border: 4px solid #34495e;
-            overflow: visible;
+            overflow: hidden;
             box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
         }
 
@@ -353,14 +349,14 @@
             z-index: 1;
         }
 
-        /* Vagas - MODO EDIÇÃO IMPLEMENTADO */
+        /* Vagas */
         .vaga {
             position: absolute;
             width: 40px;
             height: 70px;
             border: 2px solid #2c3e50;
             background-color: rgba(39, 174, 96, 0.9);
-            display: flex !important;
+            display: flex;
             justify-content: center;
             align-items: center;
             font-size: 9px;
@@ -374,8 +370,6 @@
             z-index: 10;
             user-select: none;
             transform-origin: center center;
-            visibility: visible !important;
-            opacity: 1 !important;
         }
 
         .vaga:hover {
@@ -385,149 +379,13 @@
         }
 
         .livre {
-            background-color: rgba(39, 174, 96, 0.9) !important;
-            border-color: #27ae60 !important;
+            background-color: rgba(39, 174, 96, 0.9);
+            border-color: #27ae60;
         }
 
         .ocupada {
-            background-color: rgba(231, 76, 60, 0.9) !important;
-            border-color: #e74c3c !important;
-        }
-
-        /* Modo edição - IMPLEMENTADO */
-        .modo-edicao .vaga {
-            cursor: move !important;
-            border: 3px dashed #f39c12 !important;
-            background-color: rgba(243, 156, 18, 0.8) !important;
-        }
-
-        .modo-edicao .vaga:hover {
-            transform: scale(1.15) !important;
-            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.5) !important;
-        }
-
-        .vaga.selecionada {
-            border: 4px solid #9b59b6 !important;
-            background-color: rgba(155, 89, 182, 0.9) !important;
-            box-shadow: 0 0 20px rgba(155, 89, 182, 0.8) !important;
-            z-index: 1000 !important;
-        }
-
-        .vaga.arrastando {
-            z-index: 1001 !important;
-            transform: scale(1.3) rotate(5deg) !important;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
-            opacity: 0.9;
-        }
-
-        /* Controles de edição */
-        .edit-controls {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            display: none;
-            z-index: 1000;
-            min-width: 250px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .edit-controls.show {
-            display: block !important;
-            animation: slideInRight 0.3s ease;
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateY(-50%) translateX(100%); opacity: 0; }
-            to { transform: translateY(-50%) translateX(0); opacity: 1; }
-        }
-
-        .edit-title {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            font-weight: bold;
-            font-size: 1.1em;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #ecf0f1;
-        }
-
-        .edit-section {
-            margin-bottom: 25px;
-        }
-
-        .edit-section h4 {
-            color: #34495e;
-            margin-bottom: 12px;
-            font-size: 0.95em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .edit-btn {
-            width: 100%;
-            padding: 12px;
-            margin: 6px 0;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            font-size: 0.9em;
-        }
-
-        .edit-btn.rotate {
-            background: #3498db;
-            color: white;
-        }
-
-        .edit-btn.resize {
-            background: #e67e22;
-            color: white;
-        }
-
-        .edit-btn.action {
-            background: #9b59b6;
-            color: white;
-        }
-
-        .edit-btn.delete {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .edit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .size-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin: 10px 0;
-        }
-
-        .size-btn {
-            padding: 10px;
-            background: #95a5a6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85em;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        .size-btn:hover {
-            background: #7f8c8d;
+            background-color: rgba(231, 76, 60, 0.9);
+            border-color: #e74c3c;
         }
 
         /* Controles principais */
@@ -626,19 +484,6 @@
                 height: 55px;
                 font-size: 8px;
             }
-
-            .edit-controls {
-                right: 10px;
-                padding: 20px;
-                min-width: 200px;
-            }
-
-            .user-info {
-                top: 20px;
-                right: 10px;
-                padding: 8px 15px;
-                gap: 8px;
-            }
         }
     </style>
 </head>
@@ -663,7 +508,7 @@
     <!-- Status Firebase -->
     <div class="status-firebase" id="status-firebase">
         <div class="indicador-firebase"></div>
-        <span id="texto-firebase">Sistema Inicializado</span>
+        <span id="texto-firebase">Conectando Firebase...</span>
     </div>
 
     <div class="container">
@@ -699,7 +544,7 @@
             </div>
         </div>
 
-        <!-- Painel Admin -->
+        <!-- Painel Admin (oculto por padrão) -->
         <div class="admin-panel" id="admin-panel">
             <h3>🔧 Painel de Administração Ativo</h3>
             <p>Você tem acesso completo para editar vagas, mapas e configurações do sistema</p>
@@ -717,38 +562,6 @@
             </div>
         </div>
 
-        <!-- Controles de Edição -->
-        <div class="edit-controls" id="edit-controls">
-            <div class="edit-title">🔧 Editando: <span id="vaga-selecionada">-</span></div>
-            
-            <div class="edit-section">
-                <h4>🔄 Rotação</h4>
-                <button class="edit-btn rotate" onclick="rotacionarVaga(-90)">↶ -90°</button>
-                <button class="edit-btn rotate" onclick="rotacionarVaga(-15)">↺ -15°</button>
-                <button class="edit-btn rotate" onclick="rotacionarVaga(15)">↻ +15°</button>
-                <button class="edit-btn rotate" onclick="rotacionarVaga(90)">↷ +90°</button>
-                <button class="edit-btn rotate" onclick="resetarRotacao()">⟲ Reset</button>
-            </div>
-            
-            <div class="edit-section">
-                <h4>📏 Redimensionar</h4>
-                <div class="size-controls">
-                    <button class="size-btn" onclick="redimensionarVaga('width', -5)">Largura -</button>
-                    <button class="size-btn" onclick="redimensionarVaga('width', 5)">Largura +</button>
-                    <button class="size-btn" onclick="redimensionarVaga('height', -5)">Altura -</button>
-                    <button class="size-btn" onclick="redimensionarVaga('height', 5)">Altura +</button>
-                </div>
-                <button class="edit-btn resize" onclick="resetarTamanho()">📏 Tamanho Padrão</button>
-            </div>
-            
-            <div class="edit-section">
-                <h4>🎨 Ações</h4>
-                <button class="edit-btn action" onclick="duplicarVaga()">📋 Duplicar</button>
-                <button class="edit-btn action" onclick="renomearVaga()">✏️ Renomear</button>
-                <button class="edit-btn delete" onclick="excluirVaga()">🗑️ Excluir</button>
-            </div>
-        </div>
-
         <div class="controles">
             <button class="btn btn-reset" onclick="resetarTodasVagas()" id="btn-reset" disabled>🔄 Resetar</button>
             <button class="btn btn-ocupar" onclick="ocuparTodasVagas()" id="btn-ocupar" disabled>🚗 Ocupar</button>
@@ -758,12 +571,8 @@
         </div>
     </div>
 
-    <!-- Inputs ocultos para import/export -->
-    <input type="file" id="import-input" accept=".json" style="display: none;" onchange="processarImportacao(event)">
-    <input type="file" id="planta-input" accept="image/*" style="display: none;" onchange="processarPlantaBaixa(event)">
-
     <script>
-        // ===== CONFIGURAÇÃO FIREBASE =====
+        // ===== CONFIGURAÇÃO FIREBASE COM SUAS CREDENCIAIS REAIS =====
         var firebaseConfig = {
             apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
             authDomain: "teste-dbacd.firebaseapp.com",
@@ -784,22 +593,14 @@
         var tipoUsuario = 'viewer';
         var modoEdicao = false;
         var proximoIdVaga = 63;
-        var vagaSelecionada = null;
-        var vagaArrastando = null;
-        var offsetX = 0;
-        var offsetY = 0;
 
         // ===== FUNÇÕES DE LOGIN =====
         function mostrarModalLogin() {
-            var modal = document.getElementById('modal-login');
-            modal.classList.add('show');
-            modal.style.display = 'flex';
+            document.getElementById('modal-login').classList.add('show');
         }
 
         function fecharModalLogin() {
-            var modal = document.getElementById('modal-login');
-            modal.classList.remove('show');
-            modal.style.display = 'none';
+            document.getElementById('modal-login').classList.remove('show');
         }
 
         function fazerLoginAdmin() {
@@ -823,9 +624,7 @@
                 document.getElementById('admin-login-btn').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'inline-block';
                 
-                var adminPanel = document.getElementById('admin-panel');
-                adminPanel.classList.add('show');
-                adminPanel.style.display = 'block';
+                document.getElementById('admin-panel').classList.add('show');
                 
                 habilitarControlesAdmin();
                 mostrarNotificacao('🔧 Login de administrador realizado com sucesso!', 'sucesso');
@@ -846,12 +645,7 @@
                 document.getElementById('admin-login-btn').style.display = 'inline-block';
                 document.getElementById('logout-btn').style.display = 'none';
                 
-                var adminPanel = document.getElementById('admin-panel');
-                adminPanel.classList.remove('show');
-                adminPanel.style.display = 'none';
-                
-                document.getElementById('edit-controls').style.display = 'none';
-                document.getElementById('mapa-estacionamento').classList.remove('modo-edicao');
+                document.getElementById('admin-panel').classList.remove('show');
                 
                 desabilitarControlesAdmin();
                 
@@ -884,369 +678,8 @@
             });
         }
 
-        // ===== MODO DE EDIÇÃO IMPLEMENTADO =====
-        function toggleEditMode() {
-            if (tipoUsuario !== 'admin') {
-                mostrarNotificacao('❌ Acesso negado: Apenas administradores', 'erro');
-                return;
-            }
-            
-            modoEdicao = !modoEdicao;
-            var container = document.getElementById('mapa-estacionamento');
-            var btn = document.getElementById('btn-edit-mode');
-            
-            if (modoEdicao) {
-                container.classList.add('modo-edicao');
-                btn.classList.add('active');
-                btn.textContent = '✅ Finalizar Edição';
-                mostrarNotificacao('✏️ Modo de edição ativado - Clique nas vagas para editar', 'info');
-            } else {
-                container.classList.remove('modo-edicao');
-                btn.classList.remove('active');
-                btn.textContent = '✏️ Modo Edição';
-                document.getElementById('edit-controls').style.display = 'none';
-                
-                if (vagaSelecionada) {
-                    vagaSelecionada.classList.remove('selecionada');
-                    vagaSelecionada = null;
-                }
-                
-                mostrarNotificacao('✅ Modo de edição desativado', 'info');
-                salvarLocal();
-                if (firebaseConectado) salvarNoFirebase();
-            }
-        }
-
-        function selecionarVaga(vaga) {
-            if (!modoEdicao) return;
-            
-            // Remover seleção anterior
-            if (vagaSelecionada) {
-                vagaSelecionada.classList.remove('selecionada');
-            }
-            
-            // Selecionar nova vaga
-            vagaSelecionada = vaga;
-            vaga.classList.add('selecionada');
-            
-            // Mostrar controles de edição
-            document.getElementById('edit-controls').style.display = 'block';
-            document.getElementById('vaga-selecionada').textContent = vaga.id;
-            
-            mostrarNotificacao('🎯 Vaga ' + vaga.id + ' selecionada para edição', 'info');
-        }
-
-        function rotacionarVaga(graus) {
-            if (!vagaSelecionada) {
-                mostrarNotificacao('❌ Selecione uma vaga primeiro', 'erro');
-                return;
-            }
-            
-            var vagaId = vagaSelecionada.id;
-            var anguloAtual = posicaoVagas[vagaId].angle || 0;
-            var novoAngulo = (anguloAtual + graus) % 360;
-            
-            posicaoVagas[vagaId].angle = novoAngulo;
-            vagaSelecionada.style.transform = 'rotate(' + novoAngulo + 'deg)';
-            
-            mostrarNotificacao('🔄 Vaga ' + vagaId + ' rotacionada ' + graus + '°', 'info');
-        }
-
-        function resetarRotacao() {
-            if (!vagaSelecionada) return;
-            
-            var vagaId = vagaSelecionada.id;
-            posicaoVagas[vagaId].angle = 0;
-            vagaSelecionada.style.transform = 'rotate(0deg)';
-            
-            mostrarNotificacao('⟲ Rotação da vaga ' + vagaId + ' resetada', 'info');
-        }
-
-        function redimensionarVaga(dimensao, valor) {
-            if (!vagaSelecionada) return;
-            
-            var vagaId = vagaSelecionada.id;
-            if (!posicaoVagas[vagaId].width) posicaoVagas[vagaId].width = 40;
-            if (!posicaoVagas[vagaId].height) posicaoVagas[vagaId].height = 70;
-            
-            if (dimensao === 'width') {
-                posicaoVagas[vagaId].width = Math.max(20, posicaoVagas[vagaId].width + valor);
-                vagaSelecionada.style.width = posicaoVagas[vagaId].width + 'px';
-            } else {
-                posicaoVagas[vagaId].height = Math.max(30, posicaoVagas[vagaId].height + valor);
-                vagaSelecionada.style.height = posicaoVagas[vagaId].height + 'px';
-            }
-            
-            mostrarNotificacao('📏 Vaga ' + vagaId + ' redimensionada', 'info');
-        }
-
-        function resetarTamanho() {
-            if (!vagaSelecionada) return;
-            
-            var vagaId = vagaSelecionada.id;
-            posicaoVagas[vagaId].width = 40;
-            posicaoVagas[vagaId].height = 70;
-            vagaSelecionada.style.width = '40px';
-            vagaSelecionada.style.height = '70px';
-            
-            mostrarNotificacao('📏 Tamanho da vaga ' + vagaId + ' resetado', 'info');
-        }
-
-        function duplicarVaga() {
-            if (!vagaSelecionada) return;
-            
-            var vagaOriginal = vagaSelecionada;
-            var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga);
-            proximoIdVaga++;
-            
-            var novaVaga = criarVaga(novoId, 
-                parseInt(vagaOriginal.style.left) + 50, 
-                parseInt(vagaOriginal.style.top) + 50
-            );
-            
-            // Copiar configurações da vaga original
-            var vagaOriginalId = vagaOriginal.id;
-            posicaoVagas[novoId] = Object.assign({}, posicaoVagas[vagaOriginalId]);
-            posicaoVagas[novoId].x += 50;
-            posicaoVagas[novoId].y += 50;
-            
-            // Aplicar estilo
-            if (posicaoVagas[vagaOriginalId].width) {
-                novaVaga.style.width = posicaoVagas[vagaOriginalId].width + 'px';
-            }
-            if (posicaoVagas[vagaOriginalId].height) {
-                novaVaga.style.height = posicaoVagas[vagaOriginalId].height + 'px';
-            }
-            if (posicaoVagas[vagaOriginalId].angle) {
-                novaVaga.style.transform = 'rotate(' + posicaoVagas[vagaOriginalId].angle + 'deg)';
-            }
-            
-            totalVagas++;
-            atualizarEstatisticas();
-            
-            mostrarNotificacao('📋 Vaga ' + novoId + ' duplicada com sucesso', 'sucesso');
-        }
-
-        function renomearVaga() {
-            if (!vagaSelecionada) return;
-            
-            var novoNome = prompt('Digite o novo nome para a vaga:', vagaSelecionada.id);
-            if (novoNome && novoNome !== vagaSelecionada.id) {
-                // Verificar se já existe
-                if (document.getElementById(novoNome)) {
-                    mostrarNotificacao('❌ Já existe uma vaga com este nome', 'erro');
-                    return;
-                }
-                
-                var vagaAntiga = vagaSelecionada.id;
-                
-                // Atualizar dados
-                estadoVagas[novoNome] = estadoVagas[vagaAntiga];
-                posicaoVagas[novoNome] = posicaoVagas[vagaAntiga];
-                delete estadoVagas[vagaAntiga];
-                delete posicaoVagas[vagaAntiga];
-                
-                // Atualizar elemento
-                vagaSelecionada.id = novoNome;
-                vagaSelecionada.textContent = novoNome;
-                document.getElementById('vaga-selecionada').textContent = novoNome;
-                
-                mostrarNotificacao('✏️ Vaga renomeada para ' + novoNome, 'sucesso');
-            }
-        }
-
-        function excluirVaga() {
-            if (!vagaSelecionada) return;
-            
-            if (confirm('Tem certeza que deseja excluir a vaga ' + vagaSelecionada.id + '?')) {
-                var vagaId = vagaSelecionada.id;
-                
-                // Remover dados
-                delete estadoVagas[vagaId];
-                delete posicaoVagas[vagaId];
-                
-                // Remover elemento
-                vagaSelecionada.remove();
-                vagaSelecionada = null;
-                totalVagas--;
-                
-                // Ocultar controles
-                document.getElementById('edit-controls').style.display = 'none';
-                atualizarEstatisticas();
-                
-                mostrarNotificacao('🗑️ Vaga ' + vagaId + ' excluída', 'info');
-            }
-        }
-
-        function adicionarNovaVaga() {
-            if (tipoUsuario !== 'admin') return;
-            
-            var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga);
-            proximoIdVaga++;
-            
-            // Posição central
-            var x = 700;
-            var y = 450;
-            
-            var novaVaga = criarVaga(novoId, x, y);
-            totalVagas++;
-            atualizarEstatisticas();
-            
-            mostrarNotificacao('➕ Nova vaga ' + novoId + ' adicionada', 'sucesso');
-        }
-
-        // ===== ARRASTE DE VAGAS IMPLEMENTADO =====
-        function iniciarArraste(e) {
-            if (!modoEdicao) return;
-            
-            vagaArrastando = e.target;
-            selecionarVaga(vagaArrastando);
-            vagaArrastando.classList.add('arrastando');
-            
-            var rect = vagaArrastando.getBoundingClientRect();
-            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
-            
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-            
-            e.preventDefault();
-        }
-
-        function arrastar(e) {
-            if (!vagaArrastando || !modoEdicao) return;
-            
-            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
-            
-            var x = e.clientX - containerRect.left - offsetX;
-            var y = e.clientY - containerRect.top - offsetY;
-            
-            // Limitar às bordas
-            x = Math.max(0, Math.min(x, containerRect.width - 40));
-            y = Math.max(0, Math.min(y, containerRect.height - 70));
-            
-            vagaArrastando.style.left = x + 'px';
-            vagaArrastando.style.top = y + 'px';
-            
-            // Atualizar posição
-            posicaoVagas[vagaArrastando.id].x = x;
-            posicaoVagas[vagaArrastando.id].y = y;
-        }
-
-        function finalizarArraste() {
-            if (vagaArrastando) {
-                vagaArrastando.classList.remove('arrastando');
-                mostrarNotificacao('📍 Vaga ' + vagaArrastando.id + ' reposicionada', 'info');
-                vagaArrastando = null;
-                salvarLocal();
-                if (firebaseConectado) salvarNoFirebase();
-            }
-        }
-
-        // ===== EXPORT/IMPORT IMPLEMENTADO =====
-        function exportarLayout() {
-            if (tipoUsuario !== 'admin') return;
-            
-            var dados = {
-                timestamp: new Date().toISOString(),
-                vagas: estadoVagas,
-                posicoes: posicaoVagas,
-                plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage,
-                totalVagas: totalVagas,
-                proximoId: proximoIdVaga,
-                versao: '2.0',
-                autor: 'Sistema de Estacionamento'
-            };
-            
-            var blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'});
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'layout_estacionamento_' + new Date().toISOString().slice(0,10) + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            mostrarNotificacao('📤 Layout exportado com sucesso!', 'sucesso');
-        }
-
-        function importarLayout() {
-            if (tipoUsuario !== 'admin') return;
-            document.getElementById('import-input').click();
-        }
-
-        function processarImportacao(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    var dados = JSON.parse(e.target.result);
-                    
-                    if (confirm('Isso irá substituir todo o layout atual. Continuar?')) {
-                        // Limpar vagas existentes
-                        var vagasExistentes = document.querySelectorAll('.vaga');
-                        vagasExistentes.forEach(function(vaga) {
-                            vaga.remove();
-                        });
-                        
-                        // Importar dados
-                        if (dados.vagas) estadoVagas = dados.vagas;
-                        if (dados.posicoes) posicaoVagas = dados.posicoes;
-                        if (dados.totalVagas) totalVagas = dados.totalVagas;
-                        if (dados.proximoId) proximoIdVaga = dados.proximoId;
-                        if (dados.plantaBaixa) {
-                            document.getElementById('planta-baixa').style.backgroundImage = dados.plantaBaixa;
-                        }
-                        
-                        // Recriar vagas
-                        for (var vagaId in posicaoVagas) {
-                            var pos = posicaoVagas[vagaId];
-                            var vaga = criarVaga(vagaId, pos.x, pos.y);
-                            
-                            if (pos.width) vaga.style.width = pos.width + 'px';
-                            if (pos.height) vaga.style.height = pos.height + 'px';
-                            if (pos.angle) vaga.style.transform = 'rotate(' + pos.angle + 'deg)';
-                            
-                            if (estadoVagas[vagaId]) {
-                                vaga.classList.remove('livre', 'ocupada');
-                                vaga.classList.add(estadoVagas[vagaId]);
-                            }
-                        }
-                        
-                        atualizarEstatisticas();
-                        salvarLocal();
-                        if (firebaseConectado) salvarNoFirebase();
-                        
-                        mostrarNotificacao('📥 Layout importado com sucesso!', 'sucesso');
-                    }
-                } catch (error) {
-                    mostrarNotificacao('❌ Erro ao importar arquivo: ' + error.message, 'erro');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function processarPlantaBaixa(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('planta-baixa').style.backgroundImage = 'url(' + e.target.result + ')';
-                salvarLocal();
-                if (firebaseConectado) salvarNoFirebase();
-                mostrarNotificacao('📁 Planta baixa carregada com sucesso!', 'sucesso');
-            };
-            reader.readAsDataURL(file);
-        }
-
         // ===== FUNÇÕES PRINCIPAIS =====
         function alternarStatusVaga(elemento) {
-            if (modoEdicao) {
-                selecionarVaga(elemento);
-                return;
-            }
-            
             if (tipoUsuario !== 'admin') {
                 mostrarNotificacao('❌ Apenas administradores podem alterar vagas', 'erro');
                 return;
@@ -1262,6 +695,7 @@
             atualizarEstatisticas();
             salvarLocal();
             
+            // Salvar no Firebase automaticamente se conectado
             if (firebaseConectado) {
                 salvarNoFirebase();
             }
@@ -1349,7 +783,6 @@
                 var dados = {
                     vagas: estadoVagas,
                     posicoes: posicaoVagas,
-                    plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage,
                     totalVagas: totalVagas,
                     proximoId: proximoIdVaga,
                     timestamp: new Date().toISOString()
@@ -1381,7 +814,6 @@
                 var dados = {
                     vagas: estadoVagas,
                     posicoes: posicaoVagas,
-                    plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage,
                     meta: {
                         totalVagas: totalVagas,
                         proximoId: proximoIdVaga,
@@ -1406,15 +838,6 @@
                     if (dadosParsed.vagas) {
                         estadoVagas = dadosParsed.vagas;
                         aplicarEstadoVagas();
-                    }
-                    
-                    if (dadosParsed.posicoes) {
-                        posicaoVagas = dadosParsed.posicoes;
-                        aplicarPosicoes();
-                    }
-                    
-                    if (dadosParsed.plantaBaixa) {
-                        document.getElementById('planta-baixa').style.backgroundImage = dadosParsed.plantaBaixa;
                     }
                     
                     if (dadosParsed.totalVagas) {
@@ -1444,10 +867,6 @@
                     if (dados.posicoes) {
                         posicaoVagas = dados.posicoes;
                         aplicarPosicoes();
-                    }
-                    
-                    if (dados.plantaBaixa) {
-                        document.getElementById('planta-baixa').style.backgroundImage = dados.plantaBaixa;
                     }
                     
                     if (dados.meta) {
@@ -1482,8 +901,6 @@
                     if (posicao.angle) {
                         elemento.style.transform = 'rotate(' + posicao.angle + 'deg)';
                     }
-                    if (posicao.width) elemento.style.width = posicao.width + 'px';
-                    if (posicao.height) elemento.style.height = posicao.height + 'px';
                 }
             }
         }
@@ -1495,20 +912,13 @@
             vaga.textContent = id;
             vaga.style.left = x + 'px';
             vaga.style.top = y + 'px';
-            vaga.style.position = 'absolute';
-            vaga.style.display = 'flex';
-            vaga.style.visibility = 'visible';
-            vaga.style.opacity = '1';
             
-            // Eventos para arraste e clique
-            vaga.addEventListener('mousedown', iniciarArraste);
             vaga.addEventListener('click', function(e) {
                 alternarStatusVaga(this);
                 e.preventDefault();
             });
             
-            var container = document.getElementById('mapa-estacionamento');
-            container.appendChild(vaga);
+            document.getElementById('mapa-estacionamento').appendChild(vaga);
             
             estadoVagas[id] = 'livre';
             posicaoVagas[id] = {x: x, y: y, angle: 0, width: 40, height: 70};
@@ -1550,4 +960,85 @@
 
         function mostrarNotificacao(mensagem, tipo) {
             var notificacao = document.createElement('div');
-            notificacao.className
+            notificacao.className = 'notificacao ' + (tipo || 'info');
+            notificacao.textContent = mensagem;
+            
+            document.body.appendChild(notificacao);
+            
+            setTimeout(function() {
+                notificacao.classList.add('mostrar');
+            }, 100);
+            
+            setTimeout(function() {
+                notificacao.classList.remove('mostrar');
+                setTimeout(function() {
+                    if (notificacao.parentNode) {
+                        notificacao.parentNode.removeChild(notificacao);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // ===== FUNÇÕES ADMIN (PLACEHOLDER) =====
+        function toggleEditMode() {
+            if (tipoUsuario !== 'admin') {
+                mostrarNotificacao('❌ Acesso negado: Apenas administradores', 'erro');
+                return;
+            }
+            mostrarNotificacao('🔧 Modo de edição em desenvolvimento', 'info');
+        }
+
+        function adicionarNovaVaga() {
+            if (tipoUsuario !== 'admin') return;
+            mostrarNotificacao('➕ Função em desenvolvimento', 'info');
+        }
+
+        function exportarLayout() {
+            if (tipoUsuario !== 'admin') return;
+            mostrarNotificacao('📤 Função em desenvolvimento', 'info');
+        }
+
+        function importarLayout() {
+            if (tipoUsuario !== 'admin') return;
+            mostrarNotificacao('📥 Função em desenvolvimento', 'info');
+        }
+
+        // ===== INICIALIZAÇÃO =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando sistema de estacionamento...');
+            
+            var container = document.getElementById('mapa-estacionamento');
+            
+            // Gerar 62 vagas automaticamente
+            for (var i = 1; i <= 62; i++) {
+                var vagaId = 'V' + (i < 10 ? '0' + i : i);
+                var x = 80 + ((i - 1) % 10) * 120;
+                var y = 80 + Math.floor((i - 1) / 10) * 120;
+                
+                criarVaga(vagaId, x, y);
+            }
+
+            // Carregar dados salvos
+            carregarLocal();
+            
+            // Inicializar Firebase com suas credenciais
+            inicializarFirebase();
+            
+            // Atualizar estatísticas
+            atualizarEstatisticas();
+            
+            // Atualizar timestamp
+            document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');
+            
+            console.log('✅ Sistema inicializado com sucesso em modo visualizador');
+            mostrarNotificacao('🚀 Sistema inicializado - Firebase Configurado!', 'sucesso');
+        });
+
+        // Salvar automaticamente ao fechar
+        window.addEventListener('beforeunload', function() {
+            salvarLocal();
+        });
+    </script>
+
+</body>
+</html>
