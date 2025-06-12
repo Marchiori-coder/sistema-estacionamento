@@ -2,61 +2,722 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estacionamento - Corrigido</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sistema de Estacionamento - Mobile Responsivo</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         
-        /* Modal Login */
-        .modal-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        /* MOBILE FIRST DESIGN */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            padding: 10px; 
+            overflow-x: hidden;
+        }
+        
+        /* Modal Login - MOBILE OTIMIZADO */
+        .modal-login { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.95); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 10000; 
+            padding: 20px;
+        }
         .modal-login.show { display: flex !important; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; animation: slideIn 0.3s ease; }
+        
+        .login-box { 
+            background: white; 
+            padding: 30px 20px; 
+            border-radius: 15px; 
+            text-align: center; 
+            width: 100%; 
+            max-width: 350px; 
+            animation: slideIn 0.3s ease; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
         @keyframes slideIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .login-box h2 { color: #2c3e50; margin-bottom: 30px; font-size: 2em; }
-        .login-input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ecf0f1; border-radius: 10px; font-size: 1.1em; }
-        .login-input:focus { outline: none; border-color: #3498db; }
-        .login-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2em; cursor: pointer; color: #7f8c8d; }
-        .credentials-info { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 0.9em; color: #2c3e50; }
+        
+        .login-box h2 { 
+            color: #2c3e50; 
+            margin-bottom: 25px; 
+            font-size: 1.8em; 
+        }
+        
+        .login-input { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 8px 0; 
+            border: 2px solid #ecf0f1; 
+            border-radius: 8px; 
+            font-size: 16px; /* Evita zoom no iOS */
+            background: #f8f9fa;
+        }
+        .login-input:focus { 
+            outline: none; 
+            border-color: #3498db; 
+            background: white;
+        }
+        
+        .login-btn { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(135deg, #3498db, #2980b9); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1.1em; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            touch-action: manipulation;
+        }
+        
+        .close-modal { 
+            position: absolute; 
+            top: 10px; 
+            right: 15px; 
+            background: none; 
+            border: none; 
+            font-size: 1.8em; 
+            cursor: pointer; 
+            color: #7f8c8d; 
+            padding: 5px;
+            touch-action: manipulation;
+        }
+        
+        .credentials-info { display: none !important; }
 
-        /* Container Principal */
-        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; padding: 30px; text-align: center; position: relative; padding-top: 100px; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .user-info { position: absolute; top: 40px; right: 20px; background: rgba(255,255,255,0.25); padding: 15px 30px; border-radius: 30px; backdrop-filter: blur(15px); display: flex; align-items: center; gap: 15px; }
-        .user-badge { background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+        /* Container Principal - MOBILE FIRST */
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            overflow: hidden; 
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, #2c3e50, #3498db); 
+            color: white; 
+            padding: 20px 15px; 
+            text-align: center; 
+            position: relative; 
+            padding-top: 70px; 
+        }
+        
+        .header h1 { 
+            font-size: 1.5em; 
+            margin-bottom: 8px; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3); 
+            line-height: 1.2;
+        }
+        
+        /* User Info - MOBILE OTIMIZADO */
+        .user-info { 
+            position: absolute; 
+            top: 15px; 
+            right: 10px; 
+            background: rgba(255,255,255,0.25); 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            backdrop-filter: blur(10px); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.8em;
+            flex-wrap: wrap;
+        }
+        
+        .user-badge { 
+            background: #27ae60; 
+            color: white; 
+            padding: 4px 8px; 
+            border-radius: 12px; 
+            font-size: 0.75em; 
+            font-weight: bold; 
+        }
         .user-badge.admin { background: #f39c12; }
-        .admin-login-btn, .logout-btn { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: all 0.3s; }
+        
+        .admin-login-btn, .logout-btn { 
+            background: #3498db; 
+            color: white; 
+            border: none; 
+            padding: 6px 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 0.75em; 
+            font-weight: bold; 
+            transition: all 0.3s; 
+            touch-action: manipulation;
+        }
         .logout-btn { background: #e74c3c; }
-        .admin-login-btn:hover { background: #2980b9; transform: translateY(-2px); }
-        .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
+        .admin-login-btn:hover { background: #2980b9; }
+        .logout-btn:hover { background: #c0392b; }
 
-        /* Estacionamento */
-        .estacionamento-wrapper { padding: 40px; background: #f8f9fa; min-height: 400px; }
-        .estacionamento-container { position: relative; width: 100%; max-width: 1400px; height: 900px; margin: 0 auto; background: #e8e8e8; border-radius: 15px; border: 4px solid #34495e; overflow: visible; }
-        .vaga { position: absolute; width: 40px; height: 70px; border: 2px solid #2c3e50; background-color: rgba(39, 174, 96, 0.9); display: flex !important; justify-content: center; align-items: center; font-size: 9px; font-weight: bold; color: white; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 10; user-select: none; }
-        .vaga:hover { transform: scale(1.1); z-index: 100; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        /* Painel Admin - MOBILE */
+        .admin-panel { 
+            background: linear-gradient(135deg, #f39c12, #e67e22); 
+            color: white; 
+            padding: 15px; 
+            text-align: center; 
+            display: none; 
+        }
+        .admin-panel.show { display: block !important; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .admin-panel h3 { font-size: 1.2em; margin-bottom: 8px; }
+        .admin-panel p { font-size: 0.9em; margin-bottom: 15px; }
+        
+        .admin-controls { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
+        
+        .admin-btn { 
+            padding: 10px 8px; 
+            background: rgba(255,255,255,0.2); 
+            color: white; 
+            border: 2px solid white; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: all 0.3s; 
+            font-size: 0.8em; 
+            touch-action: manipulation;
+        }
+        .admin-btn:hover { background: white; color: #f39c12; }
+        .admin-btn.active { background: white; color: #f39c12; }
+
+        /* Status Firebase - MOBILE */
+        .status-firebase { 
+            position: fixed; 
+            top: 10px; 
+            left: 10px; 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            color: white; 
+            font-weight: bold; 
+            z-index: 1000; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-size: 0.8em;
+        }
+        .status-firebase.conectado { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .status-firebase.desconectado { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .indicador-firebase { width: 8px; height: 8px; border-radius: 50%; background: white; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+
+        /* Estatísticas - MOBILE GRID */
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+            margin-top: 15px; 
+            padding: 0 10px;
+        }
+        
+        .stat-box { 
+            background: rgba(255,255,255,0.2); 
+            padding: 12px; 
+            border-radius: 8px; 
+            text-align: center; 
+            backdrop-filter: blur(10px); 
+        }
+        
+        .stat-number { 
+            font-size: 1.5em; 
+            font-weight: bold; 
+            display: block; 
+        }
+        
+        .stat-box span:last-child { 
+            font-size: 0.8em; 
+            margin-top: 4px; 
+            display: block;
+        }
+
+        /* Estacionamento - MOBILE OTIMIZADO */
+        .estacionamento-wrapper { 
+            padding: 15px; 
+            background: #f8f9fa; 
+            min-height: 300px; 
+        }
+        
+        .estacionamento-container { 
+            position: relative; 
+            width: 100%; 
+            height: 400px; 
+            margin: 0 auto; 
+            background: #e8e8e8; 
+            border-radius: 10px; 
+            border: 2px solid #34495e; 
+            overflow: hidden; 
+            touch-action: pan-x pan-y;
+        }
+        
+        .planta-baixa { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center; 
+            opacity: 0.8; 
+            z-index: 1; 
+        }
+
+        /* Vagas - MOBILE TOUCH FRIENDLY */
+        .vaga { 
+            position: absolute; 
+            width: 25px; 
+            height: 40px; 
+            border: 1px solid #2c3e50; 
+            background-color: rgba(39, 174, 96, 0.9); 
+            display: flex !important; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 7px; 
+            font-weight: bold; 
+            color: white; 
+            border-radius: 3px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.7); 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3); 
+            z-index: 10; 
+            user-select: none; 
+            touch-action: manipulation;
+            min-width: 25px;
+            min-height: 40px;
+        }
+        
+        .vaga:hover, .vaga:active { 
+            transform: scale(1.2); 
+            z-index: 100; 
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4); 
+        }
+        
         .livre { background-color: rgba(39, 174, 96, 0.9) !important; border-color: #27ae60 !important; }
         .ocupada { background-color: rgba(231, 76, 60, 0.9) !important; border-color: #e74c3c !important; }
+        
+        .modo-edicao .vaga { 
+            cursor: move !important; 
+            border: 2px dashed #f39c12 !important; 
+            background-color: rgba(243, 156, 18, 0.8) !important; 
+        }
+        .modo-edicao .vaga:hover { transform: scale(1.3) !important; }
+        
+        .vaga.selecionada { 
+            border: 2px solid #9b59b6 !important; 
+            background-color: rgba(155, 89, 182, 0.9) !important; 
+            box-shadow: 0 0 10px rgba(155, 89, 182, 0.8) !important; 
+            z-index: 1000 !important; 
+        }
+        
+        .vaga.arrastando { 
+            z-index: 1001 !important; 
+            transform: scale(1.4) rotate(5deg) !important; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6) !important; 
+            opacity: 0.9; 
+        }
 
-        /* Notificações */
-        .notificacao { position: fixed; bottom: 20px; right: 20px; background: #2c3e50; color: white; padding: 15px 20px; border-radius: 10px; z-index: 1000; max-width: 350px; transform: translateX(400px); transition: transform 0.3s ease; }
-        .notificacao.mostrar { transform: translateX(0); }
+        /* Controles de Edição - MOBILE BOTTOM SHEET */
+        .edit-controls { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 20px 20px 0 0; 
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.3); 
+            display: none; 
+            z-index: 1000; 
+            max-height: 70vh; 
+            overflow-y: auto; 
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .edit-controls.show { 
+            display: block !important; 
+            transform: translateY(0);
+        }
+        
+        .edit-title { 
+            text-align: center; 
+            margin-bottom: 15px; 
+            color: #2c3e50; 
+            font-weight: bold; 
+            font-size: 1.1em; 
+            padding-bottom: 10px; 
+            border-bottom: 2px solid #ecf0f1; 
+        }
+        
+        .edit-section { margin-bottom: 20px; }
+        .edit-section h4 { 
+            color: #34495e; 
+            margin-bottom: 10px; 
+            font-size: 0.9em; 
+        }
+        
+        .edit-btn { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 4px 0; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: all 0.3s; 
+            font-size: 0.9em; 
+            touch-action: manipulation;
+        }
+        
+        .edit-btn.rotate { background: #3498db; color: white; }
+        .edit-btn.resize { background: #e67e22; color: white; }
+        .edit-btn.action { background: #9b59b6; color: white; }
+        .edit-btn.delete { background: #e74c3c; color: white; }
+        .edit-btn:hover { transform: translateY(-1px); }
+        
+        .size-controls { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 6px; 
+            margin: 8px 0; 
+        }
+        
+        .size-btn { 
+            padding: 10px; 
+            background: #95a5a6; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.8em; 
+            font-weight: bold; 
+            touch-action: manipulation;
+        }
+        
+        .position-controls { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 4px; 
+            margin: 8px 0; 
+        }
+        
+        .position-btn { 
+            padding: 10px; 
+            background: #2c3e50; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.8em; 
+            font-weight: bold; 
+            touch-action: manipulation;
+        }
+
+        /* Controles Principais - MOBILE GRID */
+        .controles { 
+            padding: 15px; 
+            background: #ecf0f1; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+            gap: 10px; 
+        }
+        
+        .btn { 
+            padding: 12px 8px; 
+            border: none; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 0.8em; 
+            transition: all 0.3s ease; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            touch-action: manipulation;
+        }
+        
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        
+        .btn-reset { background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; }
+        .btn-ocupar { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .btn-liberar { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
+        .btn-salvar { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+        .btn-firebase { background: linear-gradient(135deg, #ff9800, #f57c00); color: white; }
+
+        /* Notificações - MOBILE */
+        .notificacao { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(100px); 
+            background: #2c3e50; 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 25px; 
+            z-index: 1000; 
+            max-width: 90%; 
+            text-align: center; 
+            transition: transform 0.3s ease; 
+            font-size: 0.9em;
+        }
+        .notificacao.mostrar { transform: translateX(-50%) translateY(0); }
         .notificacao.sucesso { background: #27ae60; }
         .notificacao.erro { background: #e74c3c; }
         .notificacao.info { background: #3498db; }
+
+        /* RESPONSIVIDADE ESPECÍFICA */
+        
+        /* Smartphones pequenos (até 375px) */
+        @media (max-width: 375px) {
+            body { padding: 5px; }
+            .header h1 { font-size: 1.3em; }
+            .user-info { top: 10px; right: 5px; padding: 6px 8px; }
+            .stats { grid-template-columns: 1fr; gap: 10px; }
+            .estacionamento-container { height: 300px; }
+            .vaga { width: 20px; height: 35px; font-size: 6px; }
+            .admin-controls { grid-template-columns: repeat(2, 1fr); }
+            .controles { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        /* Smartphones médios (376px - 414px) */
+        @media (min-width: 376px) and (max-width: 414px) {
+            .estacionamento-container { height: 350px; }
+            .vaga { width: 22px; height: 38px; font-size: 6px; }
+            .admin-controls { grid-template-columns: repeat(3, 1fr); }
+        }
+        
+        /* Smartphones grandes (415px - 568px) */
+        @media (min-width: 415px) and (max-width: 568px) {
+            .header h1 { font-size: 1.6em; }
+            .estacionamento-container { height: 400px; }
+            .vaga { width: 25px; height: 40px; font-size: 7px; }
+            .stats { grid-template-columns: repeat(4, 1fr); }
+        }
+        
+        /* Tablets pequenos (569px - 768px) */
+        @media (min-width: 569px) and (max-width: 768px) {
+            body { padding: 15px; }
+            .header h1 { font-size: 2em; }
+            .estacionamento-container { height: 500px; }
+            .vaga { width: 30px; height: 50px; font-size: 8px; }
+            .edit-controls { 
+                position: fixed; 
+                top: 50%; 
+                right: 20px; 
+                transform: translateY(-50%); 
+                bottom: auto; 
+                left: auto; 
+                border-radius: 15px; 
+                max-width: 300px;
+            }
+            .admin-controls { grid-template-columns: repeat(5, 1fr); }
+            .controles { grid-template-columns: repeat(5, 1fr); }
+        }
+        
+        /* Tablets grandes (769px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container { max-width: 95%; }
+            .header { padding-top: 80px; }
+            .estacionamento-container { height: 600px; }
+            .vaga { width: 35px; height: 60px; font-size: 9px; }
+            .user-info { top: 20px; right: 20px; padding: 10px 15px; }
+        }
+        
+        /* Desktop (1025px+) */
+        @media (min-width: 1025px) {
+            body { padding: 20px; }
+            .container { max-width: 1600px; }
+            .header { padding-top: 100px; }
+            .header h1 { font-size: 2.5em; }
+            .estacionamento-container { height: 900px; }
+            .vaga { width: 40px; height: 70px; font-size: 9px; }
+            .user-info { top: 40px; right: 20px; padding: 15px 30px; }
+            .stats { grid-template-columns: repeat(4, 1fr); gap: 30px; }
+            .edit-controls { 
+                position: fixed; 
+                top: 50%; 
+                right: 20px; 
+                transform: translateY(-50%); 
+                bottom: auto; 
+                left: auto; 
+                border-radius: 15px; 
+                max-width: 280px;
+            }
+        }
+        
+        /* Orientação paisagem em dispositivos móveis */
+        @media (orientation: landscape) and (max-height: 568px) {
+            .header { padding-top: 60px; }
+            .header h1 { font-size: 1.4em; }
+            .estacionamento-container { height: 250px; }
+            .edit-controls { max-height: 50vh; }
+        }
+        
+        /* Touch devices específicos */
+        @media (pointer: coarse) {
+            .vaga { min-width: 30px; min-height: 44px; }
+            .btn { min-height: 44px; }
+            .admin-btn { min-height: 44px; }
+            .edit-btn { min-height: 44px; }
+        }
     </style>
 </head>
 <body>
+    <!-- Modal de Login -->
+    <div class="modal-login" id="modal-login">
+        <div class="login-box">
+            <button class="close-modal" onclick="fecharModalLogin()">×</button>
+            <h2>🔐 Login Admin</h2>
+            <input type="text" class="login-input" id="username" placeholder="Usuário" value="admin">
+            <input type="password" class="login-input" id="password" placeholder="Senha" value="admin123">
+            <button class="login-btn" onclick="fazerLoginAdmin()">Entrar</button>
+        </div>
+    </div>
 
-    <!-- IMPORTANTE: JavaScript ANTES do HTML que o utiliza -->
+    <!-- Status Firebase -->
+    <div class="status-firebase" id="status-firebase">
+        <div class="indicador-firebase"></div>
+        <span id="texto-firebase">Sistema OK</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="user-info">
+                <span id="user-name">Público</span>
+                <span class="user-badge" id="user-badge">VIEWER</span>
+                <button class="admin-login-btn" id="admin-login-btn" onclick="mostrarModalLogin()">Admin</button>
+                <button class="logout-btn" id="logout-btn" onclick="logout()" style="display: none;">Sair</button>
+            </div>
+            
+            <h1>🚗 Sistema de Estacionamento</h1>
+            <p id="modo-operacao">Consulta em tempo real</p>
+            <p><strong>Atualização:</strong> <span id="ultima-atualizacao">Agora</span></p>
+            
+            <div class="stats">
+                <div class="stat-box"><span class="stat-number" id="total-vagas">62</span><span>Total</span></div>
+                <div class="stat-box"><span class="stat-number" id="vagas-livres">62</span><span>Livres</span></div>
+                <div class="stat-box"><span class="stat-number" id="vagas-ocupadas">0</span><span>Ocupadas</span></div>
+                <div class="stat-box"><span class="stat-number" id="taxa-ocupacao">0%</span><span>Taxa</span></div>
+            </div>
+        </div>
+
+        <!-- Painel Admin -->
+        <div class="admin-panel" id="admin-panel">
+            <h3>🔧 Painel Admin Ativo</h3>
+            <p>Acesso completo para editar vagas e configurações</p>
+            <div class="admin-controls">
+                <button class="admin-btn" id="btn-edit-mode" onclick="toggleEditMode()">✏️ Editar</button>
+                <button class="admin-btn" onclick="adicionarNovaVaga()">➕ Vaga</button>
+                <button class="admin-btn" onclick="carregarPlantaBaixa()">🖼️ Planta</button>
+                <button class="admin-btn" onclick="exportarLayout()">📤 Export</button>
+                <button class="admin-btn" onclick="importarLayout()">📥 Import</button>
+            </div>
+        </div>
+
+        <div class="estacionamento-wrapper">
+            <div class="estacionamento-container" id="mapa-estacionamento">
+                <div class="planta-baixa" id="planta-baixa"></div>
+            </div>
+        </div>
+
+        <!-- Controles de Edição - MOBILE BOTTOM SHEET -->
+        <div class="edit-controls" id="edit-controls">
+            <div class="edit-title">🔧 Editando: <span id="vaga-selecionada">-</span></div>
+            
+            <div class="edit-section">
+                <h4>📍 Posição</h4>
+                <div class="position-controls">
+                    <button class="position-btn" onclick="moverVaga(-10, -10)">↖</button>
+                    <button class="position-btn" onclick="moverVaga(0, -10)">↑</button>
+                    <button class="position-btn" onclick="moverVaga(10, -10)">↗</button>
+                    <button class="position-btn" onclick="moverVaga(-10, 0)">←</button>
+                    <button class="position-btn" onclick="centralizarVaga()">⌖</button>
+                    <button class="position-btn" onclick="moverVaga(10, 0)">→</button>
+                    <button class="position-btn" onclick="moverVaga(-10, 10)">↙</button>
+                    <button class="position-btn" onclick="moverVaga(0, 10)">↓</button>
+                    <button class="position-btn" onclick="moverVaga(10, 10)">↘</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px;">
+                    <button class="position-btn" onclick="moverVaga(-1, 0)">◀1</button>
+                    <button class="position-btn" onclick="moverVaga(1, 0)">1▶</button>
+                    <button class="position-btn" onclick="moverVaga(0, -1)">▲1</button>
+                    <button class="position-btn" onclick="moverVaga(0, 1)">1▼</button>
+                </div>
+            </div>
+            
+            <div class="edit-section">
+                <h4>🔄 Rotação</h4>
+                <button class="edit-btn rotate" onclick="rotacionarVaga(-90)">↶ -90°</button>
+                <button class="edit-btn rotate" onclick="rotacionarVaga(-15)">↺ -15°</button>
+                <button class="edit-btn rotate" onclick="rotacionarVaga(15)">↻ +15°</button>
+                <button class="edit-btn rotate" onclick="rotacionarVaga(90)">↷ +90°</button>
+                <button class="edit-btn rotate" onclick="resetarRotacao()">⟲ Reset</button>
+            </div>
+            
+            <div class="edit-section">
+                <h4>📏 Tamanho</h4>
+                <div class="size-controls">
+                    <button class="size-btn" onclick="redimensionarVaga('width', -5)">Largura -</button>
+                    <button class="size-btn" onclick="redimensionarVaga('width', 5)">Largura +</button>
+                    <button class="size-btn" onclick="redimensionarVaga('height', -5)">Altura -</button>
+                    <button class="size-btn" onclick="redimensionarVaga('height', 5)">Altura +</button>
+                </div>
+                <button class="edit-btn resize" onclick="resetarTamanho()">📏 Padrão</button>
+            </div>
+            
+            <div class="edit-section">
+                <h4>🎨 Ações</h4>
+                <button class="edit-btn action" onclick="duplicarVaga()">📋 Duplicar</button>
+                <button class="edit-btn action" onclick="renomearVaga()">✏️ Renomear</button>
+                <button class="edit-btn delete" onclick="excluirVaga()">🗑️ Excluir</button>
+            </div>
+            
+            <div class="edit-section">
+                <h4>📊 Info</h4>
+                <div style="font-size: 0.8em; color: #7f8c8d; line-height: 1.3;">
+                    <div>X: <span id="pos-x">-</span> | Y: <span id="pos-y">-</span></div>
+                    <div>W: <span id="size-w">-</span> | H: <span id="size-h">-</span></div>
+                    <div>Rotação: <span id="angle">-</span>°</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controles">
+            <button class="btn btn-reset" onclick="resetarTodasVagas()" id="btn-reset" disabled>🔄 Reset</button>
+            <button class="btn btn-ocupar" onclick="ocuparTodasVagas()" id="btn-ocupar" disabled>🚗 Ocupar</button>
+            <button class="btn btn-liberar" onclick="liberarTodasVagas()" id="btn-liberar" disabled>✅ Liberar</button>
+            <button class="btn btn-salvar" onclick="salvarEstadoLocal()">💾 Salvar</button>
+            <button class="btn btn-firebase" onclick="salvarNoFirebase()">🌐 Firebase</button>
+        </div>
+    </div>
+
+    <!-- Inputs ocultos -->
+    <input type="file" id="import-input" accept=".json" style="display: none;" onchange="processarImportacao(event)">
+    <input type="file" id="planta-input" accept="image/*" style="display: none;" onchange="processarPlantaBaixa(event)">
+
     <script>
-        // ===== DECLARAÇÃO DAS FUNÇÕES NO ESCOPO GLOBAL =====
-        
         // Configuração Firebase
         var firebaseConfig = {
             apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
@@ -69,157 +730,377 @@
         };
 
         // Variáveis Globais
-        var estadoVagas = {}, posicaoVagas = {}, totalVagas = 62, usuarioAtual = 'viewer', tipoUsuario = 'viewer';
+        var estadoVagas = {}, posicaoVagas = {}, firebaseConectado = false, database = null, totalVagas = 62, usuarioAtual = 'viewer', tipoUsuario = 'viewer', modoEdicao = false, proximoIdVaga = 63, vagaSelecionada = null, vagaArrastando = null, offsetX = 0, offsetY = 0;
 
-        // ===== FUNÇÕES PRINCIPAIS (DECLARADAS NO ESCOPO GLOBAL) =====
+        // Funções de Login
+        function mostrarModalLogin() { document.getElementById('modal-login').classList.add('show'); }
+        function fecharModalLogin() { document.getElementById('modal-login').classList.remove('show'); }
         
-        function mostrarModalLogin() {
-            console.log('Função mostrarModalLogin chamada'); // Debug
-            var modal = document.getElementById('modal-login');
-            if (modal) {
-                modal.classList.add('show');
-                modal.style.display = 'flex';
-            } else {
-                console.error('Modal não encontrado');
-            }
-        }
-
-        function fecharModalLogin() {
-            var modal = document.getElementById('modal-login');
-            if (modal) {
-                modal.classList.remove('show');
-                modal.style.display = 'none';
-            }
-        }
-
         function fazerLoginAdmin() {
             var username = document.getElementById('username').value.trim();
             var password = document.getElementById('password').value.trim();
-            
-            if (!username || !password) {
-                mostrarNotificacao('❌ Preencha usuário e senha', 'erro');
-                return;
-            }
-            
+            if (!username || !password) { mostrarNotificacao('❌ Preencha usuário e senha', 'erro'); return; }
             if (username === 'admin' && password === 'admin123') {
-                usuarioAtual = 'admin';
-                tipoUsuario = 'admin';
-                fecharModalLogin();
-                
-                document.getElementById('user-name').textContent = 'Administrador';
+                usuarioAtual = 'admin'; tipoUsuario = 'admin'; fecharModalLogin();
+                document.getElementById('user-name').textContent = 'Admin';
                 document.getElementById('user-badge').textContent = 'ADMIN';
                 document.getElementById('user-badge').className = 'user-badge admin';
                 document.getElementById('admin-login-btn').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'inline-block';
-                
-                mostrarNotificacao('🔧 Login de administrador realizado!', 'sucesso');
-            } else {
-                mostrarNotificacao('❌ Credenciais inválidas', 'erro');
-            }
+                document.getElementById('admin-panel').classList.add('show');
+                habilitarControlesAdmin();
+                mostrarNotificacao('🔧 Login admin realizado!', 'sucesso');
+            } else { mostrarNotificacao('❌ Credenciais inválidas', 'erro'); }
         }
 
         function logout() {
-            if (confirm('Sair do modo administrador?')) {
-                usuarioAtual = 'viewer';
-                tipoUsuario = 'viewer';
-                
-                document.getElementById('user-name').textContent = 'Visualizador Público';
+            if (confirm('Sair do modo admin?')) {
+                usuarioAtual = 'viewer'; tipoUsuario = 'viewer'; modoEdicao = false;
+                document.getElementById('user-name').textContent = 'Público';
                 document.getElementById('user-badge').textContent = 'VIEWER';
                 document.getElementById('user-badge').className = 'user-badge';
                 document.getElementById('admin-login-btn').style.display = 'inline-block';
                 document.getElementById('logout-btn').style.display = 'none';
-                
+                document.getElementById('admin-panel').classList.remove('show');
+                document.getElementById('edit-controls').style.display = 'none';
+                document.getElementById('mapa-estacionamento').classList.remove('modo-edicao');
+                desabilitarControlesAdmin();
                 mostrarNotificacao('👋 Logout realizado', 'info');
+            }
+        }
+
+        function habilitarControlesAdmin() { ['btn-reset', 'btn-ocupar', 'btn-liberar'].forEach(id => { var btn = document.getElementById(id); if (btn) { btn.disabled = false; btn.style.opacity = '1'; } }); }
+        function desabilitarControlesAdmin() { ['btn-reset', 'btn-ocupar', 'btn-liberar'].forEach(id => { var btn = document.getElementById(id); if (btn) { btn.disabled = true; btn.style.opacity = '0.3'; } }); }
+
+        // Modo de Edição
+        function toggleEditMode() {
+            if (tipoUsuario !== 'admin') { mostrarNotificacao('❌ Acesso negado', 'erro'); return; }
+            modoEdicao = !modoEdicao;
+            var container = document.getElementById('mapa-estacionamento'), btn = document.getElementById('btn-edit-mode');
+            if (modoEdicao) {
+                container.classList.add('modo-edicao'); btn.classList.add('active'); btn.textContent = '✅ Finalizar';
+                mostrarNotificacao('✏️ Modo edição ativo', 'info');
+            } else {
+                container.classList.remove('modo-edicao'); btn.classList.remove('active'); btn.textContent = '✏️ Editar';
+                document.getElementById('edit-controls').style.display = 'none';
+                if (vagaSelecionada) { vagaSelecionada.classList.remove('selecionada'); vagaSelecionada = null; }
+                mostrarNotificacao('✅ Edição finalizada', 'info'); salvarLocal();
+            }
+        }
+
+        function selecionarVaga(vaga) {
+            if (!modoEdicao) return;
+            if (vagaSelecionada) vagaSelecionada.classList.remove('selecionada');
+            vagaSelecionada = vaga; vaga.classList.add('selecionada');
+            document.getElementById('edit-controls').style.display = 'block';
+            document.getElementById('vaga-selecionada').textContent = vaga.id;
+            atualizarInfoVaga(); mostrarNotificacao('🎯 ' + vaga.id + ' selecionada', 'info');
+        }
+
+        function atualizarInfoVaga() {
+            if (!vagaSelecionada) return;
+            var pos = posicaoVagas[vagaSelecionada.id];
+            document.getElementById('pos-x').textContent = pos.x || 0;
+            document.getElementById('pos-y').textContent = pos.y || 0;
+            document.getElementById('size-w').textContent = pos.width || 40;
+            document.getElementById('size-h').textContent = pos.height || 70;
+            document.getElementById('angle').textContent = pos.angle || 0;
+        }
+
+        // Funções de Movimento e Edição
+        function moverVaga(deltaX, deltaY) {
+            if (!vagaSelecionada) { mostrarNotificacao('❌ Selecione uma vaga', 'erro'); return; }
+            var vagaId = vagaSelecionada.id, novoX = (posicaoVagas[vagaId].x || 0) + deltaX, novoY = (posicaoVagas[vagaId].y || 0) + deltaY;
+            var container = document.getElementById('mapa-estacionamento');
+            novoX = Math.max(0, Math.min(novoX, container.offsetWidth - (posicaoVagas[vagaId].width || 25)));
+            novoY = Math.max(0, Math.min(novoY, container.offsetHeight - (posicaoVagas[vagaId].height || 40)));
+            posicaoVagas[vagaId].x = novoX; posicaoVagas[vagaId].y = novoY;
+            vagaSelecionada.style.left = novoX + 'px'; vagaSelecionada.style.top = novoY + 'px';
+            atualizarInfoVaga();
+        }
+
+        function centralizarVaga() {
+            if (!vagaSelecionada) return;
+            var container = document.getElementById('mapa-estacionamento'), vagaId = vagaSelecionada.id;
+            var centroX = (container.offsetWidth - (posicaoVagas[vagaId].width || 25)) / 2;
+            var centroY = (container.offsetHeight - (posicaoVagas[vagaId].height || 40)) / 2;
+            posicaoVagas[vagaId].x = centroX; posicaoVagas[vagaId].y = centroY;
+            vagaSelecionada.style.left = centroX + 'px'; vagaSelecionada.style.top = centroY + 'px';
+            atualizarInfoVaga(); mostrarNotificacao('⌖ Centralizada', 'info');
+        }
+
+        function rotacionarVaga(graus) {
+            if (!vagaSelecionada) return;
+            var vagaId = vagaSelecionada.id, novoAngulo = ((posicaoVagas[vagaId].angle || 0) + graus) % 360;
+            posicaoVagas[vagaId].angle = novoAngulo;
+            vagaSelecionada.style.transform = 'rotate(' + novoAngulo + 'deg)';
+            atualizarInfoVaga(); mostrarNotificacao('🔄 ' + graus + '°', 'info');
+        }
+
+        function resetarRotacao() {
+            if (!vagaSelecionada) return;
+            posicaoVagas[vagaSelecionada.id].angle = 0;
+            vagaSelecionada.style.transform = 'rotate(0deg)';
+            atualizarInfoVaga(); mostrarNotificacao('⟲ Rotação resetada', 'info');
+        }
+
+        function redimensionarVaga(dimensao, valor) {
+            if (!vagaSelecionada) return;
+            var vagaId = vagaSelecionada.id;
+            if (!posicaoVagas[vagaId].width) posicaoVagas[vagaId].width = 25;
+            if (!posicaoVagas[vagaId].height) posicaoVagas[vagaId].height = 40;
+            if (dimensao === 'width') {
+                posicaoVagas[vagaId].width = Math.max(15, posicaoVagas[vagaId].width + valor);
+                vagaSelecionada.style.width = posicaoVagas[vagaId].width + 'px';
+            } else {
+                posicaoVagas[vagaId].height = Math.max(20, posicaoVagas[vagaId].height + valor);
+                vagaSelecionada.style.height = posicaoVagas[vagaId].height + 'px';
+            }
+            atualizarInfoVaga();
+        }
+
+        function resetarTamanho() {
+            if (!vagaSelecionada) return;
+            var vagaId = vagaSelecionada.id;
+            posicaoVagas[vagaId].width = 25; posicaoVagas[vagaId].height = 40;
+            vagaSelecionada.style.width = '25px'; vagaSelecionada.style.height = '40px';
+            atualizarInfoVaga(); mostrarNotificacao('📏 Tamanho padrão', 'info');
+        }
+
+        function duplicarVaga() {
+            if (!vagaSelecionada) return;
+            var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga); proximoIdVaga++;
+            var novaVaga = criarVaga(novoId, parseInt(vagaSelecionada.style.left) + 30, parseInt(vagaSelecionada.style.top) + 30);
+            posicaoVagas[novoId] = Object.assign({}, posicaoVagas[vagaSelecionada.id]);
+            posicaoVagas[novoId].x += 30; posicaoVagas[novoId].y += 30;
+            totalVagas++; atualizarEstatisticas();
+            mostrarNotificacao('📋 ' + novoId + ' duplicada', 'sucesso');
+        }
+
+        function renomearVaga() {
+            if (!vagaSelecionada) return;
+            var novoNome = prompt('Novo nome:', vagaSelecionada.id);
+            if (novoNome && novoNome !== vagaSelecionada.id) {
+                if (document.getElementById(novoNome)) { mostrarNotificacao('❌ Nome existe', 'erro'); return; }
+                var vagaAntiga = vagaSelecionada.id;
+                estadoVagas[novoNome] = estadoVagas[vagaAntiga]; posicaoVagas[novoNome] = posicaoVagas[vagaAntiga];
+                delete estadoVagas[vagaAntiga]; delete posicaoVagas[vagaAntiga];
+                vagaSelecionada.id = novoNome; vagaSelecionada.textContent = novoNome;
+                document.getElementById('vaga-selecionada').textContent = novoNome;
+                mostrarNotificacao('✏️ Renomeada', 'sucesso');
+            }
+        }
+
+        function excluirVaga() {
+            if (!vagaSelecionada) return;
+            if (confirm('Excluir ' + vagaSelecionada.id + '?')) {
+                var vagaId = vagaSelecionada.id;
+                delete estadoVagas[vagaId]; delete posicaoVagas[vagaId];
+                vagaSelecionada.remove(); vagaSelecionada = null; totalVagas--;
+                document.getElementById('edit-controls').style.display = 'none';
+                atualizarEstatisticas(); mostrarNotificacao('🗑️ Excluída', 'info');
+            }
+        }
+
+        function adicionarNovaVaga() {
+            if (tipoUsuario !== 'admin') return;
+            var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga); proximoIdVaga++;
+            var novaVaga = criarVaga(novoId, 50, 50); totalVagas++; atualizarEstatisticas();
+            if (modoEdicao) selecionarVaga(novaVaga);
+            mostrarNotificacao('➕ ' + novoId, 'sucesso');
+        }
+
+        // Sistema de Arraste - MOBILE OTIMIZADO
+        function iniciarArraste(e) {
+            if (!modoEdicao) return;
+            e.preventDefault();
+            
+            var touch = e.touches ? e.touches[0] : e;
+            vagaArrastando = e.target; 
+            selecionarVaga(vagaArrastando); 
+            vagaArrastando.classList.add('arrastando');
+            
+            var rect = vagaArrastando.getBoundingClientRect();
+            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
+            
+            offsetX = touch.clientX - rect.left; 
+            offsetY = touch.clientY - rect.top;
+        }
+
+        function arrastar(e) {
+            if (!vagaArrastando || !modoEdicao) return;
+            e.preventDefault();
+            
+            var touch = e.touches ? e.touches[0] : e;
+            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
+            
+            var x = Math.max(0, Math.min(touch.clientX - containerRect.left - offsetX, containerRect.width - 25));
+            var y = Math.max(0, Math.min(touch.clientY - containerRect.top - offsetY, containerRect.height - 40));
+            
+            vagaArrastando.style.left = x + 'px'; 
+            vagaArrastando.style.top = y + 'px';
+            posicaoVagas[vagaArrastando.id].x = x; 
+            posicaoVagas[vagaArrastando.id].y = y; 
+            atualizarInfoVaga();
+        }
+
+        function finalizarArraste() {
+            if (vagaArrastando) { 
+                vagaArrastando.classList.remove('arrastando'); 
+                vagaArrastando = null; 
+                salvarLocal(); 
+            }
+        }
+
+        // Import/Export
+        function exportarLayout() {
+            if (tipoUsuario !== 'admin') return;
+            var dados = { timestamp: new Date().toISOString(), vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, totalVagas: totalVagas, proximoId: proximoIdVaga, versao: '3.0' };
+            var blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'}), url = URL.createObjectURL(blob), a = document.createElement('a');
+            a.href = url; a.download = 'layout_' + new Date().toISOString().slice(0,16).replace('T', '_').replace(':', '-') + '.json'; a.click(); URL.revokeObjectURL(url);
+            mostrarNotificacao('📤 Exportado!', 'sucesso');
+        }
+
+        function importarLayout() { if (tipoUsuario !== 'admin') return; document.getElementById('import-input').click(); }
+        function carregarPlantaBaixa() { if (tipoUsuario !== 'admin') return; document.getElementById('planta-input').click(); }
+
+        function processarImportacao(event) {
+            var file = event.target.files[0]; if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var dados = JSON.parse(e.target.result);
+                    if (confirm('Importar? Substituirá tudo!')) {
+                        document.querySelectorAll('.vaga').forEach(vaga => vaga.remove());
+                        if (dados.vagas) estadoVagas = dados.vagas;
+                        if (dados.posicoes) posicaoVagas = dados.posicoes;
+                        if (dados.totalVagas) totalVagas = dados.totalVagas;
+                        if (dados.proximoId) proximoIdVaga = dados.proximoId;
+                        if (dados.plantaBaixa) document.getElementById('planta-baixa').style.backgroundImage = dados.plantaBaixa;
+                        for (var vagaId in posicaoVagas) {
+                            var pos = posicaoVagas[vagaId], vaga = criarVaga(vagaId, pos.x, pos.y);
+                            if (pos.width) vaga.style.width = pos.width + 'px';
+                            if (pos.height) vaga.style.height = pos.height + 'px';
+                            if (pos.angle) vaga.style.transform = 'rotate(' + pos.angle + 'deg)';
+                            if (estadoVagas[vagaId]) { vaga.classList.remove('livre', 'ocupada'); vaga.classList.add(estadoVagas[vagaId]); }
+                        }
+                        atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('📥 Importado!', 'sucesso');
+                    }
+                } catch (error) { mostrarNotificacao('❌ Erro: ' + error.message, 'erro'); }
+            };
+            reader.readAsText(file); event.target.value = '';
+        }
+
+        function processarPlantaBaixa(event) {
+            var file = event.target.files[0]; if (!file) return;
+            if (file.size > 10 * 1024 * 1024) { mostrarNotificacao('❌ Arquivo grande (máx 10MB)', 'erro'); return; }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('planta-baixa').style.backgroundImage = 'url(' + e.target.result + ')';
+                salvarLocal(); mostrarNotificacao('🖼️ Planta carregada!', 'sucesso');
+            };
+            reader.readAsDataURL(file); event.target.value = '';
+        }
+
+        // Funções Principais
+        function alternarStatusVaga(elemento) {
+            if (modoEdicao) { selecionarVaga(elemento); return; }
+            if (tipoUsuario !== 'admin') { mostrarNotificacao('❌ Apenas admin pode alterar', 'erro'); return; }
+            var vagaId = elemento.id, novoStatus = elemento.classList.contains('livre') ? 'ocupada' : 'livre';
+            estadoVagas[vagaId] = novoStatus; elemento.classList.remove('livre', 'ocupada'); elemento.classList.add(novoStatus);
+            atualizarEstatisticas(); salvarLocal();
+        }
+
+        function atualizarEstatisticas() {
+            var livres = 0, ocupadas = 0;
+            for (var vagaId in estadoVagas) { if (estadoVagas[vagaId] === 'livre') livres++; else ocupadas++; }
+            var taxaOcupacao = totalVagas > 0 ? Math.round((ocupadas / totalVagas) * 100) : 0;
+            document.getElementById('total-vagas').textContent = totalVagas;
+            document.getElementById('vagas-livres').textContent = livres;
+            document.getElementById('vagas-ocupadas').textContent = ocupadas;
+            document.getElementById('taxa-ocupacao').textContent = taxaOcupacao + '%';
+        }
+
+        function resetarTodasVagas() {
+            if (tipoUsuario !== 'admin') return;
+            if (confirm('Resetar todas?')) {
+                document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('ocupada'); vaga.classList.add('livre'); estadoVagas[vaga.id] = 'livre'; });
+                atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('🔄 Resetadas', 'info');
+            }
+        }
+
+        function ocuparTodasVagas() {
+            if (tipoUsuario !== 'admin') return;
+            document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('livre'); vaga.classList.add('ocupada'); estadoVagas[vaga.id] = 'ocupada'; });
+            atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('🚗 Ocupadas', 'info');
+        }
+
+        function liberarTodasVagas() {
+            if (tipoUsuario !== 'admin') return;
+            document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('ocupada'); vaga.classList.add('livre'); estadoVagas[vaga.id] = 'livre'; });
+            atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('✅ Liberadas', 'info');
+        }
+
+        // Salvamento e Firebase
+        function salvarLocal() {
+            try {
+                var dados = { vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, totalVagas: totalVagas, proximoId: proximoIdVaga, timestamp: new Date().toISOString() };
+                localStorage.setItem('estacionamento_dados', JSON.stringify(dados));
+            } catch (error) { console.error('Erro ao salvar:', error); }
+        }
+
+        function salvarEstadoLocal() { salvarLocal(); mostrarNotificacao('💾 Salvo!', 'sucesso'); }
+
+        function salvarNoFirebase() {
+            if (tipoUsuario !== 'admin') { mostrarNotificacao('❌ Apenas admin', 'erro'); return; }
+            if (!firebaseConectado) { mostrarNotificacao('❌ Firebase offline', 'erro'); return; }
+            try {
+                var dados = { vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, meta: { totalVagas: totalVagas, proximoId: proximoIdVaga, ultimoAdmin: usuarioAtual }, ultimaAtualizacao: firebase.database.ServerValue.TIMESTAMP };
+                database.ref('estacionamento').set(dados); mostrarNotificacao('🌐 Sincronizado!', 'sucesso');
+            } catch (error) { mostrarNotificacao('❌ Erro Firebase: ' + error.message, 'erro'); }
+        }
+
+        function carregarLocal() {
+            try {
+                var dados = localStorage.getItem('estacionamento_dados');
+                if (dados) {
+                    var dadosParsed = JSON.parse(dados);
+                    if (dadosParsed.vagas) { estadoVagas = dadosParsed.vagas; aplicarEstadoVagas(); }
+                    if (dadosParsed.posicoes) { posicaoVagas = dadosParsed.posicoes; aplicarPosicoes(); }
+                    if (dadosParsed.plantaBaixa) document.getElementById('planta-baixa').style.backgroundImage = dadosParsed.plantaBaixa;
+                    if (dadosParsed.totalVagas) totalVagas = dadosParsed.totalVagas;
+                    if (dadosParsed.proximoId) proximoIdVaga = dadosParsed.proximoId;
+                }
+            } catch (error) { console.error('Erro ao carregar:', error); }
+        }
+
+        function aplicarEstadoVagas() {
+            for (var vagaId in estadoVagas) {
+                var elemento = document.getElementById(vagaId);
+                if (elemento) { elemento.classList.remove('livre', 'ocupada'); elemento.classList.add(estadoVagas[vagaId]); }
+            }
+            atualizarEstatisticas();
+        }
+
+        function aplicarPosicoes() {
+            for (var vagaId in posicaoVagas) {
+                var elemento = document.getElementById(vagaId);
+                if (elemento) {
+                    var pos = posicaoVagas[vagaId];
+                    elemento.style.left = pos.x + 'px'; elemento.style.top = pos.y + 'px';
+                    if (pos.angle) elemento.style.transform = 'rotate(' + pos.angle + 'deg)';
+                    if (pos.width) elemento.style.width = pos.width + 'px';
+                    if (pos.height) elemento.style.height = pos.height + 'px';
+                }
             }
         }
 
         function criarVaga(id, x, y) {
             var vaga = document.createElement('div');
-            vaga.classList.add('vaga', 'livre');
-            vaga.id = id;
-            vaga.textContent = id;
-            vaga.style.left = x + 'px';
-            vaga.style.top = y + 'px';
-            vaga.style.position = 'absolute';
+            vaga.classList.add('vaga', 'livre'); vaga.id = id; vaga.textContent = id;
+            vaga.style.left = x + 'px'; vaga.style.top = y + 'px';
             
-            document.getElementById('mapa-estacionamento').appendChild(vaga);
-            estadoVagas[id] = 'livre';
-            posicaoVagas[id] = {x: x, y: y, angle: 0, width: 40, height: 70};
-            
-            return vaga;
-        }
-
-        function mostrarNotificacao(mensagem, tipo) {
-            var notificacao = document.createElement('div');
-            notificacao.className = 'notificacao ' + (tipo || 'info');
-            notificacao.textContent = mensagem;
-            document.body.appendChild(notificacao);
-            
-            setTimeout(function() {
-                notificacao.classList.add('mostrar');
-            }, 100);
-            
-            setTimeout(function() {
-                notificacao.classList.remove('mostrar');
-                setTimeout(function() {
-                    if (notificacao.parentNode) {
-                        notificacao.remove();
-                    }
-                }, 300);
-            }, 4000);
-        }
-
-        // ===== INICIALIZAÇÃO =====
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM carregado, inicializando sistema...');
-            
-            // Criar 62 vagas
-            for (var i = 1; i <= 62; i++) {
-                var vagaId = 'V' + (i < 10 ? '0' + i : i);
-                var x = 80 + ((i - 1) % 10) * 120;
-                var y = 80 + Math.floor((i - 1) / 10) * 120;
-                criarVaga(vagaId, x, y);
-            }
-            
-            console.log('Sistema inicializado com sucesso');
-            mostrarNotificacao('🚀 Sistema inicializado!', 'sucesso');
-        });
-
-        // Teste da função no console
-        console.log('Função mostrarModalLogin definida:', typeof mostrarModalLogin);
-    </script>
-
-    <!-- Modal de Login -->
-    <div class="modal-login" id="modal-login">
-        <div class="login-box">
-            <button class="close-modal" onclick="fecharModalLogin()">×</button>
-            <h2>🔐 Login Administrador</h2>
-            <input type="text" class="login-input" id="username" placeholder="Usuário" value="admin">
-            <input type="password" class="login-input" id="password" placeholder="Senha" value="admin123">
-            <button class="login-btn" onclick="fazerLoginAdmin()">Entrar como Admin</button>
-            <div class="credentials-info"><strong>Credenciais:</strong> admin / admin123</div>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="header">
-            <div class="user-info">
-                <span id="user-name">Visualizador Público</span>
-                <span class="user-badge" id="user-badge">VIEWER</span>
-                <button class="admin-login-btn" id="admin-login-btn" onclick="mostrarModalLogin()">Login Admin</button>
-                <button class="logout-btn" id="logout-btn" onclick="logout()" style="display: none;">Sair</button>
-            </div>
-            
-            <h1>🚗 Sistema de Estacionamento - Consulta em Tempo Real</h1>
-            <p>Consulte a disponibilidade das vagas em tempo real</p>
-        </div>
-
-        <div class="estacionamento-wrapper">
-            <div class="estacionamento-container" id="mapa-estacionamento">
-                <!-- As vagas serão criadas aqui pelo JavaScript -->
-            </div>
-        </div>
-    </div>
-
-</body>
-</html>
+            // Eventos touch e mouse
+            vaga.addEventListener('mousedown', iniciarArraste);
+            vaga.addEventListener('touchstart', iniciarArraste, {passive: false});
+            vaga.addEventListener('click', function
