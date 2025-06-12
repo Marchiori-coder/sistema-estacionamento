@@ -4,693 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Estacionamento - Admin Completo</title>
-    
-    <!-- Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        
+        /* Modal Login */
+        .modal-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        .modal-login.show { display: flex !important; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .login-box h2 { color: #2c3e50; margin-bottom: 30px; font-size: 2em; }
+        .login-input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ecf0f1; border-radius: 10px; font-size: 1.1em; }
+        .login-input:focus { outline: none; border-color: #3498db; }
+        .login-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2em; cursor: pointer; color: #7f8c8d; }
+        .credentials-info { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 0.9em; color: #2c3e50; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* Modal de Login Admin */
-        .modal-login {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-
-        .modal-login.show {
-            display: flex !important;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .login-box h2 {
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 2em;
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid #ecf0f1;
-            border-radius: 10px;
-            font-size: 1.1em;
-            transition: border-color 0.3s;
-        }
-
-        .login-input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: transform 0.3s;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 2em;
-            cursor: pointer;
-            color: #7f8c8d;
-        }
-
-        .credentials-info {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            font-size: 0.9em;
-            color: #2c3e50;
-        }
-
-        /* Container principal */
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-            padding-top: 100px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        /* Painel do usuário - POSIÇÃO CORRIGIDA */
-        .user-info {
-            position: absolute;
-            top: 40px;
-            right: 20px;
-            background: rgba(255,255,255,0.25);
-            padding: 15px 30px;
-            border-radius: 30px;
-            backdrop-filter: blur(15px);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .user-badge {
-            background: #27ae60;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        .user-badge.admin {
-            background: #f39c12;
-        }
-
-        .admin-login-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        .admin-login-btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .logout-btn {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        .logout-btn:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-        }
+        /* Container Principal */
+        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; padding: 30px; text-align: center; position: relative; padding-top: 100px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .user-info { position: absolute; top: 40px; right: 20px; background: rgba(255,255,255,0.25); padding: 15px 30px; border-radius: 30px; backdrop-filter: blur(15px); display: flex; align-items: center; gap: 15px; }
+        .user-badge { background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+        .user-badge.admin { background: #f39c12; }
+        .admin-login-btn, .logout-btn { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: all 0.3s; }
+        .logout-btn { background: #e74c3c; }
+        .admin-login-btn:hover { background: #2980b9; transform: translateY(-2px); }
+        .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
 
         /* Painel Admin */
-        .admin-panel {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            color: white;
-            padding: 25px;
-            text-align: center;
-            display: none;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .admin-panel.show {
-            display: block !important;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .admin-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .admin-btn {
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            font-size: 0.9em;
-        }
-
-        .admin-btn:hover {
-            background: white;
-            color: #f39c12;
-            transform: translateY(-2px);
-        }
-
-        .admin-btn.active {
-            background: white;
-            color: #f39c12;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
+        .admin-panel { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 25px; text-align: center; display: none; }
+        .admin-panel.show { display: block !important; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .admin-controls { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 15px; }
+        .admin-btn { padding: 12px 20px; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 25px; cursor: pointer; font-weight: bold; transition: all 0.3s; font-size: 0.9em; }
+        .admin-btn:hover { background: white; color: #f39c12; transform: translateY(-2px); }
+        .admin-btn.active { background: white; color: #f39c12; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
         /* Status Firebase */
-        .status-firebase {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            padding: 12px 20px;
-            border-radius: 25px;
-            color: white;
-            font-weight: bold;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .status-firebase.conectado {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            box-shadow: 0 0 20px rgba(39, 174, 96, 0.4);
-        }
-
-        .status-firebase.desconectado {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            box-shadow: 0 0 20px rgba(231, 76, 60, 0.4);
-        }
-
-        .indicador-firebase {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: white;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.2); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        .status-firebase { position: fixed; top: 20px; left: 20px; padding: 12px 20px; border-radius: 25px; color: white; font-weight: bold; z-index: 1000; display: flex; align-items: center; gap: 10px; }
+        .status-firebase.conectado { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .status-firebase.desconectado { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .indicador-firebase { width: 12px; height: 12px; border-radius: 50%; background: white; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
         /* Estatísticas */
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
+        .stats { display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap; }
+        .stat-box { background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 10px; text-align: center; backdrop-filter: blur(10px); }
+        .stat-number { font-size: 2em; font-weight: bold; display: block; }
 
-        .stat-box {
-            background: rgba(255,255,255,0.2);
-            padding: 15px 25px;
-            border-radius: 10px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
+        /* Estacionamento */
+        .estacionamento-wrapper { padding: 40px; background: #f8f9fa; min-height: 400px; }
+        .estacionamento-container { position: relative; width: 100%; max-width: 1400px; height: 900px; margin: 0 auto; background: #e8e8e8; border-radius: 15px; border: 4px solid #34495e; overflow: visible; }
+        .planta-baixa { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.8; z-index: 1; }
 
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            display: block;
-        }
+        /* Vagas */
+        .vaga { position: absolute; width: 40px; height: 70px; border: 2px solid #2c3e50; background-color: rgba(39, 174, 96, 0.9); display: flex !important; justify-content: center; align-items: center; font-size: 9px; font-weight: bold; color: white; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 10; user-select: none; }
+        .vaga:hover { transform: scale(1.1); z-index: 100; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        .livre { background-color: rgba(39, 174, 96, 0.9) !important; border-color: #27ae60 !important; }
+        .ocupada { background-color: rgba(231, 76, 60, 0.9) !important; border-color: #e74c3c !important; }
+        .modo-edicao .vaga { cursor: move !important; border: 3px dashed #f39c12 !important; background-color: rgba(243, 156, 18, 0.8) !important; }
+        .modo-edicao .vaga:hover { transform: scale(1.15) !important; box-shadow: 0 8px 25px rgba(243, 156, 18, 0.5) !important; }
+        .vaga.selecionada { border: 4px solid #9b59b6 !important; background-color: rgba(155, 89, 182, 0.9) !important; box-shadow: 0 0 20px rgba(155, 89, 182, 0.8) !important; z-index: 1000 !important; }
+        .vaga.arrastando { z-index: 1001 !important; transform: scale(1.3) rotate(5deg) !important; box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important; opacity: 0.9; }
 
-        /* Container do estacionamento */
-        .estacionamento-wrapper {
-            padding: 40px;
-            background: #f8f9fa;
-            min-height: 400px;
-        }
+        /* Controles de Edição */
+        .edit-controls { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); background: white; padding: 25px; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); display: none; z-index: 1000; min-width: 280px; max-height: 85vh; overflow-y: auto; }
+        .edit-controls.show { display: block !important; animation: slideInRight 0.3s ease; }
+        @keyframes slideInRight { from { transform: translateY(-50%) translateX(100%); opacity: 0; } to { transform: translateY(-50%) translateX(0); opacity: 1; } }
+        .edit-title { text-align: center; margin-bottom: 20px; color: #2c3e50; font-weight: bold; font-size: 1.2em; padding-bottom: 15px; border-bottom: 2px solid #ecf0f1; }
+        .edit-section { margin-bottom: 25px; }
+        .edit-section h4 { color: #34495e; margin-bottom: 12px; font-size: 1em; }
+        .edit-btn { width: 100%; padding: 12px; margin: 6px 0; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; font-size: 0.9em; }
+        .edit-btn.rotate { background: #3498db; color: white; }
+        .edit-btn.resize { background: #e67e22; color: white; }
+        .edit-btn.action { background: #9b59b6; color: white; }
+        .edit-btn.delete { background: #e74c3c; color: white; }
+        .edit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .size-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+        .size-btn { padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; }
+        .position-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin: 10px 0; }
+        .position-btn { padding: 8px; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; }
 
-        .estacionamento-container {
-            position: relative;
-            width: 100%;
-            max-width: 1400px;
-            height: 900px;
-            margin: 0 auto;
-            background: #e8e8e8;
-            border-radius: 15px;
-            border: 4px solid #34495e;
-            overflow: visible;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
-        }
-
-        .planta-baixa {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.8;
-            z-index: 1;
-        }
-
-        /* Vagas - SISTEMA DE ARRASTE COMPLETO */
-        .vaga {
-            position: absolute;
-            width: 40px;
-            height: 70px;
-            border: 2px solid #2c3e50;
-            background-color: rgba(39, 174, 96, 0.9);
-            display: flex !important;
-            justify-content: center;
-            align-items: center;
-            font-size: 9px;
-            font-weight: bold;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            z-index: 10;
-            user-select: none;
-            transform-origin: center center;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-
-        .vaga:hover {
-            transform: scale(1.1);
-            z-index: 100;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-        }
-
-        .livre {
-            background-color: rgba(39, 174, 96, 0.9) !important;
-            border-color: #27ae60 !important;
-        }
-
-        .ocupada {
-            background-color: rgba(231, 76, 60, 0.9) !important;
-            border-color: #e74c3c !important;
-        }
-
-        /* Modo edição - IMPLEMENTADO COMPLETO */
-        .modo-edicao .vaga {
-            cursor: move !important;
-            border: 3px dashed #f39c12 !important;
-            background-color: rgba(243, 156, 18, 0.8) !important;
-        }
-
-        .modo-edicao .vaga:hover {
-            transform: scale(1.15) !important;
-            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.5) !important;
-        }
-
-        .vaga.selecionada {
-            border: 4px solid #9b59b6 !important;
-            background-color: rgba(155, 89, 182, 0.9) !important;
-            box-shadow: 0 0 20px rgba(155, 89, 182, 0.8) !important;
-            z-index: 1000 !important;
-        }
-
-        .vaga.arrastando {
-            z-index: 1001 !important;
-            transform: scale(1.3) rotate(5deg) !important;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
-            opacity: 0.9;
-        }
-
-        /* Controles de edição - PAINEL COMPLETO */
-        .edit-controls {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            display: none;
-            z-index: 1000;
-            min-width: 280px;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
-        .edit-controls.show {
-            display: block !important;
-            animation: slideInRight 0.3s ease;
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateY(-50%) translateX(100%); opacity: 0; }
-            to { transform: translateY(-50%) translateX(0); opacity: 1; }
-        }
-
-        .edit-title {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            font-weight: bold;
-            font-size: 1.2em;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #ecf0f1;
-        }
-
-        .edit-section {
-            margin-bottom: 25px;
-        }
-
-        .edit-section h4 {
-            color: #34495e;
-            margin-bottom: 12px;
-            font-size: 1em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .edit-btn {
-            width: 100%;
-            padding: 12px;
-            margin: 6px 0;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            font-size: 0.9em;
-        }
-
-        .edit-btn.rotate {
-            background: #3498db;
-            color: white;
-        }
-
-        .edit-btn.resize {
-            background: #e67e22;
-            color: white;
-        }
-
-        .edit-btn.action {
-            background: #9b59b6;
-            color: white;
-        }
-
-        .edit-btn.delete {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .edit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .size-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin: 10px 0;
-        }
-
-        .size-btn {
-            padding: 10px;
-            background: #95a5a6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85em;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        .size-btn:hover {
-            background: #7f8c8d;
-        }
-
-        .position-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 5px;
-            margin: 10px 0;
-        }
-
-        .position-btn {
-            padding: 8px;
-            background: #2c3e50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        .position-btn:hover {
-            background: #34495e;
-        }
-
-        /* Controles principais */
-        .controles {
-            padding: 30px;
-            background: #ecf0f1;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1em;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-reset {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-            color: white;
-        }
-
-        .btn-ocupar {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-        }
-
-        .btn-liberar {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-        }
-
-        .btn-salvar {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-        }
-
-        .btn-firebase {
-            background: linear-gradient(135deg, #ff9800, #f57c00);
-            color: white;
-        }
+        /* Controles Principais */
+        .controles { padding: 30px; background: #ecf0f1; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .btn { padding: 15px 30px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-transform: uppercase; letter-spacing: 1px; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        .btn-reset { background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; }
+        .btn-ocupar { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .btn-liberar { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
+        .btn-salvar { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+        .btn-firebase { background: linear-gradient(135deg, #ff9800, #f57c00); color: white; }
 
         /* Notificações */
-        .notificacao {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #2c3e50;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            z-index: 1000;
-            max-width: 350px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-        }
-
-        .notificacao.mostrar {
-            transform: translateX(0);
-        }
-
+        .notificacao { position: fixed; bottom: 20px; right: 20px; background: #2c3e50; color: white; padding: 15px 20px; border-radius: 10px; z-index: 1000; max-width: 350px; transform: translateX(400px); transition: transform 0.3s ease; }
+        .notificacao.mostrar { transform: translateX(0); }
         .notificacao.sucesso { background: #27ae60; }
         .notificacao.erro { background: #e74c3c; }
         .notificacao.info { background: #3498db; }
 
         /* Responsividade */
         @media (max-width: 768px) {
-            .estacionamento-container {
-                height: 600px;
-                transform: scale(0.8);
-                transform-origin: top center;
-            }
-            
-            .vaga {
-                width: 30px;
-                height: 55px;
-                font-size: 8px;
-            }
-
-            .edit-controls {
-                right: 10px;
-                padding: 20px;
-                min-width: 250px;
-            }
-
-            .user-info {
-                top: 30px;
-                right: 10px;
-                padding: 10px 20px;
-                gap: 10px;
-            }
-
-            .header {
-                padding-top: 90px;
-            }
+            .estacionamento-container { height: 600px; transform: scale(0.8); transform-origin: top center; }
+            .vaga { width: 30px; height: 55px; font-size: 8px; }
+            .edit-controls { right: 10px; padding: 20px; min-width: 250px; }
+            .user-info { top: 30px; right: 10px; padding: 10px 20px; gap: 10px; }
+            .header { padding-top: 90px; }
         }
     </style>
 </head>
 <body>
-
-    <!-- Modal de Login Admin -->
+    <!-- Modal de Login -->
     <div class="modal-login" id="modal-login">
         <div class="login-box">
             <button class="close-modal" onclick="fecharModalLogin()">×</button>
             <h2>🔐 Login Administrador</h2>
-            
             <input type="text" class="login-input" id="username" placeholder="Usuário" value="admin">
             <input type="password" class="login-input" id="password" placeholder="Senha" value="admin123">
             <button class="login-btn" onclick="fazerLoginAdmin()">Entrar como Admin</button>
-            
-            <div class="credentials-info">
-                <strong>Credenciais:</strong> admin / admin123
-            </div>
+            <div class="credentials-info"><strong>Credenciais:</strong> admin / admin123</div>
         </div>
     </div>
 
@@ -714,22 +150,10 @@
             <p><strong>Última atualização:</strong> <span id="ultima-atualizacao">Agora</span></p>
             
             <div class="stats">
-                <div class="stat-box">
-                    <span class="stat-number" id="total-vagas">62</span>
-                    <span>Total de Vagas</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-number" id="vagas-livres">62</span>
-                    <span>Vagas Livres</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-number" id="vagas-ocupadas">0</span>
-                    <span>Vagas Ocupadas</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-number" id="taxa-ocupacao">0%</span>
-                    <span>Taxa de Ocupação</span>
-                </div>
+                <div class="stat-box"><span class="stat-number" id="total-vagas">62</span><span>Total de Vagas</span></div>
+                <div class="stat-box"><span class="stat-number" id="vagas-livres">62</span><span>Vagas Livres</span></div>
+                <div class="stat-box"><span class="stat-number" id="vagas-ocupadas">0</span><span>Vagas Ocupadas</span></div>
+                <div class="stat-box"><span class="stat-number" id="taxa-ocupacao">0%</span><span>Taxa de Ocupação</span></div>
             </div>
         </div>
 
@@ -752,7 +176,7 @@
             </div>
         </div>
 
-        <!-- Controles de Edição - PAINEL COMPLETO -->
+        <!-- Controles de Edição -->
         <div class="edit-controls" id="edit-controls">
             <div class="edit-title">🔧 Editando: <span id="vaga-selecionada">-</span></div>
             
@@ -780,10 +204,8 @@
             <div class="edit-section">
                 <h4>🔄 Rotação</h4>
                 <button class="edit-btn rotate" onclick="rotacionarVaga(-90)">↶ -90°</button>
-                <button class="edit-btn rotate" onclick="rotacionarVaga(-45)">↺ -45°</button>
                 <button class="edit-btn rotate" onclick="rotacionarVaga(-15)">↺ -15°</button>
                 <button class="edit-btn rotate" onclick="rotacionarVaga(15)">↻ +15°</button>
-                <button class="edit-btn rotate" onclick="rotacionarVaga(45)">↻ +45°</button>
                 <button class="edit-btn rotate" onclick="rotacionarVaga(90)">↷ +90°</button>
                 <button class="edit-btn rotate" onclick="resetarRotacao()">⟲ Reset</button>
             </div>
@@ -796,12 +218,6 @@
                     <button class="size-btn" onclick="redimensionarVaga('height', -5)">Altura -</button>
                     <button class="size-btn" onclick="redimensionarVaga('height', 5)">Altura +</button>
                 </div>
-                <div class="size-controls">
-                    <button class="size-btn" onclick="redimensionarVaga('width', -1)">W -1px</button>
-                    <button class="size-btn" onclick="redimensionarVaga('width', 1)">W +1px</button>
-                    <button class="size-btn" onclick="redimensionarVaga('height', -1)">H -1px</button>
-                    <button class="size-btn" onclick="redimensionarVaga('height', 1)">H +1px</button>
-                </div>
                 <button class="edit-btn resize" onclick="resetarTamanho()">📏 Tamanho Padrão</button>
             </div>
             
@@ -809,18 +225,14 @@
                 <h4>🎨 Ações</h4>
                 <button class="edit-btn action" onclick="duplicarVaga()">📋 Duplicar</button>
                 <button class="edit-btn action" onclick="renomearVaga()">✏️ Renomear</button>
-                <button class="edit-btn action" onclick="copiarPropriedades()">📄 Copiar Props</button>
-                <button class="edit-btn action" onclick="colarPropriedades()">📋 Colar Props</button>
                 <button class="edit-btn delete" onclick="excluirVaga()">🗑️ Excluir</button>
             </div>
             
             <div class="edit-section">
                 <h4>📊 Informações</h4>
                 <div style="font-size: 0.85em; color: #7f8c8d; line-height: 1.4;">
-                    <div>X: <span id="pos-x">-</span>px</div>
-                    <div>Y: <span id="pos-y">-</span>px</div>
-                    <div>Largura: <span id="size-w">-</span>px</div>
-                    <div>Altura: <span id="size-h">-</span>px</div>
+                    <div>X: <span id="pos-x">-</span>px | Y: <span id="pos-y">-</span>px</div>
+                    <div>W: <span id="size-w">-</span>px | H: <span id="size-h">-</span>px</div>
                     <div>Rotação: <span id="angle">-</span>°</div>
                 </div>
             </div>
@@ -840,7 +252,7 @@
     <input type="file" id="planta-input" accept="image/*" style="display: none;" onchange="processarPlantaBaixa(event)">
 
     <script>
-        // ===== CONFIGURAÇÃO FIREBASE =====
+        // Configuração Firebase
         var firebaseConfig = {
             apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
             authDomain: "teste-dbacd.firebaseapp.com",
@@ -851,173 +263,77 @@
             appId: "1:381642195685:web:746eb4df7667813b0e4a0c"
         };
 
-        // ===== VARIÁVEIS GLOBAIS =====
-        var estadoVagas = {};
-        var posicaoVagas = {};
-        var firebaseConectado = false;
-        var database = null;
-        var totalVagas = 62;
-        var usuarioAtual = 'viewer';
-        var tipoUsuario = 'viewer';
-        var modoEdicao = false;
-        var proximoIdVaga = 63;
-        var vagaSelecionada = null;
-        var vagaArrastando = null;
-        var offsetX = 0;
-        var offsetY = 0;
-        var propriedadesCopia = null;
+        // Variáveis Globais
+        var estadoVagas = {}, posicaoVagas = {}, firebaseConectado = false, database = null, totalVagas = 62, usuarioAtual = 'viewer', tipoUsuario = 'viewer', modoEdicao = false, proximoIdVaga = 63, vagaSelecionada = null, vagaArrastando = null, offsetX = 0, offsetY = 0;
 
-        // ===== FUNÇÕES DE LOGIN =====
-        function mostrarModalLogin() {
-            var modal = document.getElementById('modal-login');
-            modal.classList.add('show');
-            modal.style.display = 'flex';
-        }
-
-        function fecharModalLogin() {
-            var modal = document.getElementById('modal-login');
-            modal.classList.remove('show');
-            modal.style.display = 'none';
-        }
-
+        // Funções de Login
+        function mostrarModalLogin() { document.getElementById('modal-login').classList.add('show'); }
+        function fecharModalLogin() { document.getElementById('modal-login').classList.remove('show'); }
+        
         function fazerLoginAdmin() {
             var username = document.getElementById('username').value.trim();
             var password = document.getElementById('password').value.trim();
-            
-            if (!username || !password) {
-                mostrarNotificacao('❌ Preencha usuário e senha', 'erro');
-                return;
-            }
-            
+            if (!username || !password) { mostrarNotificacao('❌ Preencha usuário e senha', 'erro'); return; }
             if (username === 'admin' && password === 'admin123') {
-                usuarioAtual = 'admin';
-                tipoUsuario = 'admin';
-                
-                fecharModalLogin();
-                
+                usuarioAtual = 'admin'; tipoUsuario = 'admin'; fecharModalLogin();
                 document.getElementById('user-name').textContent = 'Administrador';
                 document.getElementById('user-badge').textContent = 'ADMIN';
                 document.getElementById('user-badge').className = 'user-badge admin';
                 document.getElementById('admin-login-btn').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'inline-block';
-                
-                var adminPanel = document.getElementById('admin-panel');
-                adminPanel.classList.add('show');
-                adminPanel.style.display = 'block';
-                
+                document.getElementById('admin-panel').classList.add('show');
                 habilitarControlesAdmin();
-                mostrarNotificacao('🔧 Login de administrador realizado com sucesso!', 'sucesso');
-            } else {
-                mostrarNotificacao('❌ Credenciais inválidas. Use: admin / admin123', 'erro');
-            }
+                mostrarNotificacao('🔧 Login de administrador realizado!', 'sucesso');
+            } else { mostrarNotificacao('❌ Credenciais inválidas', 'erro'); }
         }
 
         function logout() {
-            if (confirm('Tem certeza que deseja sair do modo administrador?')) {
-                usuarioAtual = 'viewer';
-                tipoUsuario = 'viewer';
-                modoEdicao = false;
-                
+            if (confirm('Sair do modo administrador?')) {
+                usuarioAtual = 'viewer'; tipoUsuario = 'viewer'; modoEdicao = false;
                 document.getElementById('user-name').textContent = 'Visualizador Público';
                 document.getElementById('user-badge').textContent = 'VIEWER';
                 document.getElementById('user-badge').className = 'user-badge';
                 document.getElementById('admin-login-btn').style.display = 'inline-block';
                 document.getElementById('logout-btn').style.display = 'none';
-                
-                var adminPanel = document.getElementById('admin-panel');
-                adminPanel.classList.remove('show');
-                adminPanel.style.display = 'none';
-                
+                document.getElementById('admin-panel').classList.remove('show');
                 document.getElementById('edit-controls').style.display = 'none';
                 document.getElementById('mapa-estacionamento').classList.remove('modo-edicao');
-                
                 desabilitarControlesAdmin();
-                
-                document.getElementById('username').value = 'admin';
-                document.getElementById('password').value = 'admin123';
-                
-                mostrarNotificacao('👋 Logout realizado - Voltando ao modo visualizador', 'info');
+                mostrarNotificacao('👋 Logout realizado', 'info');
             }
         }
 
-        function habilitarControlesAdmin() {
-            var botoes = ['btn-reset', 'btn-ocupar', 'btn-liberar'];
-            botoes.forEach(function(id) {
-                var btn = document.getElementById(id);
-                if (btn) {
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                }
-            });
-        }
+        function habilitarControlesAdmin() { ['btn-reset', 'btn-ocupar', 'btn-liberar'].forEach(id => { var btn = document.getElementById(id); if (btn) { btn.disabled = false; btn.style.opacity = '1'; } }); }
+        function desabilitarControlesAdmin() { ['btn-reset', 'btn-ocupar', 'btn-liberar'].forEach(id => { var btn = document.getElementById(id); if (btn) { btn.disabled = true; btn.style.opacity = '0.3'; } }); }
 
-        function desabilitarControlesAdmin() {
-            var botoes = ['btn-reset', 'btn-ocupar', 'btn-liberar'];
-            botoes.forEach(function(id) {
-                var btn = document.getElementById(id);
-                if (btn) {
-                    btn.disabled = true;
-                    btn.style.opacity = '0.3';
-                }
-            });
-        }
-
-        // ===== MODO DE EDIÇÃO COMPLETO =====
+        // Modo de Edição
         function toggleEditMode() {
-            if (tipoUsuario !== 'admin') {
-                mostrarNotificacao('❌ Acesso negado: Apenas administradores', 'erro');
-                return;
-            }
-            
+            if (tipoUsuario !== 'admin') { mostrarNotificacao('❌ Acesso negado', 'erro'); return; }
             modoEdicao = !modoEdicao;
-            var container = document.getElementById('mapa-estacionamento');
-            var btn = document.getElementById('btn-edit-mode');
-            
+            var container = document.getElementById('mapa-estacionamento'), btn = document.getElementById('btn-edit-mode');
             if (modoEdicao) {
-                container.classList.add('modo-edicao');
-                btn.classList.add('active');
-                btn.textContent = '✅ Finalizar Edição';
-                mostrarNotificacao('✏️ Modo de edição ativado - Clique e arraste vagas', 'info');
+                container.classList.add('modo-edicao'); btn.classList.add('active'); btn.textContent = '✅ Finalizar Edição';
+                mostrarNotificacao('✏️ Modo de edição ativado', 'info');
             } else {
-                container.classList.remove('modo-edicao');
-                btn.classList.remove('active');
-                btn.textContent = '✏️ Modo Edição';
+                container.classList.remove('modo-edicao'); btn.classList.remove('active'); btn.textContent = '✏️ Modo Edição';
                 document.getElementById('edit-controls').style.display = 'none';
-                
-                if (vagaSelecionada) {
-                    vagaSelecionada.classList.remove('selecionada');
-                    vagaSelecionada = null;
-                }
-                
-                mostrarNotificacao('✅ Modo de edição desativado', 'info');
-                salvarLocal();
-                if (firebaseConectado) salvarNoFirebase();
+                if (vagaSelecionada) { vagaSelecionada.classList.remove('selecionada'); vagaSelecionada = null; }
+                mostrarNotificacao('✅ Modo de edição desativado', 'info'); salvarLocal();
             }
         }
 
         function selecionarVaga(vaga) {
             if (!modoEdicao) return;
-            
-            if (vagaSelecionada) {
-                vagaSelecionada.classList.remove('selecionada');
-            }
-            
-            vagaSelecionada = vaga;
-            vaga.classList.add('selecionada');
-            
+            if (vagaSelecionada) vagaSelecionada.classList.remove('selecionada');
+            vagaSelecionada = vaga; vaga.classList.add('selecionada');
             document.getElementById('edit-controls').style.display = 'block';
             document.getElementById('vaga-selecionada').textContent = vaga.id;
-            
-            atualizarInfoVaga();
-            mostrarNotificacao('🎯 Vaga ' + vaga.id + ' selecionada', 'info');
+            atualizarInfoVaga(); mostrarNotificacao('🎯 Vaga ' + vaga.id + ' selecionada', 'info');
         }
 
         function atualizarInfoVaga() {
             if (!vagaSelecionada) return;
-            
-            var vagaId = vagaSelecionada.id;
-            var pos = posicaoVagas[vagaId];
-            
+            var pos = posicaoVagas[vagaSelecionada.id];
             document.getElementById('pos-x').textContent = pos.x || 0;
             document.getElementById('pos-y').textContent = pos.y || 0;
             document.getElementById('size-w').textContent = pos.width || 40;
@@ -1025,84 +341,47 @@
             document.getElementById('angle').textContent = pos.angle || 0;
         }
 
-        // ===== FUNÇÕES DE MOVIMENTO PRECISO =====
+        // Funções de Movimento e Edição
         function moverVaga(deltaX, deltaY) {
-            if (!vagaSelecionada) {
-                mostrarNotificacao('❌ Selecione uma vaga primeiro', 'erro');
-                return;
-            }
-            
-            var vagaId = vagaSelecionada.id;
-            var novoX = (posicaoVagas[vagaId].x || 0) + deltaX;
-            var novoY = (posicaoVagas[vagaId].y || 0) + deltaY;
-            
+            if (!vagaSelecionada) { mostrarNotificacao('❌ Selecione uma vaga primeiro', 'erro'); return; }
+            var vagaId = vagaSelecionada.id, novoX = (posicaoVagas[vagaId].x || 0) + deltaX, novoY = (posicaoVagas[vagaId].y || 0) + deltaY;
             var container = document.getElementById('mapa-estacionamento');
-            var maxX = container.offsetWidth - (posicaoVagas[vagaId].width || 40);
-            var maxY = container.offsetHeight - (posicaoVagas[vagaId].height || 70);
-            
-            novoX = Math.max(0, Math.min(novoX, maxX));
-            novoY = Math.max(0, Math.min(novoY, maxY));
-            
-            posicaoVagas[vagaId].x = novoX;
-            posicaoVagas[vagaId].y = novoY;
-            
-            vagaSelecionada.style.left = novoX + 'px';
-            vagaSelecionada.style.top = novoY + 'px';
-            
+            novoX = Math.max(0, Math.min(novoX, container.offsetWidth - 40));
+            novoY = Math.max(0, Math.min(novoY, container.offsetHeight - 70));
+            posicaoVagas[vagaId].x = novoX; posicaoVagas[vagaId].y = novoY;
+            vagaSelecionada.style.left = novoX + 'px'; vagaSelecionada.style.top = novoY + 'px';
             atualizarInfoVaga();
         }
 
         function centralizarVaga() {
             if (!vagaSelecionada) return;
-            
-            var container = document.getElementById('mapa-estacionamento');
-            var vagaId = vagaSelecionada.id;
-            
-            var centroX = (container.offsetWidth - (posicaoVagas[vagaId].width || 40)) / 2;
-            var centroY = (container.offsetHeight - (posicaoVagas[vagaId].height || 70)) / 2;
-            
-            posicaoVagas[vagaId].x = centroX;
-            posicaoVagas[vagaId].y = centroY;
-            
-            vagaSelecionada.style.left = centroX + 'px';
-            vagaSelecionada.style.top = centroY + 'px';
-            
-            atualizarInfoVaga();
-            mostrarNotificacao('⌖ Vaga centralizada', 'info');
+            var container = document.getElementById('mapa-estacionamento'), vagaId = vagaSelecionada.id;
+            var centroX = (container.offsetWidth - 40) / 2, centroY = (container.offsetHeight - 70) / 2;
+            posicaoVagas[vagaId].x = centroX; posicaoVagas[vagaId].y = centroY;
+            vagaSelecionada.style.left = centroX + 'px'; vagaSelecionada.style.top = centroY + 'px';
+            atualizarInfoVaga(); mostrarNotificacao('⌖ Vaga centralizada', 'info');
         }
 
         function rotacionarVaga(graus) {
             if (!vagaSelecionada) return;
-            
-            var vagaId = vagaSelecionada.id;
-            var anguloAtual = posicaoVagas[vagaId].angle || 0;
-            var novoAngulo = (anguloAtual + graus) % 360;
-            
+            var vagaId = vagaSelecionada.id, novoAngulo = ((posicaoVagas[vagaId].angle || 0) + graus) % 360;
             posicaoVagas[vagaId].angle = novoAngulo;
             vagaSelecionada.style.transform = 'rotate(' + novoAngulo + 'deg)';
-            
-            atualizarInfoVaga();
-            mostrarNotificacao('🔄 Rotacionado ' + graus + '°', 'info');
+            atualizarInfoVaga(); mostrarNotificacao('🔄 Rotacionado ' + graus + '°', 'info');
         }
 
         function resetarRotacao() {
             if (!vagaSelecionada) return;
-            
-            var vagaId = vagaSelecionada.id;
-            posicaoVagas[vagaId].angle = 0;
+            posicaoVagas[vagaSelecionada.id].angle = 0;
             vagaSelecionada.style.transform = 'rotate(0deg)';
-            
-            atualizarInfoVaga();
-            mostrarNotificacao('⟲ Rotação resetada', 'info');
+            atualizarInfoVaga(); mostrarNotificacao('⟲ Rotação resetada', 'info');
         }
 
         function redimensionarVaga(dimensao, valor) {
             if (!vagaSelecionada) return;
-            
             var vagaId = vagaSelecionada.id;
             if (!posicaoVagas[vagaId].width) posicaoVagas[vagaId].width = 40;
             if (!posicaoVagas[vagaId].height) posicaoVagas[vagaId].height = 70;
-            
             if (dimensao === 'width') {
                 posicaoVagas[vagaId].width = Math.max(15, posicaoVagas[vagaId].width + valor);
                 vagaSelecionada.style.width = posicaoVagas[vagaId].width + 'px';
@@ -1110,342 +389,144 @@
                 posicaoVagas[vagaId].height = Math.max(20, posicaoVagas[vagaId].height + valor);
                 vagaSelecionada.style.height = posicaoVagas[vagaId].height + 'px';
             }
-            
             atualizarInfoVaga();
         }
 
         function resetarTamanho() {
             if (!vagaSelecionada) return;
-            
             var vagaId = vagaSelecionada.id;
-            posicaoVagas[vagaId].width = 40;
-            posicaoVagas[vagaId].height = 70;
-            vagaSelecionada.style.width = '40px';
-            vagaSelecionada.style.height = '70px';
-            
-            atualizarInfoVaga();
-            mostrarNotificacao('📏 Tamanho resetado', 'info');
-        }
-
-        // ===== FUNÇÕES DE CÓPIA =====
-        function copiarPropriedades() {
-            if (!vagaSelecionada) return;
-            
-            var vagaId = vagaSelecionada.id;
-            propriedadesCopia = Object.assign({}, posicaoVagas[vagaId]);
-            
-            mostrarNotificacao('📄 Propriedades copiadas', 'sucesso');
-        }
-
-        function colarPropriedades() {
-            if (!vagaSelecionada || !propriedadesCopia) {
-                mostrarNotificacao('❌ Nenhuma propriedade copiada', 'erro');
-                return;
-            }
-            
-            var vagaId = vagaSelecionada.id;
-            
-            posicaoVagas[vagaId].width = propriedadesCopia.width;
-            posicaoVagas[vagaId].height = propriedadesCopia.height;
-            posicaoVagas[vagaId].angle = propriedadesCopia.angle;
-            
-            vagaSelecionada.style.width = posicaoVagas[vagaId].width + 'px';
-            vagaSelecionada.style.height = posicaoVagas[vagaId].height + 'px';
-            vagaSelecionada.style.transform = 'rotate(' + posicaoVagas[vagaId].angle + 'deg)';
-            
-            atualizarInfoVaga();
-            mostrarNotificacao('📋 Propriedades aplicadas', 'sucesso');
+            posicaoVagas[vagaId].width = 40; posicaoVagas[vagaId].height = 70;
+            vagaSelecionada.style.width = '40px'; vagaSelecionada.style.height = '70px';
+            atualizarInfoVaga(); mostrarNotificacao('📏 Tamanho resetado', 'info');
         }
 
         function duplicarVaga() {
             if (!vagaSelecionada) return;
-            
-            var vagaOriginal = vagaSelecionada;
-            var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga);
-            proximoIdVaga++;
-            
-            var novaVaga = criarVaga(novoId, 
-                parseInt(vagaOriginal.style.left) + 50, 
-                parseInt(vagaOriginal.style.top) + 50
-            );
-            
-            var vagaOriginalId = vagaOriginal.id;
-            posicaoVagas[novoId] = Object.assign({}, posicaoVagas[vagaOriginalId]);
-            posicaoVagas[novoId].x += 50;
-            posicaoVagas[novoId].y += 50;
-            
-            if (posicaoVagas[vagaOriginalId].width) {
-                novaVaga.style.width = posicaoVagas[vagaOriginalId].width + 'px';
-            }
-            if (posicaoVagas[vagaOriginalId].height) {
-                novaVaga.style.height = posicaoVagas[vagaOriginalId].height + 'px';
-            }
-            if (posicaoVagas[vagaOriginalId].angle) {
-                novaVaga.style.transform = 'rotate(' + posicaoVagas[vagaOriginalId].angle + 'deg)';
-            }
-            
-            totalVagas++;
-            atualizarEstatisticas();
-            
+            var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga); proximoIdVaga++;
+            var novaVaga = criarVaga(novoId, parseInt(vagaSelecionada.style.left) + 50, parseInt(vagaSelecionada.style.top) + 50);
+            posicaoVagas[novoId] = Object.assign({}, posicaoVagas[vagaSelecionada.id]);
+            posicaoVagas[novoId].x += 50; posicaoVagas[novoId].y += 50;
+            totalVagas++; atualizarEstatisticas();
             mostrarNotificacao('📋 Vaga duplicada: ' + novoId, 'sucesso');
         }
 
         function renomearVaga() {
             if (!vagaSelecionada) return;
-            
-            var novoNome = prompt('Digite o novo nome para a vaga:', vagaSelecionada.id);
+            var novoNome = prompt('Novo nome:', vagaSelecionada.id);
             if (novoNome && novoNome !== vagaSelecionada.id) {
-                if (document.getElementById(novoNome)) {
-                    mostrarNotificacao('❌ Nome já existe', 'erro');
-                    return;
-                }
-                
+                if (document.getElementById(novoNome)) { mostrarNotificacao('❌ Nome já existe', 'erro'); return; }
                 var vagaAntiga = vagaSelecionada.id;
-                
-                estadoVagas[novoNome] = estadoVagas[vagaAntiga];
-                posicaoVagas[novoNome] = posicaoVagas[vagaAntiga];
-                delete estadoVagas[vagaAntiga];
-                delete posicaoVagas[vagaAntiga];
-                
-                vagaSelecionada.id = novoNome;
-                vagaSelecionada.textContent = novoNome;
+                estadoVagas[novoNome] = estadoVagas[vagaAntiga]; posicaoVagas[novoNome] = posicaoVagas[vagaAntiga];
+                delete estadoVagas[vagaAntiga]; delete posicaoVagas[vagaAntiga];
+                vagaSelecionada.id = novoNome; vagaSelecionada.textContent = novoNome;
                 document.getElementById('vaga-selecionada').textContent = novoNome;
-                
                 mostrarNotificacao('✏️ Renomeado para ' + novoNome, 'sucesso');
             }
         }
 
         function excluirVaga() {
             if (!vagaSelecionada) return;
-            
             if (confirm('Excluir vaga ' + vagaSelecionada.id + '?')) {
                 var vagaId = vagaSelecionada.id;
-                
-                delete estadoVagas[vagaId];
-                delete posicaoVagas[vagaId];
-                
-                vagaSelecionada.remove();
-                vagaSelecionada = null;
-                totalVagas--;
-                
+                delete estadoVagas[vagaId]; delete posicaoVagas[vagaId];
+                vagaSelecionada.remove(); vagaSelecionada = null; totalVagas--;
                 document.getElementById('edit-controls').style.display = 'none';
-                atualizarEstatisticas();
-                
-                mostrarNotificacao('🗑️ Vaga excluída', 'info');
+                atualizarEstatisticas(); mostrarNotificacao('🗑️ Vaga excluída', 'info');
             }
         }
 
         function adicionarNovaVaga() {
             if (tipoUsuario !== 'admin') return;
-            
-            var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga);
-            proximoIdVaga++;
-            
-            var novaVaga = criarVaga(novoId, 100, 100);
-            totalVagas++;
-            atualizarEstatisticas();
-            
-            if (modoEdicao) {
-                selecionarVaga(novaVaga);
-            }
-            
+            var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga); proximoIdVaga++;
+            var novaVaga = criarVaga(novoId, 100, 100); totalVagas++; atualizarEstatisticas();
+            if (modoEdicao) selecionarVaga(novaVaga);
             mostrarNotificacao('➕ Nova vaga: ' + novoId, 'sucesso');
         }
 
-        // ===== SISTEMA DE ARRASTE =====
+        // Sistema de Arraste
         function iniciarArraste(e) {
             if (!modoEdicao) return;
-            
-            vagaArrastando = e.target;
-            selecionarVaga(vagaArrastando);
-            vagaArrastando.classList.add('arrastando');
-            
-            var rect = vagaArrastando.getBoundingClientRect();
-            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
-            
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-            
-            e.preventDefault();
-            e.stopPropagation();
+            vagaArrastando = e.target; selecionarVaga(vagaArrastando); vagaArrastando.classList.add('arrastando');
+            var rect = vagaArrastando.getBoundingClientRect(), containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
+            offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top; e.preventDefault();
         }
 
         function arrastar(e) {
             if (!vagaArrastando || !modoEdicao) return;
-            
             var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
-            
-            var x = e.clientX - containerRect.left - offsetX;
-            var y = e.clientY - containerRect.top - offsetY;
-            
-            x = Math.max(0, Math.min(x, containerRect.width - 40));
-            y = Math.max(0, Math.min(y, containerRect.height - 70));
-            
-            vagaArrastando.style.left = x + 'px';
-            vagaArrastando.style.top = y + 'px';
-            
-            posicaoVagas[vagaArrastando.id].x = x;
-            posicaoVagas[vagaArrastando.id].y = y;
-            
-            atualizarInfoVaga();
+            var x = Math.max(0, Math.min(e.clientX - containerRect.left - offsetX, containerRect.width - 40));
+            var y = Math.max(0, Math.min(e.clientY - containerRect.top - offsetY, containerRect.height - 70));
+            vagaArrastando.style.left = x + 'px'; vagaArrastando.style.top = y + 'px';
+            posicaoVagas[vagaArrastando.id].x = x; posicaoVagas[vagaArrastando.id].y = y; atualizarInfoVaga();
         }
 
         function finalizarArraste() {
-            if (vagaArrastando) {
-                vagaArrastando.classList.remove('arrastando');
-                vagaArrastando = null;
-                salvarLocal();
-                if (firebaseConectado) salvarNoFirebase();
-            }
+            if (vagaArrastando) { vagaArrastando.classList.remove('arrastando'); vagaArrastando = null; salvarLocal(); }
         }
 
-        // ===== IMPORT/EXPORT =====
+        // Import/Export
         function exportarLayout() {
             if (tipoUsuario !== 'admin') return;
-            
-            var dados = {
-                timestamp: new Date().toISOString(),
-                vagas: estadoVagas,
-                posicoes: posicaoVagas,
-                plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage,
-                totalVagas: totalVagas,
-                proximoId: proximoIdVaga,
-                versao: '3.0'
-            };
-            
-            var blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'});
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'layout_estacionamento_' + new Date().toISOString().slice(0,16).replace('T', '_').replace(':', '-') + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            
+            var dados = { timestamp: new Date().toISOString(), vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, totalVagas: totalVagas, proximoId: proximoIdVaga, versao: '3.0' };
+            var blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'}), url = URL.createObjectURL(blob), a = document.createElement('a');
+            a.href = url; a.download = 'layout_estacionamento_' + new Date().toISOString().slice(0,16).replace('T', '_').replace(':', '-') + '.json'; a.click(); URL.revokeObjectURL(url);
             mostrarNotificacao('📤 Layout exportado!', 'sucesso');
         }
 
-        function importarLayout() {
-            if (tipoUsuario !== 'admin') return;
-            document.getElementById('import-input').click();
-        }
-
-        function carregarPlantaBaixa() {
-            if (tipoUsuario !== 'admin') return;
-            document.getElementById('planta-input').click();
-        }
+        function importarLayout() { if (tipoUsuario !== 'admin') return; document.getElementById('import-input').click(); }
+        function carregarPlantaBaixa() { if (tipoUsuario !== 'admin') return; document.getElementById('planta-input').click(); }
 
         function processarImportacao(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            
+            var file = event.target.files[0]; if (!file) return;
             var reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     var dados = JSON.parse(e.target.result);
-                    
                     if (confirm('Importar layout? Isso substituirá tudo!')) {
-                        var vagasExistentes = document.querySelectorAll('.vaga');
-                        vagasExistentes.forEach(function(vaga) {
-                            vaga.remove();
-                        });
-                        
+                        document.querySelectorAll('.vaga').forEach(vaga => vaga.remove());
                         if (dados.vagas) estadoVagas = dados.vagas;
                         if (dados.posicoes) posicaoVagas = dados.posicoes;
                         if (dados.totalVagas) totalVagas = dados.totalVagas;
                         if (dados.proximoId) proximoIdVaga = dados.proximoId;
-                        if (dados.plantaBaixa) {
-                            document.getElementById('planta-baixa').style.backgroundImage = dados.plantaBaixa;
-                        }
-                        
+                        if (dados.plantaBaixa) document.getElementById('planta-baixa').style.backgroundImage = dados.plantaBaixa;
                         for (var vagaId in posicaoVagas) {
-                            var pos = posicaoVagas[vagaId];
-                            var vaga = criarVaga(vagaId, pos.x, pos.y);
-                            
+                            var pos = posicaoVagas[vagaId], vaga = criarVaga(vagaId, pos.x, pos.y);
                             if (pos.width) vaga.style.width = pos.width + 'px';
                             if (pos.height) vaga.style.height = pos.height + 'px';
                             if (pos.angle) vaga.style.transform = 'rotate(' + pos.angle + 'deg)';
-                            
-                            if (estadoVagas[vagaId]) {
-                                vaga.classList.remove('livre', 'ocupada');
-                                vaga.classList.add(estadoVagas[vagaId]);
-                            }
+                            if (estadoVagas[vagaId]) { vaga.classList.remove('livre', 'ocupada'); vaga.classList.add(estadoVagas[vagaId]); }
                         }
-                        
-                        atualizarEstatisticas();
-                        salvarLocal();
-                        if (firebaseConectado) salvarNoFirebase();
-                        
-                        mostrarNotificacao('📥 Layout importado!', 'sucesso');
+                        atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('📥 Layout importado!', 'sucesso');
                     }
-                } catch (error) {
-                    mostrarNotificacao('❌ Erro ao importar: ' + error.message, 'erro');
-                }
+                } catch (error) { mostrarNotificacao('❌ Erro ao importar: ' + error.message, 'erro'); }
             };
-            reader.readAsText(file);
-            event.target.value = '';
+            reader.readAsText(file); event.target.value = '';
         }
 
         function processarPlantaBaixa(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            
-            if (file.size > 10 * 1024 * 1024) {
-                mostrarNotificacao('❌ Arquivo muito grande (máx 10MB)', 'erro');
-                return;
-            }
-            
+            var file = event.target.files[0]; if (!file) return;
+            if (file.size > 10 * 1024 * 1024) { mostrarNotificacao('❌ Arquivo muito grande (máx 10MB)', 'erro'); return; }
             var reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('planta-baixa').style.backgroundImage = 'url(' + e.target.result + ')';
-                salvarLocal();
-                if (firebaseConectado) salvarNoFirebase();
-                mostrarNotificacao('🖼️ Planta baixa carregada!', 'sucesso');
+                salvarLocal(); mostrarNotificacao('🖼️ Planta baixa carregada!', 'sucesso');
             };
-            reader.readAsDataURL(file);
-            event.target.value = '';
+            reader.readAsDataURL(file); event.target.value = '';
         }
 
-        // ===== FUNÇÕES PRINCIPAIS =====
+        // Funções Principais
         function alternarStatusVaga(elemento) {
-            if (modoEdicao) {
-                selecionarVaga(elemento);
-                return;
-            }
-            
-            if (tipoUsuario !== 'admin') {
-                mostrarNotificacao('❌ Apenas administradores podem alterar vagas', 'erro');
-                return;
-            }
-            
-            var vagaId = elemento.id;
-            var novoStatus = elemento.classList.contains('livre') ? 'ocupada' : 'livre';
-            
-            estadoVagas[vagaId] = novoStatus;
-            elemento.classList.remove('livre', 'ocupada');
-            elemento.classList.add(novoStatus);
-            
-            atualizarEstatisticas();
-            salvarLocal();
-            
-            if (firebaseConectado) {
-                salvarNoFirebase();
-            }
+            if (modoEdicao) { selecionarVaga(elemento); return; }
+            if (tipoUsuario !== 'admin') { mostrarNotificacao('❌ Apenas administradores podem alterar vagas', 'erro'); return; }
+            var vagaId = elemento.id, novoStatus = elemento.classList.contains('livre') ? 'ocupada' : 'livre';
+            estadoVagas[vagaId] = novoStatus; elemento.classList.remove('livre', 'ocupada'); elemento.classList.add(novoStatus);
+            atualizarEstatisticas(); salvarLocal();
         }
 
         function atualizarEstatisticas() {
-            var livres = 0;
-            var ocupadas = 0;
-            
-            for (var vagaId in estadoVagas) {
-                if (estadoVagas[vagaId] === 'livre') {
-                    livres++;
-                } else {
-                    ocupadas++;
-                }
-            }
-            
+            var livres = 0, ocupadas = 0;
+            for (var vagaId in estadoVagas) { if (estadoVagas[vagaId] === 'livre') livres++; else ocupadas++; }
             var taxaOcupacao = totalVagas > 0 ? Math.round((ocupadas / totalVagas) * 100) : 0;
-
             document.getElementById('total-vagas').textContent = totalVagas;
             document.getElementById('vagas-livres').textContent = livres;
             document.getElementById('vagas-ocupadas').textContent = ocupadas;
@@ -1454,37 +535,131 @@
 
         function resetarTodasVagas() {
             if (tipoUsuario !== 'admin') return;
-            
             if (confirm('Resetar todas as vagas para livre?')) {
-                var vagas = document.querySelectorAll('.vaga');
-                for (var i = 0; i < vagas.length; i++) {
-                    vagas[i].classList.remove('ocupada');
-                    vagas[i].classList.add('livre');
-                    estadoVagas[vagas[i].id] = 'livre';
-                }
-                atualizarEstatisticas();
-                salvarLocal();
-                if (firebaseConectado) salvarNoFirebase();
-                mostrarNotificacao('🔄 Todas as vagas resetadas', 'info');
+                document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('ocupada'); vaga.classList.add('livre'); estadoVagas[vaga.id] = 'livre'; });
+                atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('🔄 Todas as vagas resetadas', 'info');
             }
         }
 
         function ocuparTodasVagas() {
             if (tipoUsuario !== 'admin') return;
-            
-            var vagas = document.querySelectorAll('.vaga');
-            for (var i = 0; i < vagas.length; i++) {
-                vagas[i].classList.remove('livre');
-                vagas[i].classList.add('ocupada');
-                estadoVagas[vagas[i].id] = 'ocupada';
-            }
-            atualizarEstatisticas();
-            salvarLocal();
-            if (firebaseConectado) salvarNoFirebase();
-            mostrarNotificacao('🚗 Todas as vagas ocupadas', 'info');
+            document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('livre'); vaga.classList.add('ocupada'); estadoVagas[vaga.id] = 'ocupada'; });
+            atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('🚗 Todas as vagas ocupadas', 'info');
         }
 
         function liberarTodasVagas() {
             if (tipoUsuario !== 'admin') return;
-            
-            var vagas = document.
+            document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('ocupada'); vaga.classList.add('livre'); estadoVagas[vaga.id] = 'livre'; });
+            atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('✅ Todas as vagas liberadas', 'info');
+        }
+
+        // Salvamento e Firebase
+        function salvarLocal() {
+            try {
+                var dados = { vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, totalVagas: totalVagas, proximoId: proximoIdVaga, timestamp: new Date().toISOString() };
+                localStorage.setItem('estacionamento_dados', JSON.stringify(dados));
+            } catch (error) { console.error('Erro ao salvar:', error); }
+        }
+
+        function salvarEstadoLocal() { salvarLocal(); mostrarNotificacao('💾 Estado salvo localmente!', 'sucesso'); }
+
+        function salvarNoFirebase() {
+            if (tipoUsuario !== 'admin') { mostrarNotificacao('❌ Apenas administradores podem salvar no Firebase', 'erro'); return; }
+            if (!firebaseConectado) { mostrarNotificacao('❌ Firebase não conectado', 'erro'); return; }
+            try {
+                var dados = { vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, meta: { totalVagas: totalVagas, proximoId: proximoIdVaga, ultimoAdmin: usuarioAtual }, ultimaAtualizacao: firebase.database.ServerValue.TIMESTAMP };
+                database.ref('estacionamento').set(dados); mostrarNotificacao('🌐 Dados sincronizados com Firebase!', 'sucesso');
+            } catch (error) { mostrarNotificacao('❌ Erro ao salvar no Firebase: ' + error.message, 'erro'); }
+        }
+
+        function carregarLocal() {
+            try {
+                var dados = localStorage.getItem('estacionamento_dados');
+                if (dados) {
+                    var dadosParsed = JSON.parse(dados);
+                    if (dadosParsed.vagas) { estadoVagas = dadosParsed.vagas; aplicarEstadoVagas(); }
+                    if (dadosParsed.posicoes) { posicaoVagas = dadosParsed.posicoes; aplicarPosicoes(); }
+                    if (dadosParsed.plantaBaixa) document.getElementById('planta-baixa').style.backgroundImage = dadosParsed.plantaBaixa;
+                    if (dadosParsed.totalVagas) totalVagas = dadosParsed.totalVagas;
+                    if (dadosParsed.proximoId) proximoIdVaga = dadosParsed.proximoId;
+                }
+            } catch (error) { console.error('Erro ao carregar:', error); }
+        }
+
+        function aplicarEstadoVagas() {
+            for (var vagaId in estadoVagas) {
+                var elemento = document.getElementById(vagaId);
+                if (elemento) { elemento.classList.remove('livre', 'ocupada'); elemento.classList.add(estadoVagas[vagaId]); }
+            }
+            atualizarEstatisticas();
+        }
+
+        function aplicarPosicoes() {
+            for (var vagaId in posicaoVagas) {
+                var elemento = document.getElementById(vagaId);
+                if (elemento) {
+                    var pos = posicaoVagas[vagaId];
+                    elemento.style.left = pos.x + 'px'; elemento.style.top = pos.y + 'px';
+                    if (pos.angle) elemento.style.transform = 'rotate(' + pos.angle + 'deg)';
+                    if (pos.width) elemento.style.width = pos.width + 'px';
+                    if (pos.height) elemento.style.height = pos.height + 'px';
+                }
+            }
+        }
+
+        function criarVaga(id, x, y) {
+            var vaga = document.createElement('div');
+            vaga.classList.add('vaga', 'livre'); vaga.id = id; vaga.textContent = id;
+            vaga.style.left = x + 'px'; vaga.style.top = y + 'px';
+            vaga.addEventListener('mousedown', iniciarArraste);
+            vaga.addEventListener('click', function(e) { alternarStatusVaga(this); e.preventDefault(); });
+            document.getElementById('mapa-estacionamento').appendChild(vaga);
+            estadoVagas[id] = 'livre'; posicaoVagas[id] = {x: x, y: y, angle: 0, width: 40, height: 70};
+            return vaga;
+        }
+
+        // Firebase
+        function inicializarFirebase() {
+            try {
+                if (typeof firebase !== 'undefined') {
+                    firebase.initializeApp(firebaseConfig); database = firebase.database();
+                    database.ref('.info/connected').on('value', function(snapshot) {
+                        if (snapshot.val() === true) { firebaseConectado = true; atualizarStatusFirebase('conectado', 'Firebase Conectado'); }
+                        else { firebaseConectado = false; atualizarStatusFirebase('desconectado', 'Firebase Desconectado'); }
+                    });
+                }
+            } catch (error) { atualizarStatusFirebase('desconectado', 'Firebase Indisponível'); }
+        }
+
+        function atualizarStatusFirebase(status, texto) {
+            document.getElementById('status-firebase').className = 'status-firebase ' + status;
+            document.getElementById('texto-firebase').textContent = texto;
+        }
+
+        function mostrarNotificacao(mensagem, tipo) {
+            var notificacao = document.createElement('div');
+            notificacao.className = 'notificacao ' + (tipo || 'info'); notificacao.textContent = mensagem;
+            document.body.appendChild(notificacao);
+            setTimeout(() => notificacao.classList.add('mostrar'), 100);
+            setTimeout(() => { notificacao.classList.remove('mostrar'); setTimeout(() => notificacao.remove(), 300); }, 4000);
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            for (var i = 1; i <= 62; i++) {
+                var vagaId = 'V' + (i < 10 ? '0' + i : i);
+                var x = 80 + ((i - 1) % 10) * 120, y = 80 + Math.floor((i - 1) / 10) * 120;
+                criarVaga(vagaId, x, y);
+            }
+            carregarLocal(); inicializarFirebase(); atualizarEstatisticas();
+            document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');
+            mostrarNotificacao('🚀 Sistema inicializado!', 'sucesso');
+        });
+
+        // Eventos globais
+        document.addEventListener('mousemove', arrastar);
+        document.addEventListener('mouseup', finalizarArraste);
+        window.addEventListener('beforeunload', salvarLocal);
+    </script>
+</body>
+</html>
