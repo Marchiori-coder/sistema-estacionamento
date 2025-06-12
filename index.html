@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estacionamento - Versão Corrigida</title>
+    <title>Sistema de Estacionamento - Visualização Pública</title>
     
     <!-- Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -140,6 +140,12 @@
             position: relative;
         }
 
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
         .user-info {
             position: absolute;
             top: 20px;
@@ -195,6 +201,58 @@
 
         .logout-btn:hover {
             background: #c0392b;
+        }
+
+        /* Painel Admin */
+        .admin-panel {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            display: none;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-panel.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .admin-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .admin-btn {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .admin-btn:hover {
+            background: white;
+            color: #f39c12;
+            transform: translateY(-2px);
+        }
+
+        .admin-btn.active {
+            background: white;
+            color: #f39c12;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         /* Status Firebase */
@@ -486,6 +544,18 @@
             </div>
         </div>
 
+        <!-- Painel Admin (oculto por padrão) -->
+        <div class="admin-panel" id="admin-panel">
+            <h3>🔧 Painel de Administração Ativo</h3>
+            <p>Você tem acesso completo para editar vagas, mapas e configurações do sistema</p>
+            <div class="admin-controls">
+                <button class="admin-btn" id="btn-edit-mode" onclick="toggleEditMode()">✏️ Modo Edição</button>
+                <button class="admin-btn" onclick="adicionarNovaVaga()">➕ Nova Vaga</button>
+                <button class="admin-btn" onclick="exportarLayout()">📤 Exportar</button>
+                <button class="admin-btn" onclick="importarLayout()">📥 Importar</button>
+            </div>
+        </div>
+
         <div class="estacionamento-wrapper">
             <div class="estacionamento-container" id="mapa-estacionamento">
                 <div class="planta-baixa" id="planta-baixa"></div>
@@ -504,7 +574,7 @@
     <script>
         // ===== CONFIGURAÇÃO FIREBASE =====
         var firebaseConfig = {
-// Import the functions you need from the SDKs you need
+        // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -513,6 +583,7 @@ import { initializeApp } from "firebase/app";
 const firebaseConfig = {
   apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
   authDomain: "teste-dbacd.firebaseapp.com",
+  databaseURL: "https://teste-dbacd-default-rtdb.firebaseio.com",
   projectId: "teste-dbacd",
   storageBucket: "teste-dbacd.firebasestorage.app",
   messagingSenderId: "381642195685",
@@ -521,9 +592,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
         // ===== VARIÁVEIS GLOBAIS =====
         var estadoVagas = {};
         var posicaoVagas = {};
@@ -532,6 +600,7 @@ const app = initializeApp(firebaseConfig);
         var totalVagas = 62;
         var usuarioAtual = 'viewer';
         var tipoUsuario = 'viewer';
+        var modoEdicao = false;
         var proximoIdVaga = 63;
 
         // ===== FUNÇÕES DE LOGIN =====
@@ -564,6 +633,8 @@ const app = initializeApp(firebaseConfig);
                 document.getElementById('admin-login-btn').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'inline-block';
                 
+                document.getElementById('admin-panel').classList.add('show');
+                
                 habilitarControlesAdmin();
                 mostrarNotificacao('🔧 Login de administrador realizado com sucesso!', 'sucesso');
             } else {
@@ -575,12 +646,15 @@ const app = initializeApp(firebaseConfig);
             if (confirm('Tem certeza que deseja sair do modo administrador?')) {
                 usuarioAtual = 'viewer';
                 tipoUsuario = 'viewer';
+                modoEdicao = false;
                 
                 document.getElementById('user-name').textContent = 'Visualizador Público';
                 document.getElementById('user-badge').textContent = 'VIEWER';
                 document.getElementById('user-badge').className = 'user-badge';
                 document.getElementById('admin-login-btn').style.display = 'inline-block';
                 document.getElementById('logout-btn').style.display = 'none';
+                
+                document.getElementById('admin-panel').classList.remove('show');
                 
                 desabilitarControlesAdmin();
                 
@@ -710,7 +784,6 @@ const app = initializeApp(firebaseConfig);
                 };
                 
                 localStorage.setItem('estacionamento_dados', JSON.stringify(dados));
-                console.log('✅ Dados salvos localmente');
             } catch (error) {
                 console.error('Erro ao salvar localmente:', error);
             }
@@ -859,11 +932,37 @@ const app = initializeApp(firebaseConfig);
             }, 4000);
         }
 
+        // ===== FUNÇÕES ADMIN (PLACEHOLDER) =====
+        function toggleEditMode() {
+            if (tipoUsuario !== 'admin') {
+                mostrarNotificacao('❌ Acesso negado: Apenas administradores', 'erro');
+                return;
+            }
+            mostrarNotificacao('🔧 Modo de edição em desenvolvimento', 'info');
+        }
+
+        function adicionarNovaVaga() {
+            if (tipoUsuario !== 'admin') return;
+            mostrarNotificacao('➕ Função em desenvolvimento', 'info');
+        }
+
+        function exportarLayout() {
+            if (tipoUsuario !== 'admin') return;
+            mostrarNotificacao('📤 Função em desenvolvimento', 'info');
+        }
+
+        function importarLayout() {
+            if (tipoUsuario !== 'admin') return;
+            mostrarNotificacao('📥 Função em desenvolvimento', 'info');
+        }
+
         // ===== INICIALIZAÇÃO =====
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando sistema de estacionamento...');
+            
             var container = document.getElementById('mapa-estacionamento');
             
-            // Gerar 62 vagas
+            // Gerar 62 vagas automaticamente
             for (var i = 1; i <= 62; i++) {
                 var vagaId = 'V' + (i < 10 ? '0' + i : i);
                 var x = 80 + ((i - 1) % 10) * 120;
@@ -884,8 +983,8 @@ const app = initializeApp(firebaseConfig);
             // Atualizar timestamp
             document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');
             
-            console.log('✅ Sistema inicializado com sucesso');
-            mostrarNotificacao('🚀 Sistema inicializado com sucesso!', 'sucesso');
+            console.log('✅ Sistema inicializado com sucesso em modo visualizador');
+            mostrarNotificacao('🚀 Sistema inicializado - Modo Visualizador', 'sucesso');
         });
 
         // Salvar automaticamente ao fechar
