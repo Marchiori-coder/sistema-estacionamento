@@ -508,7 +508,7 @@
     <!-- Status Firebase -->
     <div class="status-firebase" id="status-firebase">
         <div class="indicador-firebase"></div>
-        <span id="texto-firebase">Sistema Inicializado</span>
+        <span id="texto-firebase">Conectando Firebase...</span>
     </div>
 
     <div class="container">
@@ -572,26 +572,17 @@
     </div>
 
     <script>
-        // ===== CONFIGURAÇÃO FIREBASE =====
+        // ===== CONFIGURAÇÃO FIREBASE COM SUAS CREDENCIAIS REAIS =====
         var firebaseConfig = {
-        // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+            apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
+            authDomain: "teste-dbacd.firebaseapp.com",
+            databaseURL: "https://teste-dbacd-default-rtdb.firebaseio.com/",
+            projectId: "teste-dbacd",
+            storageBucket: "teste-dbacd.firebasestorage.app",
+            messagingSenderId: "381642195685",
+            appId: "1:381642195685:web:746eb4df7667813b0e4a0c"
+        };
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
-  authDomain: "teste-dbacd.firebaseapp.com",
-  databaseURL: "https://teste-dbacd-default-rtdb.firebaseio.com",
-  projectId: "teste-dbacd",
-  storageBucket: "teste-dbacd.firebasestorage.app",
-  messagingSenderId: "381642195685",
-  appId: "1:381642195685:web:746eb4df7667813b0e4a0c"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
         // ===== VARIÁVEIS GLOBAIS =====
         var estadoVagas = {};
         var posicaoVagas = {};
@@ -703,6 +694,11 @@ const app = initializeApp(firebaseConfig);
             
             atualizarEstatisticas();
             salvarLocal();
+            
+            // Salvar no Firebase automaticamente se conectado
+            if (firebaseConectado) {
+                salvarNoFirebase();
+            }
         }
 
         function atualizarEstatisticas() {
@@ -740,6 +736,9 @@ const app = initializeApp(firebaseConfig);
                 }
                 atualizarEstatisticas();
                 salvarLocal();
+                if (firebaseConectado) {
+                    salvarNoFirebase();
+                }
                 mostrarNotificacao('🔄 Todas as vagas resetadas', 'info');
             }
         }
@@ -755,6 +754,9 @@ const app = initializeApp(firebaseConfig);
             }
             atualizarEstatisticas();
             salvarLocal();
+            if (firebaseConectado) {
+                salvarNoFirebase();
+            }
             mostrarNotificacao('🚗 Todas as vagas ocupadas', 'info');
         }
 
@@ -769,6 +771,9 @@ const app = initializeApp(firebaseConfig);
             }
             atualizarEstatisticas();
             salvarLocal();
+            if (firebaseConectado) {
+                salvarNoFirebase();
+            }
             mostrarNotificacao('✅ Todas as vagas liberadas', 'info');
         }
 
@@ -848,6 +853,33 @@ const app = initializeApp(firebaseConfig);
             }
         }
 
+        function carregarDoFirebase() {
+            if (!firebaseConectado || !database) return;
+            
+            database.ref('estacionamento').on('value', function(snapshot) {
+                var dados = snapshot.val();
+                if (dados) {
+                    if (dados.vagas) {
+                        estadoVagas = dados.vagas;
+                        aplicarEstadoVagas();
+                    }
+                    
+                    if (dados.posicoes) {
+                        posicaoVagas = dados.posicoes;
+                        aplicarPosicoes();
+                    }
+                    
+                    if (dados.meta) {
+                        totalVagas = dados.meta.totalVagas || totalVagas;
+                        proximoIdVaga = dados.meta.proximoId || proximoIdVaga;
+                    }
+                    
+                    atualizarEstatisticas();
+                    document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');
+                }
+            });
+        }
+
         function aplicarEstadoVagas() {
             for (var vagaId in estadoVagas) {
                 var elemento = document.getElementById(vagaId);
@@ -857,6 +889,20 @@ const app = initializeApp(firebaseConfig);
                 }
             }
             atualizarEstatisticas();
+        }
+
+        function aplicarPosicoes() {
+            for (var vagaId in posicaoVagas) {
+                var elemento = document.getElementById(vagaId);
+                if (elemento) {
+                    var posicao = posicaoVagas[vagaId];
+                    elemento.style.left = posicao.x + 'px';
+                    elemento.style.top = posicao.y + 'px';
+                    if (posicao.angle) {
+                        elemento.style.transform = 'rotate(' + posicao.angle + 'deg)';
+                    }
+                }
+            }
         }
 
         function criarVaga(id, x, y) {
@@ -891,6 +937,7 @@ const app = initializeApp(firebaseConfig);
                         if (snapshot.val() === true) {
                             firebaseConectado = true;
                             atualizarStatusFirebase('conectado', 'Firebase Conectado');
+                            carregarDoFirebase();
                         } else {
                             firebaseConectado = false;
                             atualizarStatusFirebase('desconectado', 'Firebase Desconectado');
@@ -974,7 +1021,7 @@ const app = initializeApp(firebaseConfig);
             // Carregar dados salvos
             carregarLocal();
             
-            // Inicializar Firebase
+            // Inicializar Firebase com suas credenciais
             inicializarFirebase();
             
             // Atualizar estatísticas
@@ -984,7 +1031,7 @@ const app = initializeApp(firebaseConfig);
             document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');
             
             console.log('✅ Sistema inicializado com sucesso em modo visualizador');
-            mostrarNotificacao('🚀 Sistema inicializado - Modo Visualizador', 'sucesso');
+            mostrarNotificacao('🚀 Sistema inicializado - Firebase Configurado!', 'sucesso');
         });
 
         // Salvar automaticamente ao fechar
