@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estacionamento - Admin Completo</title>
+    <title>Sistema de Estacionamento - Acesso Público</title>
     
     <!-- Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -23,7 +23,7 @@
             padding: 20px;
         }
 
-        /* Modal de Login - SIMPLIFICADO */
+        /* Modal de Login Admin - Oculto por padrão */
         .modal-login {
             position: fixed;
             top: 0;
@@ -31,14 +31,20 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.9);
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 10000;
         }
 
-        .modal-login.hidden {
-            display: none !important;
+        .modal-login.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .login-box {
@@ -47,7 +53,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
-            max-width: 450px;
+            max-width: 400px;
             width: 90%;
             animation: slideIn 0.3s ease;
         }
@@ -60,65 +66,7 @@
         .login-box h2 {
             color: #2c3e50;
             margin-bottom: 30px;
-            font-size: 2.2em;
-        }
-
-        .access-options {
-            display: flex;
-            gap: 20px;
-            margin: 30px 0;
-            justify-content: center;
-        }
-
-        .access-option {
-            flex: 1;
-            padding: 30px 20px;
-            border: 3px solid #ecf0f1;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: white;
-        }
-
-        .access-option:hover {
-            border-color: #3498db;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .access-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-        }
-
-        .access-title {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            font-size: 1.2em;
-        }
-
-        .access-desc {
-            font-size: 0.9em;
-            color: #7f8c8d;
-            line-height: 1.4;
-        }
-
-        .admin-login {
-            display: none;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #ecf0f1;
-        }
-
-        .admin-login.show {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            font-size: 2em;
         }
 
         .login-input {
@@ -152,6 +100,17 @@
 
         .login-btn:hover {
             transform: translateY(-2px);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #7f8c8d;
         }
 
         .credentials-info {
@@ -205,6 +164,22 @@
 
         .user-badge.admin {
             background: #f39c12;
+        }
+
+        .admin-login-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+            margin-left: 10px;
+        }
+
+        .admin-login-btn:hover {
+            background: #2980b9;
         }
 
         .logout-btn {
@@ -368,7 +343,7 @@
             z-index: 1;
         }
 
-        /* Vagas editáveis */
+        /* Vagas */
         .vaga {
             position: absolute;
             width: 40px;
@@ -548,6 +523,11 @@
             padding: 25px;
             background: #ecf0f1;
             border-top: 1px solid #bdc3c7;
+            display: none;
+        }
+
+        .upload-section.show {
+            display: block;
         }
 
         .upload-area {
@@ -604,7 +584,7 @@
         }
 
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.3;
             cursor: not-allowed;
             transform: none;
         }
@@ -677,46 +657,23 @@
                 padding: 20px;
                 min-width: 200px;
             }
-
-            .access-options {
-                flex-direction: column;
-                gap: 15px;
-            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Modal de Login -->
+    <!-- Modal de Login Admin -->
     <div class="modal-login" id="modal-login">
         <div class="login-box">
-            <h2>🚗 Sistema de Estacionamento</h2>
+            <button class="close-modal" onclick="fecharModalLogin()">×</button>
+            <h2>🔐 Login Administrador</h2>
             
-            <div class="access-options">
-                <div class="access-option" onclick="acessarComoVisualizador()">
-                    <div class="access-icon">👁️</div>
-                    <div class="access-title">Visualizador</div>
-                    <div class="access-desc">Consultar vagas em tempo real<br><strong>Acesso direto</strong></div>
-                </div>
-                
-                <div class="access-option" onclick="mostrarLoginAdmin()">
-                    <div class="access-icon">👨‍💼</div>
-                    <div class="access-title">Administrador</div>
-                    <div class="access-desc">Controle total do sistema<br><strong>Requer login</strong></div>
-                </div>
-            </div>
+            <input type="text" class="login-input" id="username" placeholder="Usuário" value="admin">
+            <input type="password" class="login-input" id="password" placeholder="Senha" value="admin123">
+            <button class="login-btn" onclick="fazerLoginAdmin()">Entrar como Admin</button>
             
-            <div class="admin-login" id="admin-login">
-                <h3 style="color: #2c3e50; margin-bottom: 20px;">🔐 Login de Administrador</h3>
-                <input type="text" class="login-input" id="username" placeholder="Usuário" value="admin">
-                <input type="password" class="login-input" id="password" placeholder="Senha" value="admin123">
-                <button class="login-btn" onclick="fazerLoginAdmin()">Entrar como Admin</button>
-                
-                <div class="credentials-info">
-                    <strong>Credenciais:</strong> admin / admin123
-                </div>
-                
-                <button onclick="voltarEscolha()" style="background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-top: 15px; cursor: pointer;">← Voltar</button>
+            <div class="credentials-info">
+                <strong>Credenciais:</strong> admin / admin123
             </div>
         </div>
     </div>
@@ -730,13 +687,14 @@
     <div class="container">
         <div class="header">
             <div class="user-info">
-                <span id="user-name">Usuário</span>
+                <span id="user-name">Visualizador Público</span>
                 <span class="user-badge" id="user-badge">VIEWER</span>
-                <button class="logout-btn" onclick="logout()">Sair</button>
+                <button class="admin-login-btn" id="admin-login-btn" onclick="mostrarModalLogin()">Login Admin</button>
+                <button class="logout-btn" id="logout-btn" onclick="logout()" style="display: none;">Sair</button>
             </div>
             
-            <h1>🚗 Sistema de Estacionamento - Controle Completo</h1>
-            <p id="modo-operacao">Sistema de controle em tempo real</p>
+            <h1>🚗 Sistema de Estacionamento - Consulta em Tempo Real</h1>
+            <p id="modo-operacao">Consulte a disponibilidade das vagas em tempo real</p>
             <p><strong>Última atualização:</strong> <span id="ultima-atualizacao">Carregando...</span></p>
             
             <div class="stats">
@@ -766,13 +724,14 @@
             <div class="admin-controls">
                 <button class="admin-btn" id="btn-edit-mode" onclick="toggleEditMode()">✏️ Modo Edição</button>
                 <button class="admin-btn" onclick="adicionarNovaVaga()">➕ Nova Vaga</button>
+                <button class="admin-btn" onclick="mostrarUploadSection()">📁 Upload Planta</button>
                 <button class="admin-btn" onclick="exportarLayout()">📤 Exportar</button>
                 <button class="admin-btn" onclick="importarLayout()">📥 Importar</button>
             </div>
         </div>
 
-        <!-- Upload de planta -->
-        <div class="upload-section">
+        <!-- Upload de planta (só aparece para admin) -->
+        <div class="upload-section" id="upload-section">
             <h3 style="text-align: center; color: #2c3e50; margin-bottom: 15px;">📍 Planta Baixa do Estacionamento</h3>
             
             <div class="upload-area" onclick="document.getElementById('file-input').click()" 
@@ -825,9 +784,9 @@
         </div>
 
         <div class="controles">
-            <button class="btn btn-reset" onclick="resetarTodasVagas()" id="btn-reset">🔄 Resetar</button>
-            <button class="btn btn-ocupar" onclick="ocuparTodasVagas()" id="btn-ocupar">🚗 Ocupar</button>
-            <button class="btn btn-liberar" onclick="liberarTodasVagas()" id="btn-liberar">✅ Liberar</button>
+            <button class="btn btn-reset" onclick="resetarTodasVagas()" id="btn-reset" disabled>🔄 Resetar</button>
+            <button class="btn btn-ocupar" onclick="ocuparTodasVagas()" id="btn-ocupar" disabled>🚗 Ocupar</button>
+            <button class="btn btn-liberar" onclick="liberarTodasVagas()" id="btn-liberar" disabled>✅ Liberar</button>
             <button class="btn btn-salvar" onclick="salvarEstadoLocal()">💾 Salvar</button>
             <button class="btn btn-firebase" onclick="salvarNoFirebase()">🌐 Firebase</button>
         </div>
@@ -838,7 +797,8 @@
     <script>
         // ===== CONFIGURAÇÃO FIREBASE =====
         var firebaseConfig = {
-         // Import the functions you need from the SDKs you need
+            
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -862,8 +822,8 @@ const app = initializeApp(firebaseConfig);
         var firebaseConectado = false;
         var database = null;
         var totalVagas = 62;
-        var usuarioAtual = null;
-        var tipoUsuario = null;
+        var usuarioAtual = 'viewer';
+        var tipoUsuario = 'viewer';
         var modoEdicao = false;
         var vagaSelecionada = null;
         var vagaArrastando = null;
@@ -871,41 +831,18 @@ const app = initializeApp(firebaseConfig);
         var offsetY = 0;
         var proximoIdVaga = 63;
 
-        // ===== SISTEMA DE LOGIN SIMPLIFICADO =====
-        function acessarComoVisualizador() {
-            usuarioAtual = 'viewer';
-            tipoUsuario = 'viewer';
-            
-            // Ocultar modal
-            document.getElementById('modal-login').classList.add('hidden');
-            
-            // Configurar interface para visualizador
-            document.getElementById('user-name').textContent = 'Visualizador';
-            document.getElementById('user-badge').textContent = 'VIEWER';
-            document.getElementById('user-badge').className = 'user-badge viewer';
-            
-            // Desabilitar controles de admin
-            desabilitarControlesAdmin();
-            
-            // Inicializar sistema
-            inicializarSistema();
-            
-            mostrarNotificacao('👁️ Acesso como visualizador - Consulta apenas', 'info');
+        // ===== SISTEMA DE LOGIN =====
+        function mostrarModalLogin() {
+            document.getElementById('modal-login').classList.add('show');
         }
 
-        function mostrarLoginAdmin() {
-            document.getElementById('admin-login').classList.add('show');
-        }
-
-        function voltarEscolha() {
-            document.getElementById('admin-login').classList.remove('show');
+        function fecharModalLogin() {
+            document.getElementById('modal-login').classList.remove('show');
         }
 
         function fazerLoginAdmin() {
             var username = document.getElementById('username').value.trim();
             var password = document.getElementById('password').value.trim();
-            
-            console.log('Tentativa de login:', username, password); // Debug
             
             if (!username || !password) {
                 mostrarNotificacao('❌ Preencha usuário e senha', 'erro');
@@ -917,24 +854,21 @@ const app = initializeApp(firebaseConfig);
                 usuarioAtual = 'admin';
                 tipoUsuario = 'admin';
                 
-                console.log('Login bem-sucedido'); // Debug
+                // Fechar modal
+                fecharModalLogin();
                 
-                // Ocultar modal
-                document.getElementById('modal-login').classList.add('hidden');
-                
-                // Configurar interface para admin
+                // Atualizar interface para admin
                 document.getElementById('user-name').textContent = 'Administrador';
                 document.getElementById('user-badge').textContent = 'ADMIN';
                 document.getElementById('user-badge').className = 'user-badge admin';
+                document.getElementById('admin-login-btn').style.display = 'none';
+                document.getElementById('logout-btn').style.display = 'inline-block';
                 
                 // Mostrar painel admin
                 document.getElementById('admin-panel').classList.add('show');
                 
                 // Habilitar controles de admin
                 habilitarControlesAdmin();
-                
-                // Inicializar sistema
-                inicializarSistema();
                 
                 mostrarNotificacao('🔧 Login de administrador realizado com sucesso!', 'sucesso');
             } else {
@@ -943,23 +877,28 @@ const app = initializeApp(firebaseConfig);
         }
 
         function logout() {
-            if (confirm('Tem certeza que deseja sair do sistema?')) {
-                // Reset de variáveis
-                usuarioAtual = null;
-                tipoUsuario = null;
+            if (confirm('Tem certeza que deseja sair do modo administrador?')) {
+                // Reset para modo visualizador
+                usuarioAtual = 'viewer';
+                tipoUsuario = 'viewer';
                 modoEdicao = false;
                 vagaSelecionada = null;
                 
-                // Reset da interface
-                document.getElementById('modal-login').classList.remove('hidden');
+                // Atualizar interface
+                document.getElementById('user-name').textContent = 'Visualizador Público';
+                document.getElementById('user-badge').textContent = 'VIEWER';
+                document.getElementById('user-badge').className = 'user-badge';
+                document.getElementById('admin-login-btn').style.display = 'inline-block';
+                document.getElementById('logout-btn').style.display = 'none';
+                
+                // Ocultar painéis admin
                 document.getElementById('admin-panel').classList.remove('show');
-                document.getElementById('admin-login').classList.remove('show');
+                document.getElementById('upload-section').classList.remove('show');
                 document.getElementById('edit-controls').classList.remove('show');
                 document.getElementById('mapa-estacionamento').classList.remove('modo-edicao');
                 
-                // Limpar campos
-                document.getElementById('username').value = 'admin';
-                document.getElementById('password').value = 'admin123';
+                // Desabilitar controles de admin
+                desabilitarControlesAdmin();
                 
                 // Reset botão edição
                 var btnEdit = document.getElementById('btn-edit-mode');
@@ -968,7 +907,11 @@ const app = initializeApp(firebaseConfig);
                     btnEdit.textContent = '✏️ Modo Edição';
                 }
                 
-                mostrarNotificacao('👋 Logout realizado com sucesso', 'info');
+                // Limpar campos de login
+                document.getElementById('username').value = 'admin';
+                document.getElementById('password').value = 'admin123';
+                
+                mostrarNotificacao('👋 Logout realizado - Voltando ao modo visualizador', 'info');
             }
         }
 
@@ -989,9 +932,15 @@ const app = initializeApp(firebaseConfig);
                 var btn = document.getElementById(id);
                 if (btn) {
                     btn.disabled = true;
-                    btn.style.opacity = '0.5';
+                    btn.style.opacity = '0.3';
                 }
             });
+        }
+
+        function mostrarUploadSection() {
+            if (tipoUsuario !== 'admin') return;
+            var uploadSection = document.getElementById('upload-section');
+            uploadSection.classList.toggle('show');
         }
 
         // ===== SISTEMA DE EDIÇÃO =====
@@ -1479,7 +1428,7 @@ const app = initializeApp(firebaseConfig);
                     timestamp: new Date().toISOString()
                 };
                 
-                localStorage.setItem('estacionamento_admin', JSON.stringify(dados));
+                localStorage.setItem('estacionamento_publico', JSON.stringify(dados));
             } catch (error) {
                 console.error('Erro ao salvar localmente:', error);
             }
@@ -1514,7 +1463,7 @@ const app = initializeApp(firebaseConfig);
         function carregarDoFirebase() {
             if (!firebaseConectado || !database) return;
             
-            database.ref('estacionamento').once('value').then(function(snapshot) {
+            database.ref('estacionamento').on('value', function(snapshot) {
                 var dados = snapshot.val();
                 if (dados) {
                     if (dados.vagas) {
@@ -1539,13 +1488,14 @@ const app = initializeApp(firebaseConfig);
                     }
                     
                     atualizarEstatisticas();
+                    document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');
                 }
             });
         }
 
         function carregarLocal() {
             try {
-                var dados = localStorage.getItem('estacionamento_admin');
+                var dados = localStorage.getItem('estacionamento_publico');
                 if (dados) {
                     var dadosParsed = JSON.parse(dados);
                     
@@ -1591,4 +1541,49 @@ const app = initializeApp(firebaseConfig);
             for (var vagaId in posicaoVagas) {
                 var elemento = document.getElementById(vagaId);
                 if (elemento) {
-                    var posicao
+                    var posicao = posicaoVagas[vagaId];
+                    elemento.style.left = posicao.x + 'px';
+                    elemento.style.top = posicao.y + 'px';
+                    elemento.style.transform = 'rotate(' + (posicao.angle || 0) + 'deg)';
+                    
+                    if (posicao.width) elemento.style.width = posicao.width + 'px';
+                    if (posicao.height) elemento.style.height = posicao.height + 'px';
+                }
+            }
+        }
+
+        function mostrarNotificacao(mensagem, tipo) {
+            var notificacao = document.createElement('div');
+            notificacao.className = 'notificacao ' + (tipo || 'info');
+            notificacao.textContent = mensagem;
+            
+            document.body.appendChild(notificacao);
+            
+            setTimeout(function() {
+                notificacao.classList.add('mostrar');
+            }, 100);
+            
+            setTimeout(function() {
+                notificacao.classList.remove('mostrar');
+                setTimeout(function() {
+                    if (notificacao.parentNode) {
+                        notificacao.parentNode.removeChild(notificacao);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        function inicializarSistema() {
+            // Carregar dados
+            carregarLocal();
+            
+            // Inicializar Firebase
+            inicializarFirebase();
+            
+            // Atualizar estatísticas
+            atualizarEstatisticas();
+            
+            console.log('Sistema inicializado em modo:', tipoUsuario);
+        }
+
+        // ===== INICIALIZAÇÃO =====
