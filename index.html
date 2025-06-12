@@ -583,15 +583,24 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO FIREBASE - SUBSTITUA PELAS SUAS CREDENCIAIS
-        const firebaseConfig = {
-             apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
   authDomain: "teste-dbacd.firebaseapp.com",
+  databaseURL: "https://teste-dbacd-default-rtdb.firebaseio.com",
   projectId: "teste-dbacd",
   storageBucket: "teste-dbacd.firebasestorage.app",
   messagingSenderId: "381642195685",
   appId: "1:381642195685:web:746eb4df7667813b0e4a0c"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
         };
 
         // Inicializar Firebase
