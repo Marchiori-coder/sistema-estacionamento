@@ -977,7 +977,7 @@
                 container.classList.add('modo-edicao');
                 btn.classList.add('active');
                 btn.textContent = '✅ Finalizar Edição';
-                mostrarNotificacao('✏️ Modo de edição ativado - Clique nas vagas para editar', 'info');
+                mostrarNotificacao('✏️ Modo de edição ativado - Clique e arraste vagas', 'info');
             } else {
                 container.classList.remove('modo-edicao');
                 btn.classList.remove('active');
@@ -1009,7 +1009,7 @@
             document.getElementById('vaga-selecionada').textContent = vaga.id;
             
             atualizarInfoVaga();
-            mostrarNotificacao('🎯 Vaga ' + vaga.id + ' selecionada para edição', 'info');
+            mostrarNotificacao('🎯 Vaga ' + vaga.id + ' selecionada', 'info');
         }
 
         function atualizarInfoVaga() {
@@ -1036,7 +1036,6 @@
             var novoX = (posicaoVagas[vagaId].x || 0) + deltaX;
             var novoY = (posicaoVagas[vagaId].y || 0) + deltaY;
             
-            // Limitar às bordas do container
             var container = document.getElementById('mapa-estacionamento');
             var maxX = container.offsetWidth - (posicaoVagas[vagaId].width || 40);
             var maxY = container.offsetHeight - (posicaoVagas[vagaId].height || 70);
@@ -1051,7 +1050,6 @@
             vagaSelecionada.style.top = novoY + 'px';
             
             atualizarInfoVaga();
-            mostrarNotificacao('📍 Vaga movida para (' + novoX + ', ' + novoY + ')', 'info');
         }
 
         function centralizarVaga() {
@@ -1074,10 +1072,7 @@
         }
 
         function rotacionarVaga(graus) {
-            if (!vagaSelecionada) {
-                mostrarNotificacao('❌ Selecione uma vaga primeiro', 'erro');
-                return;
-            }
+            if (!vagaSelecionada) return;
             
             var vagaId = vagaSelecionada.id;
             var anguloAtual = posicaoVagas[vagaId].angle || 0;
@@ -1087,7 +1082,7 @@
             vagaSelecionada.style.transform = 'rotate(' + novoAngulo + 'deg)';
             
             atualizarInfoVaga();
-            mostrarNotificacao('🔄 Vaga rotacionada ' + graus + '° (Total: ' + novoAngulo + '°)', 'info');
+            mostrarNotificacao('🔄 Rotacionado ' + graus + '°', 'info');
         }
 
         function resetarRotacao() {
@@ -1117,7 +1112,6 @@
             }
             
             atualizarInfoVaga();
-            mostrarNotificacao('📏 Vaga redimensionada', 'info');
         }
 
         function resetarTamanho() {
@@ -1130,17 +1124,17 @@
             vagaSelecionada.style.height = '70px';
             
             atualizarInfoVaga();
-            mostrarNotificacao('📏 Tamanho resetado para padrão', 'info');
+            mostrarNotificacao('📏 Tamanho resetado', 'info');
         }
 
-        // ===== FUNÇÕES DE CÓPIA E PROPRIEDADES =====
+        // ===== FUNÇÕES DE CÓPIA =====
         function copiarPropriedades() {
             if (!vagaSelecionada) return;
             
             var vagaId = vagaSelecionada.id;
             propriedadesCopia = Object.assign({}, posicaoVagas[vagaId]);
             
-            mostrarNotificacao('📄 Propriedades copiadas da vaga ' + vagaId, 'sucesso');
+            mostrarNotificacao('📄 Propriedades copiadas', 'sucesso');
         }
 
         function colarPropriedades() {
@@ -1151,18 +1145,16 @@
             
             var vagaId = vagaSelecionada.id;
             
-            // Manter posição atual, copiar apenas dimensões e rotação
             posicaoVagas[vagaId].width = propriedadesCopia.width;
             posicaoVagas[vagaId].height = propriedadesCopia.height;
             posicaoVagas[vagaId].angle = propriedadesCopia.angle;
             
-            // Aplicar estilos
             vagaSelecionada.style.width = posicaoVagas[vagaId].width + 'px';
             vagaSelecionada.style.height = posicaoVagas[vagaId].height + 'px';
             vagaSelecionada.style.transform = 'rotate(' + posicaoVagas[vagaId].angle + 'deg)';
             
             atualizarInfoVaga();
-            mostrarNotificacao('📋 Propriedades aplicadas à vaga ' + vagaId, 'sucesso');
+            mostrarNotificacao('📋 Propriedades aplicadas', 'sucesso');
         }
 
         function duplicarVaga() {
@@ -1182,7 +1174,6 @@
             posicaoVagas[novoId].x += 50;
             posicaoVagas[novoId].y += 50;
             
-            // Aplicar todas as propriedades
             if (posicaoVagas[vagaOriginalId].width) {
                 novaVaga.style.width = posicaoVagas[vagaOriginalId].width + 'px';
             }
@@ -1196,7 +1187,7 @@
             totalVagas++;
             atualizarEstatisticas();
             
-            mostrarNotificacao('📋 Vaga ' + novoId + ' duplicada com sucesso', 'sucesso');
+            mostrarNotificacao('📋 Vaga duplicada: ' + novoId, 'sucesso');
         }
 
         function renomearVaga() {
@@ -1205,7 +1196,7 @@
             var novoNome = prompt('Digite o novo nome para a vaga:', vagaSelecionada.id);
             if (novoNome && novoNome !== vagaSelecionada.id) {
                 if (document.getElementById(novoNome)) {
-                    mostrarNotificacao('❌ Já existe uma vaga com este nome', 'erro');
+                    mostrarNotificacao('❌ Nome já existe', 'erro');
                     return;
                 }
                 
@@ -1220,14 +1211,14 @@
                 vagaSelecionada.textContent = novoNome;
                 document.getElementById('vaga-selecionada').textContent = novoNome;
                 
-                mostrarNotificacao('✏️ Vaga renomeada para ' + novoNome, 'sucesso');
+                mostrarNotificacao('✏️ Renomeado para ' + novoNome, 'sucesso');
             }
         }
 
         function excluirVaga() {
             if (!vagaSelecionada) return;
             
-            if (confirm('Tem certeza que deseja excluir a vaga ' + vagaSelecionada.id + '?')) {
+            if (confirm('Excluir vaga ' + vagaSelecionada.id + '?')) {
                 var vagaId = vagaSelecionada.id;
                 
                 delete estadoVagas[vagaId];
@@ -1240,7 +1231,7 @@
                 document.getElementById('edit-controls').style.display = 'none';
                 atualizarEstatisticas();
                 
-                mostrarNotificacao('🗑️ Vaga ' + vagaId + ' excluída', 'info');
+                mostrarNotificacao('🗑️ Vaga excluída', 'info');
             }
         }
 
@@ -1250,22 +1241,18 @@
             var novoId = 'V' + (proximoIdVaga < 10 ? '0' + proximoIdVaga : proximoIdVaga);
             proximoIdVaga++;
             
-            var x = 100;
-            var y = 100;
-            
-            var novaVaga = criarVaga(novoId, x, y);
+            var novaVaga = criarVaga(novoId, 100, 100);
             totalVagas++;
             atualizarEstatisticas();
             
-            // Selecionar automaticamente a nova vaga se estiver em modo edição
             if (modoEdicao) {
                 selecionarVaga(novaVaga);
             }
             
-            mostrarNotificacao('➕ Nova vaga ' + novoId + ' adicionada', 'sucesso');
+            mostrarNotificacao('➕ Nova vaga: ' + novoId, 'sucesso');
         }
 
-        // ===== SISTEMA DE ARRASTE COMPLETO =====
+        // ===== SISTEMA DE ARRASTE =====
         function iniciarArraste(e) {
             if (!modoEdicao) return;
             
@@ -1291,7 +1278,6 @@
             var x = e.clientX - containerRect.left - offsetX;
             var y = e.clientY - containerRect.top - offsetY;
             
-            // Limitar às bordas
             x = Math.max(0, Math.min(x, containerRect.width - 40));
             y = Math.max(0, Math.min(y, containerRect.height - 70));
             
@@ -1307,14 +1293,13 @@
         function finalizarArraste() {
             if (vagaArrastando) {
                 vagaArrastando.classList.remove('arrastando');
-                mostrarNotificacao('📍 Vaga ' + vagaArrastando.id + ' reposicionada', 'info');
                 vagaArrastando = null;
                 salvarLocal();
                 if (firebaseConectado) salvarNoFirebase();
             }
         }
 
-        // ===== IMPORT/EXPORT COMPLETO =====
+        // ===== IMPORT/EXPORT =====
         function exportarLayout() {
             if (tipoUsuario !== 'admin') return;
             
@@ -1325,9 +1310,7 @@
                 plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage,
                 totalVagas: totalVagas,
                 proximoId: proximoIdVaga,
-                versao: '3.0',
-                autor: 'Sistema de Estacionamento Admin',
-                descricao: 'Layout exportado com ' + totalVagas + ' vagas'
+                versao: '3.0'
             };
             
             var blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'});
@@ -1338,7 +1321,7 @@
             a.click();
             URL.revokeObjectURL(url);
             
-            mostrarNotificacao('📤 Layout exportado com ' + totalVagas + ' vagas!', 'sucesso');
+            mostrarNotificacao('📤 Layout exportado!', 'sucesso');
         }
 
         function importarLayout() {
@@ -1360,20 +1343,12 @@
                 try {
                     var dados = JSON.parse(e.target.result);
                     
-                    var confirmacao = 'Importar layout?\n\n' +
-                        'Vagas: ' + (dados.totalVagas || 'N/A') + '\n' +
-                        'Versão: ' + (dados.versao || 'N/A') + '\n' +
-                        'Data: ' + (dados.timestamp ? new Date(dados.timestamp).toLocaleString('pt-BR') : 'N/A') + '\n\n' +
-                        'ATENÇÃO: Isso substituirá todo o layout atual!';
-                    
-                    if (confirm(confirmacao)) {
-                        // Limpar vagas existentes
+                    if (confirm('Importar layout? Isso substituirá tudo!')) {
                         var vagasExistentes = document.querySelectorAll('.vaga');
                         vagasExistentes.forEach(function(vaga) {
                             vaga.remove();
                         });
                         
-                        // Importar dados
                         if (dados.vagas) estadoVagas = dados.vagas;
                         if (dados.posicoes) posicaoVagas = dados.posicoes;
                         if (dados.totalVagas) totalVagas = dados.totalVagas;
@@ -1382,7 +1357,6 @@
                             document.getElementById('planta-baixa').style.backgroundImage = dados.plantaBaixa;
                         }
                         
-                        // Recriar vagas com todas as propriedades
                         for (var vagaId in posicaoVagas) {
                             var pos = posicaoVagas[vagaId];
                             var vaga = criarVaga(vagaId, pos.x, pos.y);
@@ -1401,15 +1375,13 @@
                         salvarLocal();
                         if (firebaseConectado) salvarNoFirebase();
                         
-                        mostrarNotificacao('📥 Layout importado: ' + totalVagas + ' vagas!', 'sucesso');
+                        mostrarNotificacao('📥 Layout importado!', 'sucesso');
                     }
                 } catch (error) {
                     mostrarNotificacao('❌ Erro ao importar: ' + error.message, 'erro');
                 }
             };
             reader.readAsText(file);
-            
-            // Limpar input para permitir reimportação do mesmo arquivo
             event.target.value = '';
         }
 
@@ -1427,11 +1399,9 @@
                 document.getElementById('planta-baixa').style.backgroundImage = 'url(' + e.target.result + ')';
                 salvarLocal();
                 if (firebaseConectado) salvarNoFirebase();
-                mostrarNotificacao('🖼️ Planta baixa carregada com sucesso!', 'sucesso');
+                mostrarNotificacao('🖼️ Planta baixa carregada!', 'sucesso');
             };
             reader.readAsDataURL(file);
-            
-            // Limpar input
             event.target.value = '';
         }
 
@@ -1467,4 +1437,54 @@
             var ocupadas = 0;
             
             for (var vagaId in estadoVagas) {
-                if (estadoVagas[vagaId]
+                if (estadoVagas[vagaId] === 'livre') {
+                    livres++;
+                } else {
+                    ocupadas++;
+                }
+            }
+            
+            var taxaOcupacao = totalVagas > 0 ? Math.round((ocupadas / totalVagas) * 100) : 0;
+
+            document.getElementById('total-vagas').textContent = totalVagas;
+            document.getElementById('vagas-livres').textContent = livres;
+            document.getElementById('vagas-ocupadas').textContent = ocupadas;
+            document.getElementById('taxa-ocupacao').textContent = taxaOcupacao + '%';
+        }
+
+        function resetarTodasVagas() {
+            if (tipoUsuario !== 'admin') return;
+            
+            if (confirm('Resetar todas as vagas para livre?')) {
+                var vagas = document.querySelectorAll('.vaga');
+                for (var i = 0; i < vagas.length; i++) {
+                    vagas[i].classList.remove('ocupada');
+                    vagas[i].classList.add('livre');
+                    estadoVagas[vagas[i].id] = 'livre';
+                }
+                atualizarEstatisticas();
+                salvarLocal();
+                if (firebaseConectado) salvarNoFirebase();
+                mostrarNotificacao('🔄 Todas as vagas resetadas', 'info');
+            }
+        }
+
+        function ocuparTodasVagas() {
+            if (tipoUsuario !== 'admin') return;
+            
+            var vagas = document.querySelectorAll('.vaga');
+            for (var i = 0; i < vagas.length; i++) {
+                vagas[i].classList.remove('livre');
+                vagas[i].classList.add('ocupada');
+                estadoVagas[vagas[i].id] = 'ocupada';
+            }
+            atualizarEstatisticas();
+            salvarLocal();
+            if (firebaseConectado) salvarNoFirebase();
+            mostrarNotificacao('🚗 Todas as vagas ocupadas', 'info');
+        }
+
+        function liberarTodasVagas() {
+            if (tipoUsuario !== 'admin') return;
+            
+            var vagas = document.querySelector
