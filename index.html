@@ -958,14 +958,8 @@
             if (!file) return;
             if (file.size > 10 * 1024 * 1024) {
                 mostrarNotificacao('❌ Arquivo muito grande (máx 10MB)', 'erro');
-                        function processarPlantaBaixa(event) {
-            if (tipoUsuario !== 'admin') return;
-            var file = event.target.files[0];
-            if (!file) return;
-            if (file.size > 10 * 1024 * 1024) {
-                mostrarNotificacao('❌ Arquivo muito grande (máx 10MB)', 'erro');
                 return;
-            }
+                        }
             var reader = new FileReader();
             reader.onload = function(e) {
                 var planta = document.getElementById('planta-baixa');
@@ -980,8 +974,14 @@
             event.target.value = '';
         }
 
+        // CORREÇÃO PRINCIPAL: Função alternarStatusVaga com proteção dupla para viewers
         function alternarStatusVaga(elemento) {
-            if (tipoUsuario !== 'admin') return;
+            // PROTEÇÃO DUPLA: Verificar se é admin
+            if (tipoUsuario !== 'admin') {
+                console.log('Acesso negado: apenas administradores podem alterar status das vagas');
+                return;
+            }
+            
             var vagaId = elemento.id;
             var estadoAtual = estadoVagas[vagaId] || 'livre';
             var novoEstado = estadoAtual === 'livre' ? 'ocupada' : 'livre';
@@ -995,6 +995,7 @@
             }
         }
 
+        // CORREÇÃO PRINCIPAL: Função criarVaga com restrições para viewers
         function criarVaga(id, x, y) {
             var vaga = document.createElement('div');
             vaga.className = 'vaga livre';
@@ -1004,6 +1005,8 @@
             vaga.style.top = y + 'px';
             posicaoVagas[id] = {x: x, y: y, width: 40, height: 70, angle: 0};
             estadoVagas[id] = 'livre';
+            
+            // CORREÇÃO: Apenas admins podem interagir com as vagas
             vaga.addEventListener('click', function(e) {
                 if (tipoUsuario === 'admin') {
                     if (modoEdicao) {
@@ -1012,11 +1015,15 @@
                         alternarStatusVaga(vaga);
                     }
                 }
+                // Para viewers: não faz nada, apenas visualiza
                 e.stopPropagation();
             });
+            
+            // CORREÇÃO: Apenas admins podem arrastar vagas
             if (tipoUsuario === 'admin') {
                 vaga.addEventListener('mousedown', iniciarArraste);
             }
+            
             document.getElementById('mapa-estacionamento').appendChild(vaga);
             return vaga;
         }
@@ -1251,4 +1258,3 @@
     </script>
 </body>
 </html>
-
