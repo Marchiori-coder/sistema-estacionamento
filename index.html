@@ -59,9 +59,16 @@
         .stat-number { font-size: 2em; font-weight: bold; display: block; }
 
         /* Estacionamento */
-        .estacionamento-wrapper { padding: 40px; background: #f8f9fa; min-height: 400px; }
-        .estacionamento-container { position: relative; width: 100%; max-width: 1400px; height: 900px; margin: 0 auto; background: #e8e8e8; border-radius: 15px; border: 4px solid #34495e; overflow: visible; }
-        .planta-baixa { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.8; z-index: 1; }
+        .estacionamento-wrapper { padding: 40px; background: #f8f9fa; min-height: 400px; position: relative; }
+        .estacionamento-container { position: relative; width: 100%; max-width: 1400px; height: 900px; margin: 0 auto; background: #e8e8e8; border-radius: 15px; border: 4px solid #34495e; overflow: visible; transform-origin: center center; transition: transform 0.3s ease; }
+        .planta-baixa { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.8; z-index: 1; transform-origin: center center; transition: transform 0.3s ease; }
+
+        /* Controles de Zoom */
+        .zoom-controls { position: absolute; top: 20px; left: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100; }
+        .zoom-controls h4 { margin-bottom: 10px; color: #2c3e50; font-size: 0.9em; }
+        .zoom-btn { padding: 8px 12px; margin: 2px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.8em; }
+        .zoom-btn:hover { background: #2980b9; }
+        .zoom-info { font-size: 0.8em; color: #7f8c8d; margin-top: 5px; text-align: center; }
 
         /* Vagas */
         .vaga { position: absolute; width: 40px; height: 70px; border: 2px solid #2c3e50; background-color: rgba(39, 174, 96, 0.9); display: flex !important; justify-content: center; align-items: center; font-size: 9px; font-weight: bold; color: white; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 10; user-select: none; }
@@ -71,10 +78,11 @@
         .modo-edicao .vaga { cursor: move !important; border: 3px dashed #f39c12 !important; background-color: rgba(243, 156, 18, 0.8) !important; }
         .modo-edicao .vaga:hover { transform: scale(1.15) !important; box-shadow: 0 8px 25px rgba(243, 156, 18, 0.5) !important; }
         .vaga.selecionada { border: 4px solid #9b59b6 !important; background-color: rgba(155, 89, 182, 0.9) !important; box-shadow: 0 0 20px rgba(155, 89, 182, 0.8) !important; z-index: 1000 !important; }
+        .vaga.multipla-selecionada { border: 4px solid #e67e22 !important; background-color: rgba(230, 126, 34, 0.9) !important; box-shadow: 0 0 15px rgba(230, 126, 34, 0.6) !important; z-index: 999 !important; }
         .vaga.arrastando { z-index: 1001 !important; transform: scale(1.3) rotate(5deg) !important; box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important; opacity: 0.9; }
 
         /* Controles de Edição */
-        .edit-controls { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); background: white; padding: 25px; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); display: none; z-index: 1000; min-width: 280px; max-height: 85vh; overflow-y: auto; }
+        .edit-controls { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); background: white; padding: 25px; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); display: none; z-index: 1000; min-width: 320px; max-height: 85vh; overflow-y: auto; }
         .edit-controls.show { display: block !important; animation: slideInRight 0.3s ease; }
         @keyframes slideInRight { from { transform: translateY(-50%) translateX(100%); opacity: 0; } to { transform: translateY(-50%) translateX(0); opacity: 1; } }
         .edit-title { text-align: center; margin-bottom: 20px; color: #2c3e50; font-weight: bold; font-size: 1.2em; padding-bottom: 15px; border-bottom: 2px solid #ecf0f1; }
@@ -85,11 +93,16 @@
         .edit-btn.resize { background: #e67e22; color: white; }
         .edit-btn.action { background: #9b59b6; color: white; }
         .edit-btn.delete { background: #e74c3c; color: white; }
+        .edit-btn.multi { background: #27ae60; color: white; }
         .edit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .size-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
         .size-btn { padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; }
         .position-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin: 10px 0; }
         .position-btn { padding: 8px; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; }
+
+        /* Seleção múltipla */
+        .selection-area { position: absolute; border: 2px dashed #e67e22; background: rgba(230, 126, 34, 0.1); z-index: 500; pointer-events: none; display: none; }
+        .multi-selection-info { background: #e67e22; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 0.9em; }
 
         /* Controles Principais */
         .controles { padding: 30px; background: #ecf0f1; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
@@ -113,9 +126,10 @@
         @media (max-width: 768px) {
             .estacionamento-container { height: 600px; transform: scale(0.8); transform-origin: top center; }
             .vaga { width: 30px; height: 55px; font-size: 8px; }
-            .edit-controls { right: 10px; padding: 20px; min-width: 250px; }
+            .edit-controls { right: 10px; padding: 20px; min-width: 280px; }
             .user-info { top: 30px; right: 10px; padding: 10px 20px; gap: 10px; }
             .header { padding-top: 90px; }
+            .zoom-controls { top: 10px; left: 10px; padding: 10px; }
         }
     </style>
 </head>
@@ -128,7 +142,6 @@
             <input type="text" class="login-input" id="username" placeholder="Usuário" value="admin">
             <input type="password" class="login-input" id="password" placeholder="Senha" value="admin123">
             <button class="login-btn" onclick="fazerLoginAdmin()">Entrar como Admin</button>
-            <!-- CREDENCIAIS REMOVIDAS/OCULTAS -->
         </div>
     </div>
 
@@ -169,18 +182,58 @@
                 <button class="admin-btn" onclick="carregarPlantaBaixa()">🖼️ Planta Baixa</button>
                 <button class="admin-btn" onclick="exportarLayout()">📤 Exportar</button>
                 <button class="admin-btn" onclick="importarLayout()">📥 Importar</button>
+                <button class="admin-btn" id="btn-multi-select" onclick="toggleSelecaoMultipla()">🔲 Seleção Múltipla</button>
             </div>
         </div>
 
         <div class="estacionamento-wrapper">
+            <!-- Controles de Zoom -->
+            <div class="zoom-controls" id="zoom-controls" style="display: none;">
+                <h4>🔍 Controles de Zoom</h4>
+                <div>
+                    <button class="zoom-btn" onclick="ajustarZoom('container', 0.1)">🔍+</button>
+                    <button class="zoom-btn" onclick="ajustarZoom('container', -0.1)">🔍-</button>
+                    <button class="zoom-btn" onclick="resetarZoom('container')">⟲</button>
+                </div>
+                <div style="margin-top: 8px;">
+                    <button class="zoom-btn" onclick="ajustarZoom('planta', 0.1)">🖼️+</button>
+                    <button class="zoom-btn" onclick="ajustarZoom('planta', -0.1)">🖼️-</button>
+                    <button class="zoom-btn" onclick="resetarZoom('planta')">⟲🖼️</button>
+                </div>
+                <div class="zoom-info">
+                    Container: <span id="zoom-container">100%</span><br>
+                    Planta: <span id="zoom-planta">100%</span>
+                </div>
+            </div>
+
             <div class="estacionamento-container" id="mapa-estacionamento">
                 <div class="planta-baixa" id="planta-baixa"></div>
+                <div class="selection-area" id="selection-area"></div>
             </div>
         </div>
 
         <!-- Controles de Edição -->
         <div class="edit-controls" id="edit-controls">
             <div class="edit-title">🔧 Editando: <span id="vaga-selecionada">-</span></div>
+            
+            <!-- Seção de seleção múltipla -->
+            <div class="multi-selection-info" id="multi-selection-info" style="display: none;">
+                <span id="multi-count">0</span> vagas selecionadas
+            </div>
+
+            <div class="edit-section" id="multi-actions" style="display: none;">
+                <h4>🔲 Ações em Lote</h4>
+                <button class="edit-btn multi" onclick="aplicarRotacaoMultipla(-90)">↶ Rotacionar -90°</button>
+                <button class="edit-btn multi" onclick="aplicarRotacaoMultipla(90)">↷ Rotacionar +90°</button>
+                <button class="edit-btn multi" onclick="redimensionarMultiplas('width', 5)">📏 Largura +</button>
+                <button class="edit-btn multi" onclick="redimensionarMultiplas('width', -5)">📏 Largura -</button>
+                <button class="edit-btn multi" onclick="redimensionarMultiplas('height', 5)">📏 Altura +</button>
+                <button class="edit-btn multi" onclick="redimensionarMultiplas('height', -5)">📏 Altura -</button>
+                <button class="edit-btn multi" onclick="alinharVagasMultiplas('horizontal')">↔️ Alinhar H</button>
+                <button class="edit-btn multi" onclick="alinharVagasMultiplas('vertical')">↕️ Alinhar V</button>
+                <button class="edit-btn delete" onclick="excluirVagasMultiplas()">🗑️ Excluir Todas</button>
+                <button class="edit-btn action" onclick="limparSelecaoMultipla()">❌ Limpar Seleção</button>
+            </div>
             
             <div class="edit-section">
                 <h4>📍 Posição Precisa</h4>
@@ -267,6 +320,9 @@
 
         // Variáveis Globais
         var estadoVagas = {}, posicaoVagas = {}, firebaseConectado = false, database = null, totalVagas = 62, usuarioAtual = 'viewer', tipoUsuario = 'viewer', modoEdicao = false, proximoIdVaga = 63, vagaSelecionada = null, vagaArrastando = null, offsetX = 0, offsetY = 0;
+        
+        // Novas variáveis para funcionalidades adicionadas
+        var zoomContainer = 1, zoomPlanta = 1, selecaoMultipla = false, vagasMultiplasSelecao = [], arrasteSelecionando = false, inicioSelecao = {x: 0, y: 0};
 
         // Funções de Login
         function mostrarModalLogin() { document.getElementById('modal-login').classList.add('show'); }
@@ -284,6 +340,7 @@
                 document.getElementById('admin-login-btn').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'inline-block';
                 document.getElementById('admin-panel').classList.add('show');
+                document.getElementById('zoom-controls').style.display = 'block';
                 habilitarControlesAdmin();
                 mostrarNotificacao('🔧 Login de administrador realizado!', 'sucesso');
             } else { mostrarNotificacao('❌ Credenciais inválidas', 'erro'); }
@@ -291,7 +348,7 @@
 
         function logout() {
             if (confirm('Sair do modo administrador?')) {
-                usuarioAtual = 'viewer'; tipoUsuario = 'viewer'; modoEdicao = false;
+                usuarioAtual = 'viewer'; tipoUsuario = 'viewer'; modoEdicao = false; selecaoMultipla = false;
                 document.getElementById('user-name').textContent = 'Visualizador Público';
                 document.getElementById('user-badge').textContent = 'VIEWER';
                 document.getElementById('user-badge').className = 'user-badge';
@@ -299,7 +356,9 @@
                 document.getElementById('logout-btn').style.display = 'none';
                 document.getElementById('admin-panel').classList.remove('show');
                 document.getElementById('edit-controls').style.display = 'none';
+                document.getElementById('zoom-controls').style.display = 'none';
                 document.getElementById('mapa-estacionamento').classList.remove('modo-edicao');
+                limparSelecaoMultipla();
                 desabilitarControlesAdmin();
                 mostrarNotificacao('👋 Logout realizado', 'info');
             }
@@ -307,6 +366,186 @@
 
         function habilitarControlesAdmin() { ['btn-reset', 'btn-ocupar', 'btn-liberar'].forEach(id => { var btn = document.getElementById(id); if (btn) { btn.disabled = false; btn.style.opacity = '1'; } }); }
         function desabilitarControlesAdmin() { ['btn-reset', 'btn-ocupar', 'btn-liberar'].forEach(id => { var btn = document.getElementById(id); if (btn) { btn.disabled = true; btn.style.opacity = '0.3'; } }); }
+
+        // Funções de Zoom
+        function ajustarZoom(tipo, incremento) {
+            if (tipoUsuario !== 'admin') return;
+            
+            if (tipo === 'container') {
+                zoomContainer = Math.max(0.3, Math.min(3, zoomContainer + incremento));
+                document.getElementById('mapa-estacionamento').style.transform = `scale(${zoomContainer})`;
+                document.getElementById('zoom-container').textContent = Math.round(zoomContainer * 100) + '%';
+            } else if (tipo === 'planta') {
+                zoomPlanta = Math.max(0.3, Math.min(3, zoomPlanta + incremento));
+                document.getElementById('planta-baixa').style.transform = `scale(${zoomPlanta})`;
+                document.getElementById('zoom-planta').textContent = Math.round(zoomPlanta * 100) + '%';
+            }
+            
+            mostrarNotificacao(`🔍 Zoom ${tipo}: ${Math.round((tipo === 'container' ? zoomContainer : zoomPlanta) * 100)}%`, 'info');
+        }
+
+        function resetarZoom(tipo) {
+            if (tipoUsuario !== 'admin') return;
+            
+            if (tipo === 'container') {
+                zoomContainer = 1;
+                document.getElementById('mapa-estacionamento').style.transform = 'scale(1)';
+                document.getElementById('zoom-container').textContent = '100%';
+            } else if (tipo === 'planta') {
+                zoomPlanta = 1;
+                document.getElementById('planta-baixa').style.transform = 'scale(1)';
+                document.getElementById('zoom-planta').textContent = '100%';
+            }
+            
+            mostrarNotificacao(`⟲ Zoom ${tipo} resetado`, 'info');
+        }
+
+        // Seleção Múltipla
+        function toggleSelecaoMultipla() {
+            if (tipoUsuario !== 'admin') return;
+            
+            selecaoMultipla = !selecaoMultipla;
+            var btn = document.getElementById('btn-multi-select');
+            
+            if (selecaoMultipla) {
+                btn.classList.add('active');
+                btn.textContent = '✅ Seleção Ativa';
+                mostrarNotificacao('🔲 Modo seleção múltipla ativado', 'info');
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '🔲 Seleção Múltipla';
+                limparSelecaoMultipla();
+                mostrarNotificacao('❌ Seleção múltipla desativada', 'info');
+            }
+        }
+
+        function limparSelecaoMultipla() {
+            vagasMultiplasSelecao.forEach(vaga => {
+                vaga.classList.remove('multipla-selecionada');
+            });
+            vagasMultiplasSelecao = [];
+            atualizarInterfaceSelecaoMultipla();
+        }
+
+        function adicionarVagaSelecaoMultipla(vaga) {
+            if (!selecaoMultipla) return;
+            
+            var index = vagasMultiplasSelecao.indexOf(vaga);
+            if (index > -1) {
+                vagasMultiplasSelecao.splice(index, 1);
+                vaga.classList.remove('multipla-selecionada');
+            } else {
+                vagasMultiplasSelecao.push(vaga);
+                vaga.classList.add('multipla-selecionada');
+            }
+            
+            atualizarInterfaceSelecaoMultipla();
+        }
+
+        function atualizarInterfaceSelecaoMultipla() {
+            var count = vagasMultiplasSelecao.length;
+            var multiInfo = document.getElementById('multi-selection-info');
+            var multiActions = document.getElementById('multi-actions');
+            
+            if (count > 0) {
+                multiInfo.style.display = 'block';
+                multiActions.style.display = 'block';
+                document.getElementById('multi-count').textContent = count;
+                document.getElementById('edit-controls').style.display = 'block';
+            } else {
+                multiInfo.style.display = 'none';
+                multiActions.style.display = 'none';
+                if (!vagaSelecionada) {
+                    document.getElementById('edit-controls').style.display = 'none';
+                }
+            }
+        }
+
+        // Ações em lote para seleção múltipla
+        function aplicarRotacaoMultipla(graus) {
+            if (vagasMultiplasSelecao.length === 0) {
+                mostrarNotificacao('❌ Nenhuma vaga selecionada', 'erro');
+                return;
+            }
+            
+            vagasMultiplasSelecao.forEach(vaga => {
+                var vagaId = vaga.id;
+                var novoAngulo = ((posicaoVagas[vagaId].angle || 0) + graus) % 360;
+                posicaoVagas[vagaId].angle = novoAngulo;
+                vaga.style.transform = 'rotate(' + novoAngulo + 'deg)';
+            });
+            
+            mostrarNotificacao(`🔄 ${vagasMultiplasSelecao.length} vagas rotacionadas ${graus}°`, 'sucesso');
+        }
+
+        function redimensionarMultiplas(dimensao, valor) {
+            if (vagasMultiplasSelecao.length === 0) {
+                mostrarNotificacao('❌ Nenhuma vaga selecionada', 'erro');
+                return;
+            }
+            
+            vagasMultiplasSelecao.forEach(vaga => {
+                var vagaId = vaga.id;
+                if (!posicaoVagas[vagaId].width) posicaoVagas[vagaId].width = 40;
+                if (!posicaoVagas[vagaId].height) posicaoVagas[vagaId].height = 70;
+                
+                if (dimensao === 'width') {
+                    posicaoVagas[vagaId].width = Math.max(15, posicaoVagas[vagaId].width + valor);
+                    vaga.style.width = posicaoVagas[vagaId].width + 'px';
+                } else {
+                    posicaoVagas[vagaId].height = Math.max(20, posicaoVagas[vagaId].height + valor);
+                    vaga.style.height = posicaoVagas[vagaId].height + 'px';
+                }
+            });
+            
+            mostrarNotificacao(`📏 ${vagasMultiplasSelecao.length} vagas redimensionadas`, 'sucesso');
+        }
+
+        function alinharVagasMultiplas(tipo) {
+            if (vagasMultiplasSelecao.length < 2) {
+                mostrarNotificacao('❌ Selecione pelo menos 2 vagas', 'erro');
+                return;
+            }
+            
+            var referencia = vagasMultiplasSelecao[0];
+            var refPos = posicaoVagas[referencia.id];
+            
+            vagasMultiplasSelecao.slice(1).forEach(vaga => {
+                var vagaId = vaga.id;
+                if (tipo === 'horizontal') {
+                    posicaoVagas[vagaId].y = refPos.y;
+                    vaga.style.top = refPos.y + 'px';
+                } else {
+                    posicaoVagas[vagaId].x = refPos.x;
+                    vaga.style.left = refPos.x + 'px';
+                }
+            });
+            
+            mostrarNotificacao(`↔️ ${vagasMultiplasSelecao.length} vagas alinhadas ${tipo}mente`, 'sucesso');
+        }
+
+        function excluirVagasMultiplas() {
+            if (vagasMultiplasSelecao.length === 0) {
+                mostrarNotificacao('❌ Nenhuma vaga selecionada', 'erro');
+                return;
+            }
+            
+            if (confirm(`Excluir ${vagasMultiplasSelecao.length} vagas selecionadas?`)) {
+                var count = vagasMultiplasSelecao.length;
+                vagasMultiplasSelecao.forEach(vaga => {
+                    var vagaId = vaga.id;
+                    delete estadoVagas[vagaId];
+                    delete posicaoVagas[vagaId];
+                    vaga.remove();
+                    totalVagas--;
+                });
+                
+                vagasMultiplasSelecao = [];
+                atualizarInterfaceSelecaoMultipla();
+                atualizarEstatisticas();
+                mostrarNotificacao(`🗑️ ${count} vagas excluídas`, 'info');
+            }
+        }
 
         // Modo de Edição
         function toggleEditMode() {
@@ -320,12 +559,20 @@
                 container.classList.remove('modo-edicao'); btn.classList.remove('active'); btn.textContent = '✏️ Modo Edição';
                 document.getElementById('edit-controls').style.display = 'none';
                 if (vagaSelecionada) { vagaSelecionada.classList.remove('selecionada'); vagaSelecionada = null; }
+                limparSelecaoMultipla();
                 mostrarNotificacao('✅ Modo de edição desativado', 'info'); salvarLocal();
             }
         }
 
         function selecionarVaga(vaga) {
             if (!modoEdicao) return;
+            
+            // Se estiver em modo de seleção múltipla
+            if (selecaoMultipla) {
+                adicionarVagaSelecaoMultipla(vaga);
+                return;
+            }
+            
             if (vagaSelecionada) vagaSelecionada.classList.remove('selecionada');
             vagaSelecionada = vaga; vaga.classList.add('selecionada');
             document.getElementById('edit-controls').style.display = 'block';
@@ -448,6 +695,14 @@
         // Sistema de Arraste
         function iniciarArraste(e) {
             if (!modoEdicao) return;
+            
+            // Verificar se é seleção múltipla com Ctrl
+            if (selecaoMultipla && e.ctrlKey) {
+                adicionarVagaSelecaoMultipla(e.target);
+                e.preventDefault();
+                return;
+            }
+            
             vagaArrastando = e.target; selecionarVaga(vagaArrastando); vagaArrastando.classList.add('arrastando');
             var rect = vagaArrastando.getBoundingClientRect(), containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
             offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top; e.preventDefault();
@@ -469,7 +724,17 @@
         // Import/Export
         function exportarLayout() {
             if (tipoUsuario !== 'admin') return;
-            var dados = { timestamp: new Date().toISOString(), vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, totalVagas: totalVagas, proximoId: proximoIdVaga, versao: '3.0' };
+            var dados = { 
+                timestamp: new Date().toISOString(), 
+                vagas: estadoVagas, 
+                posicoes: posicaoVagas, 
+                plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, 
+                totalVagas: totalVagas, 
+                proximoId: proximoIdVaga, 
+                zoomContainer: zoomContainer,
+                zoomPlanta: zoomPlanta,
+                versao: '4.0' 
+            };
             var blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'}), url = URL.createObjectURL(blob), a = document.createElement('a');
             a.href = url; a.download = 'layout_estacionamento_' + new Date().toISOString().slice(0,16).replace('T', '_').replace(':', '-') + '.json'; a.click(); URL.revokeObjectURL(url);
             mostrarNotificacao('📤 Layout exportado!', 'sucesso');
@@ -491,6 +756,19 @@
                         if (dados.totalVagas) totalVagas = dados.totalVagas;
                         if (dados.proximoId) proximoIdVaga = dados.proximoId;
                         if (dados.plantaBaixa) document.getElementById('planta-baixa').style.backgroundImage = dados.plantaBaixa;
+                        
+                        // Restaurar configurações de zoom
+                        if (dados.zoomContainer) {
+                            zoomContainer = dados.zoomContainer;
+                            document.getElementById('mapa-estacionamento').style.transform = `scale(${zoomContainer})`;
+                            document.getElementById('zoom-container').textContent = Math.round(zoomContainer * 100) + '%';
+                        }
+                        if (dados.zoomPlanta) {
+                            zoomPlanta = dados.zoomPlanta;
+                            document.getElementById('planta-baixa').style.transform = `scale(${zoomPlanta})`;
+                            document.getElementById('zoom-planta').textContent = Math.round(zoomPlanta * 100) + '%';
+                        }
+                        
                         for (var vagaId in posicaoVagas) {
                             var pos = posicaoVagas[vagaId], vaga = criarVaga(vagaId, pos.x, pos.y);
                             if (pos.width) vaga.style.width = pos.width + 'px';
@@ -518,150 +796,3 @@
 
         // Funções Principais
         function alternarStatusVaga(elemento) {
-            if (modoEdicao) { selecionarVaga(elemento); return; }
-            if (tipoUsuario !== 'admin') { mostrarNotificacao('❌ Apenas administradores podem alterar vagas', 'erro'); return; }
-            var vagaId = elemento.id, novoStatus = elemento.classList.contains('livre') ? 'ocupada' : 'livre';
-            estadoVagas[vagaId] = novoStatus; elemento.classList.remove('livre', 'ocupada'); elemento.classList.add(novoStatus);
-            atualizarEstatisticas(); salvarLocal();
-        }
-
-        function atualizarEstatisticas() {
-            var livres = 0, ocupadas = 0;
-            for (var vagaId in estadoVagas) { if (estadoVagas[vagaId] === 'livre') livres++; else ocupadas++; }
-            var taxaOcupacao = totalVagas > 0 ? Math.round((ocupadas / totalVagas) * 100) : 0;
-            document.getElementById('total-vagas').textContent = totalVagas;
-            document.getElementById('vagas-livres').textContent = livres;
-            document.getElementById('vagas-ocupadas').textContent = ocupadas;
-            document.getElementById('taxa-ocupacao').textContent = taxaOcupacao + '%';
-        }
-
-        function resetarTodasVagas() {
-            if (tipoUsuario !== 'admin') return;
-            if (confirm('Resetar todas as vagas para livre?')) {
-                document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('ocupada'); vaga.classList.add('livre'); estadoVagas[vaga.id] = 'livre'; });
-                atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('🔄 Todas as vagas resetadas', 'info');
-            }
-        }
-
-        function ocuparTodasVagas() {
-            if (tipoUsuario !== 'admin') return;
-            document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('livre'); vaga.classList.add('ocupada'); estadoVagas[vaga.id] = 'ocupada'; });
-            atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('🚗 Todas as vagas ocupadas', 'info');
-        }
-
-        function liberarTodasVagas() {
-            if (tipoUsuario !== 'admin') return;
-            document.querySelectorAll('.vaga').forEach(vaga => { vaga.classList.remove('ocupada'); vaga.classList.add('livre'); estadoVagas[vaga.id] = 'livre'; });
-            atualizarEstatisticas(); salvarLocal(); mostrarNotificacao('✅ Todas as vagas liberadas', 'info');
-        }
-
-        // Salvamento e Firebase
-        function salvarLocal() {
-            try {
-                var dados = { vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, totalVagas: totalVagas, proximoId: proximoIdVaga, timestamp: new Date().toISOString() };
-                localStorage.setItem('estacionamento_dados', JSON.stringify(dados));
-            } catch (error) { console.error('Erro ao salvar:', error); }
-        }
-
-        function salvarEstadoLocal() { salvarLocal(); mostrarNotificacao('💾 Estado salvo localmente!', 'sucesso'); }
-
-        function salvarNoFirebase() {
-            if (tipoUsuario !== 'admin') { mostrarNotificacao('❌ Apenas administradores podem salvar no Firebase', 'erro'); return; }
-            if (!firebaseConectado) { mostrarNotificacao('❌ Firebase não conectado', 'erro'); return; }
-            try {
-                var dados = { vagas: estadoVagas, posicoes: posicaoVagas, plantaBaixa: document.getElementById('planta-baixa').style.backgroundImage, meta: { totalVagas: totalVagas, proximoId: proximoIdVaga, ultimoAdmin: usuarioAtual }, ultimaAtualizacao: firebase.database.ServerValue.TIMESTAMP };
-                database.ref('estacionamento').set(dados); mostrarNotificacao('🌐 Dados sincronizados com Firebase!', 'sucesso');
-            } catch (error) { mostrarNotificacao('❌ Erro ao salvar no Firebase: ' + error.message, 'erro'); }
-        }
-
-        function carregarLocal() {
-            try {
-                var dados = localStorage.getItem('estacionamento_dados');
-                if (dados) {
-                    var dadosParsed = JSON.parse(dados);
-                    if (dadosParsed.vagas) { estadoVagas = dadosParsed.vagas; aplicarEstadoVagas(); }
-                    if (dadosParsed.posicoes) { posicaoVagas = dadosParsed.posicoes; aplicarPosicoes(); }
-                    if (dadosParsed.plantaBaixa) document.getElementById('planta-baixa').style.backgroundImage = dadosParsed.plantaBaixa;
-                    if (dadosParsed.totalVagas) totalVagas = dadosParsed.totalVagas;
-                    if (dadosParsed.proximoId) proximoIdVaga = dadosParsed.proximoId;
-                }
-            } catch (error) { console.error('Erro ao carregar:', error); }
-        }
-
-        function aplicarEstadoVagas() {
-            for (var vagaId in estadoVagas) {
-                var elemento = document.getElementById(vagaId);
-                if (elemento) { elemento.classList.remove('livre', 'ocupada'); elemento.classList.add(estadoVagas[vagaId]); }
-            }
-            atualizarEstatisticas();
-        }
-
-        function aplicarPosicoes() {
-            for (var vagaId in posicaoVagas) {
-                var elemento = document.getElementById(vagaId);
-                if (elemento) {
-                    var pos = posicaoVagas[vagaId];
-                    elemento.style.left = pos.x + 'px'; elemento.style.top = pos.y + 'px';
-                    if (pos.angle) elemento.style.transform = 'rotate(' + pos.angle + 'deg)';
-                    if (pos.width) elemento.style.width = pos.width + 'px';
-                    if (pos.height) elemento.style.height = pos.height + 'px';
-                }
-            }
-        }
-
-        function criarVaga(id, x, y) {
-            var vaga = document.createElement('div');
-            vaga.classList.add('vaga', 'livre'); vaga.id = id; vaga.textContent = id;
-            vaga.style.left = x + 'px'; vaga.style.top = y + 'px';
-            vaga.addEventListener('mousedown', iniciarArraste);
-            vaga.addEventListener('click', function(e) { alternarStatusVaga(this); e.preventDefault(); });
-            document.getElementById('mapa-estacionamento').appendChild(vaga);
-            estadoVagas[id] = 'livre'; posicaoVagas[id] = {x: x, y: y, angle: 0, width: 40, height: 70};
-            return vaga;
-        }
-
-        // Firebase
-        function inicializarFirebase() {
-            try {
-                if (typeof firebase !== 'undefined') {
-                    firebase.initializeApp(firebaseConfig); database = firebase.database();
-                    database.ref('.info/connected').on('value', function(snapshot) {
-                        if (snapshot.val() === true) { firebaseConectado = true; atualizarStatusFirebase('conectado', 'Firebase Conectado'); }
-                        else { firebaseConectado = false; atualizarStatusFirebase('desconectado', 'Firebase Desconectado'); }
-                    });
-                }
-            } catch (error) { atualizarStatusFirebase('desconectado', 'Firebase Indisponível'); }
-        }
-
-        function atualizarStatusFirebase(status, texto) {
-            document.getElementById('status-firebase').className = 'status-firebase ' + status;
-            document.getElementById('texto-firebase').textContent = texto;
-        }
-
-        function mostrarNotificacao(mensagem, tipo) {
-            var notificacao = document.createElement('div');
-            notificacao.className = 'notificacao ' + (tipo || 'info'); notificacao.textContent = mensagem;
-            document.body.appendChild(notificacao);
-            setTimeout(() => notificacao.classList.add('mostrar'), 100);
-            setTimeout(() => { notificacao.classList.remove('mostrar'); setTimeout(() => notificacao.remove(), 300); }, 4000);
-        }
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            for (var i = 1; i <= 62; i++) {
-                var vagaId = 'V' + (i < 10 ? '0' + i : i);
-                var x = 80 + ((i - 1) % 10) * 120, y = 80 + Math.floor((i - 1) / 10) * 120;
-                criarVaga(vagaId, x, y);
-            }
-            carregarLocal(); inicializarFirebase(); atualizarEstatisticas();
-            document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');
-            mostrarNotificacao('🚀 Sistema inicializado!', 'sucesso');
-        });
-
-        // Eventos globais
-        document.addEventListener('mousemove', arrastar);
-        document.addEventListener('mouseup', finalizarArraste);
-        window.addEventListener('beforeunload', salvarLocal);
-    </script>
-</body>
-</html>
