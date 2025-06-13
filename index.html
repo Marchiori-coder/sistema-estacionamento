@@ -41,11 +41,9 @@
         .estacionamento-container{position:relative;width:100%;max-width:1600px;height:clamp(800px,90vh,1600px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:visible;transform-origin:center;transition:transform 0.3s}
         .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s}
         .planta-baixa.ajustavel{border:2px dashed #3498db;opacity:0.9}
-        .zoom-controls,.planta-controls{position:absolute;background:rgba(255,255,255,0.95);padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:150;display:none;cursor:move;user-select:none}
-        .zoom-controls{top:20px;left:20px}
-        .planta-controls{top:20px;right:20px}
-        .zoom-controls.dragging,.planta-controls.dragging{z-index:200;box-shadow:0 8px 25px rgba(0,0,0,0.4);transform:scale(1.05)}
-        .zoom-controls h4,.planta-controls h4{color:#34495e;margin-bottom:10px;font-size:0.8rem;cursor:move;padding:5px;background:rgba(52,73,94,0.1);border-radius:5px;text-align:center}
+        .zoom-controls,.planta-controls{position:absolute;top:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
+        .zoom-controls{left:20px}
+        .planta-controls{right:20px}
         .zoom-btn,.planta-btn{padding:8px 12px;margin:2px;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
         .zoom-btn{background:#3498db}
         .planta-btn{background:#e67e22;display:block;width:100%;margin-bottom:5px}
@@ -161,7 +159,7 @@
 
         <div class="estacionamento-wrapper">
             <div class="zoom-controls" id="zoom-controls">
-                <h4>🔍 Zoom - Arraste para mover</h4>
+                <h4>🔍 Zoom</h4>
                 <div>
                     <button class="zoom-btn" onclick="ajustarZoom('container',0.1)">🔍+</button>
                     <button class="zoom-btn" onclick="ajustarZoom('container',-0.1)">🔍-</button>
@@ -179,7 +177,7 @@
             </div>
 
             <div class="planta-controls" id="planta-controls">
-                <h4>📐 Planta Baixa - Arraste para mover</h4>
+                <h4 style="color:#34495e;margin-bottom:10px;font-size:0.8rem;">📐 Planta Baixa</h4>
                 <button class="planta-btn" onclick="ajustarPlanta('cover')">📏 Cobrir Área</button>
                 <button class="planta-btn" onclick="ajustarPlanta('contain')">📐 Ajustar</button>
                 <button class="planta-btn" onclick="ajustarPlanta('fill')">🔄 Preencher</button>
@@ -269,7 +267,6 @@
     <script>
         var firebaseConfig={apiKey:"AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",authDomain:"teste-dbacd.firebaseapp.com",databaseURL:"https://teste-dbacd-default-rtdb.firebaseio.com/",projectId:"teste-dbacd",storageBucket:"teste-dbacd.firebasestorage.app",messagingSenderId:"381642195685",appId:"1:381642195685:web:746eb4df7667813b0e4a0c"};
         var estadoVagas={},posicaoVagas={},firebaseConectado=false,database=null,totalVagas=62,usuarioAtual='viewer',tipoUsuario='viewer',modoEdicao=false,proximoIdVaga=63,vagaSelecionada=null,vagaArrastando=null,offsetX=0,offsetY=0,zoomContainer=1,zoomPlanta=1,selecaoMultipla=false,vagasMultiplasSelecao=[],editandoPlanta=false,plantaConfig={size:'cover',posX:50,posY:50};
-        var painelArrastando=null,offsetPainelX=0,offsetPainelY=0;
 
         function mostrarModalLogin(){document.getElementById('modal-login').classList.add('show')}
         function fecharModalLogin(){document.getElementById('modal-login').classList.remove('show')}
@@ -284,6 +281,8 @@
                 document.getElementById('admin-login-btn').style.display='none';
                 document.getElementById('logout-btn').style.display='inline-block';
                 document.getElementById('admin-panel').classList.add('show');
+                document.getElementById('zoom-controls').style.display='block';
+                document.getElementById('planta-controls').style.display='block';
                 habilitarControlesAdmin();aplicarModoVisualizacao();
                 mostrarNotificacao('🔧 Login realizado!','sucesso');
             }else{mostrarNotificacao('❌ Credenciais inválidas','erro')}
@@ -393,24 +392,6 @@
             }
         }
 
-        function toggleEditMode(){
-            if(tipoUsuario!=='admin')return;
-            modoEdicao=!modoEdicao;var container=document.getElementById('mapa-estacionamento'),btn=document.getElementById('btn-edit-mode');
-            var zoomControls=document.getElementById('zoom-controls'),plantaControls=document.getElementById('planta-controls');
-            if(modoEdicao){
-                container.classList.add('modo-edicao');btn.classList.add('active');btn.textContent='✅ Finalizar';
-                zoomControls.style.display='block';plantaControls.style.display='block';
-                mostrarNotificacao('✏️ Modo edição ativado - Painéis arrastáveis','info');
-            }else{
-                container.classList.remove('modo-edicao');btn.classList.remove('active');btn.textContent='✏️ Edição';
-                document.getElementById('edit-controls').style.display='none';
-                zoomControls.style.display='none';plantaControls.style.display='none';
-                if(vagaSelecionada){vagaSelecionada.classList.remove('selecionada');vagaSelecionada=null}
-                limparSelecaoMultipla();salvarLocal();
-                mostrarNotificacao('✅ Modo edição finalizado','info');
-            }
-        }
-
         function toggleSelecaoMultipla(){
             if(tipoUsuario!=='admin')return;
             selecaoMultipla=!selecaoMultipla;var btn=document.getElementById('btn-multi-select');
@@ -485,6 +466,19 @@
                     vaga.remove();totalVagas--;
                 });
                 vagasMultiplasSelecao=[];atualizarInterfaceSelecaoMultipla();atualizarEstatisticas();
+            }
+        }
+
+        function toggleEditMode(){
+            if(tipoUsuario!=='admin')return;
+            modoEdicao=!modoEdicao;var container=document.getElementById('mapa-estacionamento'),btn=document.getElementById('btn-edit-mode');
+            if(modoEdicao){
+                container.classList.add('modo-edicao');btn.classList.add('active');btn.textContent='✅ Finalizar';
+            }else{
+                container.classList.remove('modo-edicao');btn.classList.remove('active');btn.textContent='✏️ Edição';
+                document.getElementById('edit-controls').style.display='none';
+                if(vagaSelecionada){vagaSelecionada.classList.remove('selecionada');vagaSelecionada=null}
+                limparSelecaoMultipla();salvarLocal();
             }
         }
 
@@ -581,36 +575,6 @@
             if(modoEdicao)selecionarVaga(novaVaga);
         }
 
-        function iniciarArrastePainel(e){
-            if(tipoUsuario!=='admin'||!modoEdicao)return;
-            var target=e.target;
-            while(target&&!target.classList.contains('zoom-controls')&&!target.classList.contains('planta-controls')){
-                target=target.parentElement;
-            }
-            if(!target)return;
-            painelArrastando=target;painelArrastando.classList.add('dragging');
-            var rect=painelArrastando.getBoundingClientRect();
-            offsetPainelX=e.clientX-rect.left;offsetPainelY=e.clientY-rect.top;
-            e.preventDefault();e.stopPropagation();
-        }
-
-        function arrastarPainel(e){
-            if(!painelArrastando)return;
-            var wrapper=document.querySelector('.estacionamento-wrapper');
-            var wrapperRect=wrapper.getBoundingClientRect();
-            var x=Math.max(0,Math.min(e.clientX-wrapperRect.left-offsetPainelX,wrapperRect.width-painelArrastando.offsetWidth));
-            var y=Math.max(0,Math.min(e.clientY-wrapperRect.top-offsetPainelY,wrapperRect.height-painelArrastando.offsetHeight));
-            painelArrastando.style.left=x+'px';painelArrastando.style.top=y+'px';
-            painelArrastando.style.right='auto';
-        }
-
-        function finalizarArrastePainel(){
-            if(painelArrastando){
-                painelArrastando.classList.remove('dragging');
-                painelArrastando=null;
-            }
-        }
-
         function iniciarArraste(e){
             if(!modoEdicao||tipoUsuario!=='admin')return;
             if(selecaoMultipla&&e.ctrlKey){adicionarVagaSelecaoMultipla(e.target);e.preventDefault();return}
@@ -620,7 +584,6 @@
         }
 
         function arrastar(e){
-            if(painelArrastando){arrastarPainel(e);return}
             if(!vagaArrastando||!modoEdicao||tipoUsuario!=='admin')return;
             var containerRect=document.getElementById('mapa-estacionamento').getBoundingClientRect();
             var x=Math.max(0,Math.min(e.clientX-containerRect.left-offsetX,containerRect.width-40));
@@ -631,7 +594,6 @@
 
         function finalizarArraste(){
             if(vagaArrastando&&tipoUsuario==='admin'){vagaArrastando.classList.remove('arrastando');vagaArrastando=null;salvarLocal()}
-            finalizarArrastePainel();
         }
 
         function exportarLayout(){
@@ -768,11 +730,53 @@
             localStorage.setItem('totalVagas',totalVagas);localStorage.setItem('proximoIdVaga',proximoIdVaga);
         }
 
-        function salvarEstadoLocal(){
-            salvarLocal();
-            if(modoEdicao){
-                document.getElementById('zoom-controls').style.display='none';
-                document.getElementByI         function salvarEstadoLocal(){
+        function salvarEstadoLocal(){salvarLocal();mostrarNotificacao('💾 Estado salvo localmente!','sucesso')}
+
+        function carregarLocal(){
+            var estadoSalvo=localStorage.getItem('estadoVagas'),posicaoSalva=localStorage.getItem('posicaoVagas');
+            var totalSalvo=localStorage.getItem('totalVagas'),proximoIdSalvo=localStorage.getItem('proximoIdVaga');
+            var plantaSalva=localStorage.getItem('plantaConfig');
+            if(estadoSalvo)estadoVagas=JSON.parse(estadoSalvo);if(posicaoSalva)posicaoVagas=JSON.parse(posicaoSalva);
+            if(totalSalvo)totalVagas=parseInt(totalSalvo);if(proximoIdSalvo)proximoIdVaga=parseInt(proximoIdSalvo);
+            if(plantaSalva){
+                plantaConfig=JSON.parse(plantaSalva);
+                var planta=document.getElementById('planta-baixa');
+                planta.style.backgroundSize=plantaConfig.size;
+                planta.style.backgroundPosition=plantaConfig.posX+'% '+plantaConfig.posY+'%';
+            }
+        }
+
+        function inicializarFirebase(){
+            try{
+                firebase.initializeApp(firebaseConfig);database=firebase.database();firebaseConectado=true;
+                document.getElementById('status-firebase').className='status-firebase conectado';
+                document.getElementById('texto-firebase').textContent='Firebase Conectado';
+                database.ref('vagas').on('value',function(snapshot){
+                    var dados=snapshot.val();if(dados){
+                        for(var vagaId in dados){
+                            if(estadoVagas[vagaId]!==dados[vagaId]){
+                                estadoVagas[vagaId]=dados[vagaId];var elemento=document.getElementById(vagaId);
+                                if(elemento){elemento.classList.remove('livre','ocupada');elemento.classList.add(dados[vagaId])}
+                            }
+                        }
+                        atualizarEstatisticas();
+                    }
+                });
+            }catch(error){
+                firebaseConectado=false;document.getElementById('status-firebase').className='status-firebase desconectado';
+                document.getElementById('texto-firebase').textContent='Firebase Desconectado';
+            }
+        }
+
+        function salvarNoFirebase(){
+            if(!firebaseConectado||tipoUsuario!=='admin'){mostrarNotificacao('❌ Firebase desconectado ou sem permissão','erro');return}
+            database.ref('vagas').set(estadoVagas).then(()=>mostrarNotificacao('🌐 Salvo no Firebase!','sucesso'))
+            .catch(error=>mostrarNotificacao('❌ Erro Firebase: '+error.message,'erro'));
+        }
+
+        function mostrarNotificacao(mensagem,tipo){
+            var notif=document.createElement('div');notif.className='notificacao '+tipo;notif.textContent=mensagem
+                    function salvarEstadoLocal(){
             salvarLocal();
             if(modoEdicao){
                 document.getElementById('zoom-controls').style.display='none';
