@@ -84,7 +84,7 @@
         <header class="header">
             <div class="header-identidade">
                 <div class="header-logo"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 95C74.8528 95 95 74.8528 95 50C95 25.1472 74.8528 5 50 5C25.1472 5 5 25.1472 5 50C5 74.8528 25.1472 95 50 95Z" fill="#2c3e50"/><path d="M62 70V59C62 56.7909 60.2091 55 58 55H42C39.7909 55 38 56.7909 38 59V70H62Z" fill="#ffffff"/><path d="M58 55V46H42V55H58Z" fill="#bdc3c7"/><path d="M68 53C68 46.2 62.8333 34 50 34C37.1667 34 32 46.2 32 53C39.3333 49.4 60.6667 49.4 68 53Z" fill="#4CAF50"/></svg></div>
-                <div class="header-titulo"><h1>Sistema de Gerenciamento de Vagas</h1><h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2></div>
+                <div class="header-titulo"><h1>Sistema de Gerenciamento de Vagas 2025</h1><h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2></div>
             </div>
             <div class="user-info"><span>{{ user.name }}</span><span class="user-badge" :class="{ admin: user.isAdmin }">{{ user.isAdmin ? 'ADMIN' : 'VIEWER' }}</span><button v-if="!user.isAdmin" class="admin-login-btn" @click="ui.loginModal.show = true">Login</button><button v-else class="logout-btn" @click="handleLogout">Sair</button></div>
         </header>
