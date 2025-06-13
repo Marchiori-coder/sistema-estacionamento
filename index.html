@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--g:clamp(8px,1.5vw,15px);--r:clamp(8px,1vw,15px)}
+        :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--r:clamp(8px,1vw,15px)}
         body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:var(--p);font-size:var(--f)}
         .modal-login{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:none;justify-content:center;align-items:center;z-index:10000}
         .modal-login.show{display:flex!important}
@@ -39,13 +39,14 @@
         .stat-number{font-size:clamp(1.2rem,3vw,1.8rem);font-weight:bold;display:block}
         .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:70vh;position:relative}
         .estacionamento-container{position:relative;width:100%;max-width:1600px;height:clamp(800px,90vh,1600px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:visible;transform-origin:center;transition:transform 0.3s}
-        .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s;cursor:move}
+        .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s}
         .planta-baixa.ajustavel{border:2px dashed #3498db;opacity:0.9}
-        .zoom-controls{position:absolute;top:20px;left:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
-        .zoom-btn{padding:8px 12px;margin:2px;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
-        .planta-controls{position:absolute;top:20px;right:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
-        .planta-btn{padding:8px 12px;margin:2px;background:#e67e22;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem;display:block;width:100%;margin-bottom:5px}
-        .planta-btn:hover{background:#d35400}
+        .zoom-controls,.planta-controls{position:absolute;top:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
+        .zoom-controls{left:20px}
+        .planta-controls{right:20px}
+        .zoom-btn,.planta-btn{padding:8px 12px;margin:2px;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
+        .zoom-btn{background:#3498db}
+        .planta-btn{background:#e67e22;display:block;width:100%;margin-bottom:5px}
         .vaga{position:absolute;width:clamp(25px,4vw,45px);height:clamp(40px,6vw,75px);border:2px solid #2c3e50;background:rgba(39,174,96,0.9);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1.2vw,10px);font-weight:bold;color:white;border-radius:4px;cursor:pointer;transition:all 0.3s;z-index:10;user-select:none}
         .vaga:hover{transform:scale(1.1);z-index:100}
         .vaga.viewer-mode{cursor:default!important}
@@ -132,7 +133,7 @@
                 <button class="logout-btn" id="logout-btn" onclick="logout()" style="display:none;">Sair</button>
             </div>
             
-            <h1>🚗 SMAMUS - Sistema de Estacionamento</h1>
+            <h1>🚗 Sistema de Estacionamento</h1>
             <p><strong>Última atualização:</strong> <span id="ultima-atualizacao">Agora</span></p>
             
             <div class="stats">
@@ -157,7 +158,7 @@
         </div>
 
         <div class="estacionamento-wrapper">
-            <div class="zoom-controls" id="zoom-controls" style="display:none;">
+            <div class="zoom-controls" id="zoom-controls">
                 <h4>🔍 Zoom</h4>
                 <div>
                     <button class="zoom-btn" onclick="ajustarZoom('container',0.1)">🔍+</button>
@@ -175,7 +176,7 @@
                 </div>
             </div>
 
-            <div class="planta-controls" id="planta-controls" style="display:none;">
+            <div class="planta-controls" id="planta-controls">
                 <h4 style="color:#34495e;margin-bottom:10px;font-size:0.8rem;">📐 Planta Baixa</h4>
                 <button class="planta-btn" onclick="ajustarPlanta('cover')">📏 Cobrir Área</button>
                 <button class="planta-btn" onclick="ajustarPlanta('contain')">📐 Ajustar</button>
@@ -766,6 +767,7 @@
                 document.getElementById('texto-firebase').textContent='Firebase Desconectado';
             }
         }
+
         function salvarNoFirebase(){
             if(!firebaseConectado||tipoUsuario!=='admin'){mostrarNotificacao('❌ Firebase desconectado ou sem permissão','erro');return}
             database.ref('vagas').set(estadoVagas).then(()=>mostrarNotificacao('🌐 Salvo no Firebase!','sucesso'))
@@ -773,38 +775,4 @@
         }
 
         function mostrarNotificacao(mensagem,tipo){
-            var notif=document.createElement('div');notif.className='notificacao '+tipo;notif.textContent=mensagem;
-            document.body.appendChild(notif);setTimeout(()=>notif.classList.add('mostrar'),100);
-            setTimeout(()=>{notif.classList.remove('mostrar');setTimeout(()=>document.body.removeChild(notif),300)},3000);
-        }
-
-        function inicializarVagas(){
-            var posicoes=[
-                {id:'V01',x:50,y:50},{id:'V02',x:100,y:50},{id:'V03',x:150,y:50},{id:'V04',x:200,y:50},{id:'V05',x:250,y:50},
-                {id:'V06',x:300,y:50},{id:'V07',x:350,y:50},{id:'V08',x:400,y:50},{id:'V09',x:450,y:50},{id:'V10',x:500,y:50},
-                {id:'V11',x:50,y:150},{id:'V12',x:100,y:150},{id:'V13',x:150,y:150},{id:'V14',x:200,y:150},{id:'V15',x:250,y:150},
-                {id:'V16',x:300,y:150},{id:'V17',x:350,y:150},{id:'V18',x:400,y:150},{id:'V19',x:450,y:150},{id:'V20',x:500,y:150},
-                {id:'V21',x:50,y:250},{id:'V22',x:100,y:250},{id:'V23',x:150,y:250},{id:'V24',x:200,y:250},{id:'V25',x:250,y:250},
-                {id:'V26',x:300,y:250},{id:'V27',x:350,y:250},{id:'V28',x:400,y:250},{id:'V29',x:450,y:250},{id:'V30',x:500,y:250},
-                {id:'V31',x:50,y:350},{id:'V32',x:100,y:350},{id:'V33',x:150,y:350},{id:'V34',x:200,y:350},{id:'V35',x:250,y:350},
-                {id:'V36',x:300,y:350},{id:'V37',x:350,y:350},{id:'V38',x:400,y:350},{id:'V39',x:450,y:350},{id:'V40',x:500,y:350},
-                {id:'V41',x:50,y:450},{id:'V42',x:100,y:450},{id:'V43',x:150,y:450},{id:'V44',x:200,y:450},{id:'V45',x:250,y:450},
-                {id:'V46',x:300,y:450},{id:'V47',x:350,y:450},{id:'V48',x:400,y:450},{id:'V49',x:450,y:450},{id:'V50',x:500,y:450},
-                {id:'V51',x:50,y:550},{id:'V52',x:100,y:550},{id:'V53',x:150,y:550},{id:'V54',x:200,y:550},{id:'V55',x:250,y:550},
-                {id:'V56',x:300,y:550},{id:'V57',x:350,y:550},{id:'V58',x:400,y:550},{id:'V59',x:450,y:550},{id:'V60',x:500,y:550},
-                {id:'V61',x:275,y:650},{id:'V62',x:325,y:650}
-            ];
-            posicoes.forEach(pos=>criarVaga(pos.id,pos.x,pos.y));atualizarEstatisticas();aplicarModoVisualizacao();
-        }
-
-        document.addEventListener('DOMContentLoaded',function(){
-            carregarLocal();inicializarVagas();inicializarFirebase();
-            document.addEventListener('mousemove',arrastar);document.addEventListener('mouseup',finalizarArraste);
-            document.getElementById('mapa-estacionamento').addEventListener('click',function(){
-                if(vagaSelecionada&&modoEdicao&&tipoUsuario==='admin'){vagaSelecionada.classList.remove('selecionada');vagaSelecionada=null;
-                document.getElementById('edit-controls').style.display='none'}
-            });
-        });
-    </script>
-</body>
-</html>
+            var notif=document.createElement('div');notif.className='notificacao '+tipo;notif.textContent=mensagem
