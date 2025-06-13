@@ -37,8 +37,8 @@
         .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:15px;margin-top:20px}
         .stat-box{background:rgba(255,255,255,0.2);padding:15px;border-radius:10px;text-align:center}
         .stat-number{font-size:clamp(1.2rem,3vw,1.8rem);font-weight:bold;display:block}
-        .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:50vh;position:relative}
-        .estacionamento-container{position:relative;width:100%;max-width:1400px;height:clamp(500px,75vh,1100px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:visible;transform-origin:center;transition:transform 0.3s}
+        .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:60vh;position:relative}
+        .estacionamento-container{position:relative;width:100%;max-width:1400px;height:clamp(700px,85vh,1400px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:visible;transform-origin:center;transition:transform 0.3s}
         .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:transform 0.3s}
         .zoom-controls{position:absolute;top:20px;left:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
         .zoom-btn{padding:8px 12px;margin:2px;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
@@ -82,21 +82,21 @@
             .user-info{position:static;margin-bottom:15px;justify-content:center}
             .header{padding-top:20px}
             .edit-controls{position:fixed;top:0;right:0;left:0;bottom:0;transform:none;max-height:100vh;border-radius:0}
-            .estacionamento-container{height:clamp(600px,80vh,1000px)}
+            .estacionamento-container{height:clamp(750px,90vh,1200px)}
             .zoom-controls{position:relative;margin-bottom:15px}
             .controles{grid-template-columns:repeat(2,1fr)}
         }
         @media (max-width:480px){
             .vaga{width:clamp(20px,6vw,30px);height:clamp(35px,8vw,50px);font-size:clamp(5px,1.5vw,8px)}
             .controles{grid-template-columns:1fr}
-            .estacionamento-container{height:clamp(650px,85vh,1100px)}
+            .estacionamento-container{height:clamp(800px,95vh,1300px)}
         }
         @media (min-width:1920px) and (max-width:2560px){
-            .estacionamento-container{height:clamp(900px,80vh,1200px);max-width:1600px}
+            .estacionamento-container{height:clamp(1000px,85vh,1500px);max-width:1600px}
             .vaga{width:clamp(45px,3vw,60px);height:clamp(75px,5vw,90px);font-size:clamp(10px,1vw,14px)}
         }
         @media (min-width:2560px){
-            .estacionamento-container{height:clamp(1000px,75vh,1300px);max-width:1800px}
+            .estacionamento-container{height:clamp(1200px,80vh,1600px);max-width:1800px}
             .vaga{width:clamp(50px,2.5vw,70px);height:clamp(80px,4vw,110px);font-size:clamp(12px,0.8vw,16px)}
         }
     </style>
