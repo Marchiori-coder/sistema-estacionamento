@@ -10,13 +10,11 @@
     <!-- Vue.js 3 via CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
-        /* CSS GERAL E CORREÇÕES (CSS Original Mantido com Adaptações) */
+        /* O CSS foi mantido e refinado para o novo layout */
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--r:clamp(8px,1vw,15px)}
         body{font-family:'Segoe UI',sans-serif;background-color:#f0f2f5;min-height:100vh;padding:var(--p);font-size:var(--f)}
         [v-cloak] { display: none; }
-
-        /* NOVO CABEÇALHO SMAMUS */
         .header{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;background:linear-gradient(135deg,#1d2b34,#2c3e50);color:white;padding:20px var(--p);border-bottom:5px solid #4CAF50;}
         .header-identidade{display:flex;align-items:center;gap:20px}
         .header-logo svg{width:clamp(40px, 5vw, 60px);height:clamp(40px, 5vw, 60px)}
@@ -27,8 +25,6 @@
         .user-badge.admin{background:#f39c12}
         .admin-login-btn,.logout-btn{background:#3498db;color:white;border:none;padding:8px 15px;border-radius:15px;cursor:pointer;font-size:0.8rem;font-weight:bold}
         .logout-btn{background:#e74c3c}
-        
-        /* RESTANTE DO CSS */
         .modal-login{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:10000;opacity:0;visibility:hidden;transition:all .3s}
         .modal-login.show{opacity:1;visibility:visible}
         .login-box{background:white;padding:30px;border-radius:var(--r);text-align:center;max-width:400px;width:90%}
@@ -52,14 +48,6 @@
         .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:70vh;position:relative}
         .estacionamento-container{position:relative;width:100%;max-width:1600px;height:clamp(800px,90vh,1600px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:auto;transform-origin:center;transition:transform 0.3s;-webkit-overflow-scrolling:touch}
         .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s}
-        .planta-baixa.ajustavel{border:2px dashed #3498db;opacity:0.9}
-        .zoom-controls,.planta-controls{position:absolute;background:rgba(255,255,255,0.95);padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:150;user-select:none}
-        .zoom-controls{top:20px;left:20px}
-        .planta-controls{top:20px;right:20px}
-        .zoom-controls h4,.planta-controls h4{color:#34495e;margin-bottom:10px;font-size:0.8rem;cursor:move;padding:5px;background:rgba(52,73,94,0.1);border-radius:5px;text-align:center}
-        .zoom-btn,.planta-btn{padding:8px 12px;margin:2px;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
-        .zoom-btn{background:#3498db}
-        .planta-btn{background:#e67e22;display:block;width:100%;margin-bottom:5px}
         .vaga{position:absolute;width:clamp(25px,4vw,45px);height:clamp(40px,6vw,75px);border:2px solid #2c3e50;background:rgba(39,174,96,0.9);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1.2vw,10px);font-weight:bold;color:white;border-radius:4px;cursor:pointer;transition:all 0.3s;z-index:10;user-select:none}
         .vaga:hover{transform:scale(1.1);z-index:100}
         .vaga.viewer-mode{cursor:default!important}
@@ -83,26 +71,19 @@
         .btn{padding:12px 20px;border:none;border-radius:20px;cursor:pointer;font-weight:bold;font-size:0.8rem;transition:all 0.3s;min-width:120px}
         .btn:hover{transform:translateY(-2px)}
         .btn:disabled{opacity:0.3;cursor:not-allowed}
-        .btn-reset{background:linear-gradient(135deg,#95a5a6,#7f8c8d);color:white}
-        .btn-ocupar{background:linear-gradient(135deg,#e74c3c,#c0392b);color:white}
-        .btn-liberar{background:linear-gradient(135deg,#27ae60,#2ecc71);color:white}
-        .btn-salvar{background:linear-gradient(135deg,#3498db,#2980b9);color:white}
-        .btn-firebase{background:linear-gradient(135deg,#ff9800,#f57c00);color:white}
         .notificacao{position:fixed;bottom:20px;right:20px;background:#2c3e50;color:white;padding:15px 20px;border-radius:10px;z-index:20000;max-width:min(350px,90vw);transform:translateX(400px);transition:transform 0.3s}
         .notificacao.mostrar{transform:translateX(0)}
-        .notificacao.sucesso{background:#27ae60}
-        .notificacao.erro{background:#e74c3c}
-        .notificacao.info{background:#3498db}
+        .notificacao.sucesso{background:#27ae60}.notificacao.erro{background:#e74c3c}.notificacao.info{background:#3498db}
         @media (max-width: 768px){.header-identidade{width:100%; justify-content:center; text-align:center}.user-info{width:100%; justify-content:center}.edit-controls{bottom:0;top:auto;transform:none;width:100%;border-radius:0}}
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
-    <!-- MODAL LOGIN (Sem alterações) -->
-    <div class="modal-login" :class="{ show: ui.loginModal.show }"><div class="login-box"><button class="close-modal" @click="ui.loginModal.show = false">×</button><h2>🔐 Login Administrador</h2><input type="text" class="login-input" placeholder="Usuário" v-model="ui.loginModal.user"><input type="password" class="login-input" placeholder="Senha" v-model="ui.loginModal.pass" @keyup.enter="handleLogin"><button class="login-btn" @click="handleLogin">Entrar como Admin</button></div></div>
+    <!-- Modal de Login -->
+    <div class="modal-login" :class="{ show: ui.loginModal.show }"><div class="login-box"><button class="close-modal" @click="ui.loginModal.show = false">×</button><h2>🔐 Login Administrador</h2><input type="text" class="login-input" placeholder="Usuário" v-model="ui.loginModal.user"><input type="password" class="login-input" placeholder="Senha" v-model="ui.loginModal.pass" @keyup.enter="handleLogin"><button class="login-btn" @click="handleLogin">Entrar</button></div></div>
     
     <div class="container">
-        <!-- CABEÇALHO ATUALIZADO -->
+        <!-- Cabeçalho Moderno SMAMUS -->
         <header class="header">
             <div class="header-identidade">
                 <div class="header-logo">
@@ -120,6 +101,7 @@
             </div>
         </header>
 
+        <!-- Painel de Estatísticas -->
         <div class="stats">
             <div class="stat-box"><span class="stat-number">{{ stats.total }}</span><span>Vagas Totais</span></div>
             <div class="stat-box"><span class="stat-number">{{ stats.free }}</span><span>Vagas Livres</span></div>
@@ -127,22 +109,23 @@
             <div class="stat-box"><span class="stat-number">{{ stats.occupationRate }}%</span><span>Taxa de Ocupação</span></div>
         </div>
 
+        <!-- Painel de Administração -->
         <div class="admin-panel" v-if="user.isAdmin">
             <h3>🔧 Painel de Administração</h3>
             <div class="admin-controls">
                 <button class="admin-btn" :class="{active: ui.editMode}" @click="toggleEditMode">✏️ {{ ui.editMode ? 'Finalizar Edição' : 'Modo Edição' }}</button>
                 <button class="admin-btn" @click="addSpot">➕ Nova Vaga</button>
                 <button class="admin-btn" @click="() => this.$refs.plantaInput.click()">🖼️ Alterar Planta</button>
-                <button class="admin-btn" :class="{active: ui.editPlanta}" @click="toggleEditPlanta">📐 {{ ui.editPlanta ? '✅ Finalizar Planta' : 'Ajustar Planta' }}</button>
                 <button class="admin-btn" @click="exportLayout">📤 Exportar</button>
                 <button class="admin-btn" @click="() => this.$refs.importInput.click()">📥 Importar</button>
                 <button class="admin-btn" :class="{active: ui.multiSelect}" @click="toggleMultiSelect">🔲 {{ ui.multiSelect ? '✅ Multi-Seleção' : 'Multi-Seleção' }}</button>
             </div>
         </div>
 
+        <!-- Mapa de Vagas -->
         <div class="estacionamento-wrapper">
-             <div class="estacionamento-container" :class="{'modo-edicao': user.isAdmin && ui.editMode}" ref="mapContainer" :style="mapStyle">
-                <div class="planta-baixa" :class="{'ajustavel': user.isAdmin && ui.editPlanta}" :style="plantStyle"></div>
+             <div class="estacionamento-container" ref="mapContainer">
+                <div class="planta-baixa" :style="plantStyle"></div>
                 <div v-for="spot in spots" :key="spot.id" class="vaga"
                      :class="[spot.status, {'selecionada': ui.selectedSpotId === spot.id && ui.multiSelectedIds.length === 0, 'multipla-selecionada': ui.multiSelectedIds.includes(spot.id), 'arrastando': ui.draggingSpotId === spot.id, 'viewer-mode': !user.isAdmin }]"
                      :style="spotStyle(spot)" @mousedown.prevent="startDrag(spot, $event)" @click.stop="handleSpotClick(spot)">
@@ -151,112 +134,87 @@
             </div>
         </div>
 
+        <!-- Painel de Edição (flutuante) -->
         <div class="edit-controls" v-if="user.isAdmin && ui.editMode && (ui.selectedSpotId || ui.multiSelectedIds.length > 0)">
-            <!-- PAINEL DE EDIÇÃO COMPLETO -->
             <div v-if="ui.multiSelectedIds.length > 0"><div class="edit-section"><h4>{{ ui.multiSelectedIds.length }} Vagas Selecionadas</h4></div></div>
             <div v-else-if="selectedSpot"><div class="edit-section"><h4>ID da Vaga: {{ selectedSpot.id }}</h4></div></div>
             <div class="edit-section"><h4>Rotação</h4><div class="size-controls"><button class="edit-btn rotate" @click="rotateSpot(-90)">-90°</button><button class="edit-btn rotate" @click="rotateSpot(90)">+90°</button><button class="edit-btn rotate" @click="rotateSpot(-1)">-1°</button><button class="edit-btn rotate" @click="rotateSpot(1)">+1°</button></div></div>
             <div class="edit-section"><h4>Tamanho</h4><div class="size-controls"><button class="edit-btn resize" @click="resizeSpot('width', -2)">↔ -</button><button class="edit-btn resize" @click="resizeSpot('width', 2)">↔ +</button><button class="edit-btn resize" @click="resizeSpot('height', -2)">↕ -</button><button class="edit-btn resize" @click="resizeSpot('height', 2)">↕ +</button></div></div>
-            <div class="edit-section" v-if="ui.multiSelectedIds.length > 1"><h4>Alinhar Vagas</h4><div class="size-controls"><button class="edit-btn multi" @click="alignSpots('x')">Alinhar Horizontal</button><button class="edit-btn multi" @click="alignSpots('y')">Alinhar Vertical</button></div></div>
-            <div class="edit-section"><button class="edit-btn delete" @click="deleteSelected">🗑️ Deletar Vaga(s)</button></div>
+            <div class="edit-section" v-if="ui.multiSelectedIds.length > 1"><h4>Alinhar</h4><div class="size-controls"><button class="edit-btn multi" @click="alignSpots('x')">Horizontal</button><button class="edit-btn multi" @click="alignSpots('y')">Vertical</button></div></div>
+            <div class="edit-section"><button class="edit-btn delete" @click="deleteSelected">🗑️ Deletar</button></div>
         </div>
 
+        <!-- Controles Gerais -->
         <div class="controles">
-            <button class="btn btn-reset" :disabled="!user.isAdmin" @click="setAllSpotsStatus('livre')">🔄 Resetar Tudo</button>
-            <button class="btn btn-ocupar" :disabled="!user.isAdmin" @click="setAllSpotsStatus('ocupada')">🚗 Ocupar Tudo</button>
-            <button class="btn btn-liberar" :disabled="!user.isAdmin" @click="setAllSpotsStatus('livre')">✅ Liberar Tudo</button>
-            <button class="btn btn-salvar" :disabled="!user.isAdmin" @click="saveStateLocal">💾 Salvar Local</button>
-            <button class="btn btn-firebase" :disabled="!user.isAdmin || !firebase.connected" @click="saveToFirebase">🌐 Salvar Firebase</button>
+            <button class="btn" :disabled="!user.isAdmin" @click="setAllSpotsStatus('livre')">Resetar Tudo</button>
+            <button class="btn" :disabled="!user.isAdmin" @click="setAllSpotsStatus('ocupada')">Ocupar Tudo</button>
+            <button class="btn" :disabled="!user.isAdmin" @click="saveStateLocal">Salvar Local</button>
+            <button class="btn" :disabled="!user.isAdmin || !firebase.connected" @click="saveToFirebase">Salvar Firebase</button>
         </div>
     </div>
     <input type="file" ref="importInput" accept=".json" style="display:none;" @change="importLayout">
     <input type="file" ref="plantaInput" accept="image/*" style="display:none;" @change="uploadPlant">
     <div class="notificacao" :class="['mostrar', n.type]" v-for="n in notifications" :key="n.id">{{ n.message }}</div>
-    <div class="status-firebase" :class="firebase.connected ? 'conectado' : 'desconectado'"><div class="indicador-firebase"></div><span>{{ firebase.connected ? 'Firebase Conectado' : 'Firebase Desconectado' }}</span></div>
+    <div class="status-firebase" :class="firebase.connected ? 'conectado' : 'desconectado'"><div class="indicador-firebase"></div><span>{{ firebase.connected ? 'Firebase Conectado' : 'Desconectado' }}</span></div>
 </div>
 
 <script>
     const { createApp } = Vue;
 
     const firebaseConfig = {
-        apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
-        authDomain: "teste-dbacd.firebaseapp.com",
-        databaseURL: "https://teste-dbacd-default-rtdb.firebaseio.com/",
-        projectId: "teste-dbacd",
-        storageBucket: "teste-dbacd.firebasestorage.app",
-        messagingSenderId: "381642195685",
-        appId: "1:381642195685:web:746eb4df7667813b0e4a0c"
+      apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
+      authDomain: "teste-dbacd.firebaseapp.com",
+      databaseURL: "https://teste-dbacd-default-rtdb.firebaseio.com",
+      projectId: "teste-dbacd",
+      storageBucket: "teste-dbacd.firebasestorage.app",
+      messagingSenderId: "381642195685",
+      appId: "1:381642195685:web:746eb4df7667813b0e4a0c"
     };
 
     createApp({
         data() {
             return {
-                firebase: { db: null, connected: false },
+                firebase: { app: null, db: null, connected: false },
                 user: { name: 'Visualizador', isAdmin: false },
                 spots: [],
                 nextSpotId: 1,
-                plantConfig: { image: '', size: 'cover', posX: 50, posY: 50 },
+                plantConfig: { image: '' },
                 ui: {
                     loginModal: { show: false, user: '', pass: '' },
-                    editMode: false, editPlanta: false, multiSelect: false,
+                    editMode: false, multiSelect: false,
                     selectedSpotId: null, multiSelectedIds: [],
                     draggingSpotId: null, dragOffset: { x: 0, y: 0 },
-                    multiDragInitialPositions: [], // Para arrastar múltiplos
-                    zoom: { container: 1, plant: 1 },
+                    multiDragInitialPositions: [],
                 },
                 notifications: [],
             }
         },
         computed: {
-            stats() {
-                const total = this.spots.length;
-                if (total === 0) return { total: 0, free: 0, occupied: 0, occupationRate: 0 };
-                const occupied = this.spots.filter(s => s.status === 'ocupada').length;
-                const free = total - occupied;
-                const occupationRate = Math.round((occupied / total) * 100);
-                return { total, free, occupied, occupationRate };
-            },
-            mapStyle() { return { transform: `scale(${this.ui.zoom.container})` }; },
-            plantStyle() { return { backgroundImage: `url(${this.plantConfig.image})`, backgroundSize: this.plantConfig.size, backgroundPosition: `${this.plantConfig.posX}% ${this.plantConfig.posY}%`, transform: `scale(${this.ui.zoom.plant})` }; },
+            stats() { const total = this.spots.length; if (total === 0) return { total: 0, free: 0, occupied: 0, occupationRate: 0 }; const occupied = this.spots.filter(s => s.status === 'ocupada').length; const free = total - occupied; const occupationRate = Math.round((occupied / total) * 100); return { total, free, occupied, occupationRate }; },
+            plantStyle() { return { backgroundImage: `url(${this.plantConfig.image})` }; },
             selectedSpot() { return this.spots.find(s => s.id === this.ui.selectedSpotId); }
         },
         methods: {
-            // Notificações, Login e UI (sem alterações críticas)
             showNotification(message, type = 'info', duration = 3000) { const id = Date.now(); this.notifications.push({ id, message, type }); setTimeout(() => { this.notifications = this.notifications.filter(n => n.id !== id); }, duration); },
             handleLogin() { if (this.ui.loginModal.user === 'admin' && this.ui.loginModal.pass === 'admin123') { this.user = { name: 'Administrador', isAdmin: true }; this.ui.loginModal.show = false; this.showNotification('Login como Administrador bem-sucedido!', 'sucesso'); } else { this.showNotification('Credenciais inválidas!', 'erro'); } this.ui.loginModal.user = ''; this.ui.loginModal.pass = ''; },
             handleLogout() { if (confirm('Sair do modo administrador?')) { this.user = { name: 'Visualizador', isAdmin: false }; this.ui.editMode = false; this.ui.multiSelect = false; this.ui.selectedSpotId = null; this.ui.multiSelectedIds = []; this.showNotification('Logout realizado.', 'info'); } },
             toggleEditMode() { this.ui.editMode = !this.ui.editMode; if (!this.ui.editMode) { this.ui.selectedSpotId = null; this.ui.multiSelectedIds = []; this.syncFullLayout(); }},
-            toggleEditPlanta() { this.ui.editPlanta = !this.ui.editPlanta; },
             toggleMultiSelect() { this.ui.multiSelect = !this.ui.multiSelect; if (!this.ui.multiSelect) this.ui.multiSelectedIds = []; },
             spotStyle(spot) { return { left: `${spot.x}px`, top: `${spot.y}px`, width: `${spot.width || 40}px`, height: `${spot.height || 70}px`, transform: `rotate(${spot.angle || 0}deg)` }; },
-
-            // Interação com Vagas
             handleSpotClick(spot) {
                 if (!this.user.isAdmin) return;
                 if (this.ui.editMode) {
-                    if (this.ui.multiSelect) {
-                        const index = this.ui.multiSelectedIds.indexOf(spot.id);
-                        if (index > -1) this.ui.multiSelectedIds.splice(index, 1);
-                        else this.ui.multiSelectedIds.push(spot.id);
-                        this.ui.selectedSpotId = null;
-                    } else { this.ui.selectedSpotId = this.ui.selectedSpotId === spot.id ? null : spot.id; this.ui.multiSelectedIds = []; }
+                    if (this.ui.multiSelect) { const index = this.ui.multiSelectedIds.indexOf(spot.id); if (index > -1) this.ui.multiSelectedIds.splice(index, 1); else this.ui.multiSelectedIds.push(spot.id); this.ui.selectedSpotId = null; } 
+                    else { this.ui.selectedSpotId = this.ui.selectedSpotId === spot.id ? null : spot.id; this.ui.multiSelectedIds = []; }
                 } else { spot.status = spot.status === 'livre' ? 'ocupada' : 'livre'; this.updateSpotStatusInFirebase(spot); }
             },
-
-            // Lógica de Arrastar Vagas (com Multi-drag)
             startDrag(spot, event) {
                 if (!this.user.isAdmin || !this.ui.editMode) return;
                 this.ui.draggingSpotId = spot.id;
                 const rect = event.target.getBoundingClientRect();
                 this.ui.dragOffset = { x: event.clientX - rect.left, y: event.clientY - rect.top, };
-
-                if (this.ui.multiSelect && this.ui.multiSelectedIds.includes(spot.id)) {
-                    this.ui.multiDragInitialPositions = this.ui.multiSelectedIds.map(id => {
-                        const s = this.spots.find(sp => sp.id === id);
-                        return { id, dx: s.x - spot.x, dy: s.y - spot.y };
-                    });
-                } else { this.ui.multiDragInitialPositions = []; }
-
+                if (this.ui.multiSelect && this.ui.multiSelectedIds.includes(spot.id)) { this.ui.multiDragInitialPositions = this.ui.multiSelectedIds.map(id => { const s = this.spots.find(sp => sp.id === id); return { id, dx: s.x - spot.x, dy: s.y - spot.y }; }); } 
+                else { this.ui.multiDragInitialPositions = []; }
                 document.addEventListener('mousemove', this.drag);
                 document.addEventListener('mouseup', this.stopDrag);
             },
@@ -264,23 +222,12 @@
                 if (!this.ui.draggingSpotId) return;
                 const spot = this.spots.find(s => s.id === this.ui.draggingSpotId);
                 const containerRect = this.$refs.mapContainer.getBoundingClientRect();
-                
-                const newX = (event.clientX - containerRect.left) / this.ui.zoom.container - this.ui.dragOffset.x;
-                const newY = (event.clientY - containerRect.top) / this.ui.zoom.container - this.ui.dragOffset.y;
+                const newX = (event.clientX - containerRect.left) - this.ui.dragOffset.x;
+                const newY = (event.clientY - containerRect.top) - this.ui.dragOffset.y;
                 spot.x = newX; spot.y = newY;
-
-                if (this.ui.multiDragInitialPositions.length > 0) {
-                    this.ui.multiDragInitialPositions.forEach(pos => {
-                        if (pos.id !== this.ui.draggingSpotId) {
-                            const otherSpot = this.spots.find(s => s.id === pos.id);
-                            if(otherSpot) { otherSpot.x = newX + pos.dx; otherSpot.y = newY + pos.dy; }
-                        }
-                    });
-                }
+                if (this.ui.multiDragInitialPositions.length > 0) { this.ui.multiDragInitialPositions.forEach(pos => { if (pos.id !== this.ui.draggingSpotId) { const otherSpot = this.spots.find(s => s.id === pos.id); if(otherSpot) { otherSpot.x = newX + pos.dx; otherSpot.y = newY + pos.dy; } } }); }
             },
             stopDrag() { this.ui.draggingSpotId = null; this.ui.multiDragInitialPositions = []; document.removeEventListener('mousemove', this.drag); document.removeEventListener('mouseup', this.stopDrag); this.syncFullLayout(); },
-
-            // Controles de Edição (com applyToSelected)
             applyToSelected(callback) {
                 const ids = this.ui.multiSelectedIds.length > 0 ? this.ui.multiSelectedIds : (this.ui.selectedSpotId ? [this.ui.selectedSpotId] : []);
                 ids.forEach(id => { const spot = this.spots.find(s => s.id === id); if (spot) callback(spot); });
@@ -290,56 +237,61 @@
             rotateSpot(angle) { this.applyToSelected(spot => spot.angle = (spot.angle || 0) + angle); },
             resizeSpot(axis, amount) { this.applyToSelected(spot => spot[axis] = (spot[axis] || (axis === 'width' ? 40 : 70)) + amount); },
             alignSpots(axis) { if (this.ui.multiSelectedIds.length < 2) return; const firstSpotPos = this.spots.find(s => s.id === this.ui.multiSelectedIds[0])[axis]; this.applyToSelected(spot => spot[axis] = firstSpotPos); },
-
-            // Controles Gerais e Persistência
             setAllSpotsStatus(status) { if (!this.user.isAdmin || !confirm(`Marcar todas as vagas como ${status.toUpperCase()}?`)) return; this.spots.forEach(s => s.status = status); this.saveToFirebase(); },
             saveStateLocal() { localStorage.setItem('parkingSystemState', JSON.stringify({ spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId })); this.showNotification('Layout salvo localmente!', 'sucesso'); },
-            loadStateLocal() {
-                const savedState = localStorage.getItem('parkingSystemState');
-                if (savedState) {
-                    const data = JSON.parse(savedState);
-                    this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || (this.spots.length > 0 ? Math.max(...this.spots.map(s => parseInt(s.id.replace('V','')))) + 1 : 1);
-                } else { // Estado Padrão Inicial
-                    this.spots = Array.from({ length: 10 }, (_, i) => ({ id: `V${String(i + 1).padStart(2, '0')}`, x: 50 + (i % 5) * 60, y: 50 + Math.floor(i / 5) * 100, width: 40, height: 70, angle: 0, status: 'livre' })); this.nextSpotId = 11;
-                }
-            },
+            loadStateLocal() { const savedState = localStorage.getItem('parkingSystemState'); if (savedState) { const data = JSON.parse(savedState); this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || (this.spots.length > 0 ? Math.max(...this.spots.map(s => parseInt(s.id.replace('V','')))) + 1 : 1); } else { this.spots = Array.from({ length: 10 }, (_, i) => ({ id: `V${String(i + 1).padStart(2, '0')}`, x: 50 + (i % 5) * 60, y: 50 + Math.floor(i / 5) * 100, width: 40, height: 70, angle: 0, status: 'livre' })); this.nextSpotId = 11; } },
             exportLayout() { const dataStr = JSON.stringify({ spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId }, null, 2); const blob = new Blob([dataStr], { type: "application/json" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `layout_estacionamento.json`; a.click(); URL.revokeObjectURL(a.href); },
-            importLayout(event) {
-                const file = event.target.files[0]; if (!file) return;
-                const reader = new FileReader();
-                reader.onload = e => { try { const data = JSON.parse(e.target.result); if (confirm('Importar novo layout?')) { this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.spots.length + 1; this.syncFullLayout(); this.showNotification('Layout importado!', 'sucesso'); }} catch (err) { this.showNotification('Arquivo de layout inválido.', 'erro'); }};
-                reader.readAsText(file); event.target.value = '';
-            },
+            importLayout(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { try { const data = JSON.parse(e.target.result); if (confirm('Importar novo layout?')) { this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.spots.length + 1; this.syncFullLayout(); this.showNotification('Layout importado!', 'sucesso'); }} catch (err) { this.showNotification('Arquivo de layout inválido.', 'erro'); }}; reader.readAsText(file); event.target.value = ''; },
             uploadPlant(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { this.plantConfig.image = e.target.result; this.syncFullLayout(); }; reader.readAsDataURL(file); },
             addSpot() { const newId = `V${String(this.nextSpotId).padStart(2, '0')}`; this.spots.push({ id: newId, x: 50, y: 50, width: 40, height: 70, angle: 0, status: 'livre' }); this.nextSpotId++; this.syncFullLayout(); },
-
-            // Funções Firebase Corrigidas
+            
+            // ### CORREÇÃO CRÍTICA NA INICIALIZAÇÃO DO FIREBASE ###
             initFirebase() {
                 try {
-                    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-                    this.firebase.db = firebase.database();
+                    // Garante que o app não seja inicializado mais de uma vez
+                    const app = !firebase.apps.length 
+                        ? firebase.initializeApp(firebaseConfig) 
+                        : firebase.app();
+                    
+                    // Associa a instância do app ao serviço de banco de dados
+                    this.firebase.db = firebase.database(app);
+                    
                     this.firebase.db.ref('.info/connected').on('value', snapshot => {
                         this.firebase.connected = snapshot.val();
-                        this.showNotification(`Firebase ${snapshot.val() ? 'Conectado' : 'Desconectado'}.`, snapshot.val() ? 'sucesso' : 'erro');
-                        if(snapshot.val()) { this.loadFromFirebase(); }
+                        if (snapshot.val()) {
+                            this.showNotification('Firebase Conectado', 'sucesso');
+                            this.loadFromFirebase();
+                        } else {
+                            this.showNotification('Firebase Desconectado', 'erro');
+                        }
                     });
-                } catch (e) { console.error("Erro ao inicializar Firebase:", e); this.firebase.connected = false; this.showNotification(`Erro Firebase: ${e.message}`, 'erro'); }
+                } catch (e) {
+                    console.error("Erro ao inicializar Firebase:", e);
+                    this.firebase.connected = false;
+                    this.showNotification(`Erro Firebase: ${e.message}`, 'erro');
+                }
             },
             loadFromFirebase() {
+                if (!this.firebase.db) return;
                 this.firebase.db.ref('layout').once('value', snap => {
                     const data = snap.val();
-                    if (data && !this.user.isAdmin) { // Carrega layout completo para viewers
-                        this.spots = data.spots || this.spots; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.nextSpotId;
+                    // Carrega o layout completo apenas para viewers ou na primeira carga do admin
+                    if (data && (!this.user.isAdmin || this.spots.length === 0)) {
+                        this.spots = data.spots || this.spots;
+                        this.plantConfig = data.plantConfig || this.plantConfig;
+                        this.nextSpotId = data.nextSpotId || this.nextSpotId;
                     }
                 });
-                this.firebase.db.ref('spots').on('value', snap => { // Listener de status para todos
-                    const statuses = snap.val(); if (statuses) { this.spots.forEach(s => { if (statuses[s.id] !== undefined) s.status = statuses[s.id]; });}
+                // Mantém um listener ativo para o status das vagas para todos os usuários
+                this.firebase.db.ref('spots').on('value', snap => {
+                    const statuses = snap.val();
+                    if (statuses) { this.spots.forEach(s => { if (statuses[s.id] !== undefined) s.status = statuses[s.id]; });}
                 });
             },
             updateSpotStatusInFirebase(spot) { if (this.firebase.connected && this.user.isAdmin) this.firebase.db.ref(`spots/${spot.id}`).set(spot.status); },
             syncFullLayout() { if (!this.firebase.connected || !this.user.isAdmin) return; const layout = { spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId }; this.firebase.db.ref('layout').set(layout); },
             saveToFirebase() {
-                if (!this.firebase.connected || !this.user.isAdmin) return;
+                if (!this.firebase.connected || !this.user.isAdmin) { this.showNotification('Não é possível salvar. Verifique a conexão e o login.', 'erro'); return; }
                 const spotsStatus = this.spots.reduce((acc, spot) => ({...acc, [spot.id]: spot.status }), {});
                 this.firebase.db.ref('spots').set(spotsStatus);
                 this.syncFullLayout();
