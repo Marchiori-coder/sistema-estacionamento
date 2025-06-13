@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMAMUS - Sistema de Estacionamento</title>
+    <title>Sistema de Estacionamento</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -37,11 +37,15 @@
         .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:15px;margin-top:20px}
         .stat-box{background:rgba(255,255,255,0.2);padding:15px;border-radius:10px;text-align:center}
         .stat-number{font-size:clamp(1.2rem,3vw,1.8rem);font-weight:bold;display:block}
-        .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:60vh;position:relative}
-        .estacionamento-container{position:relative;width:100%;max-width:1400px;height:clamp(700px,85vh,1400px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:visible;transform-origin:center;transition:transform 0.3s}
-        .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:transform 0.3s}
+        .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:70vh;position:relative}
+        .estacionamento-container{position:relative;width:100%;max-width:1600px;height:clamp(800px,90vh,1600px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:visible;transform-origin:center;transition:transform 0.3s}
+        .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s;cursor:move}
+        .planta-baixa.ajustavel{border:2px dashed #3498db;opacity:0.9}
         .zoom-controls{position:absolute;top:20px;left:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
         .zoom-btn{padding:8px 12px;margin:2px;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
+        .planta-controls{position:absolute;top:20px;right:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
+        .planta-btn{padding:8px 12px;margin:2px;background:#e67e22;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem;display:block;width:100%;margin-bottom:5px}
+        .planta-btn:hover{background:#d35400}
         .vaga{position:absolute;width:clamp(25px,4vw,45px);height:clamp(40px,6vw,75px);border:2px solid #2c3e50;background:rgba(39,174,96,0.9);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1.2vw,10px);font-weight:bold;color:white;border-radius:4px;cursor:pointer;transition:all 0.3s;z-index:10;user-select:none}
         .vaga:hover{transform:scale(1.1);z-index:100}
         .livre{background:rgba(39,174,96,0.9)!important}
@@ -82,21 +86,21 @@
             .user-info{position:static;margin-bottom:15px;justify-content:center}
             .header{padding-top:20px}
             .edit-controls{position:fixed;top:0;right:0;left:0;bottom:0;transform:none;max-height:100vh;border-radius:0}
-            .estacionamento-container{height:clamp(750px,90vh,1200px)}
-            .zoom-controls{position:relative;margin-bottom:15px}
+            .estacionamento-container{height:clamp(850px,95vh,1400px)}
+            .zoom-controls,.planta-controls{position:relative;margin-bottom:15px;display:inline-block!important;margin-right:10px}
             .controles{grid-template-columns:repeat(2,1fr)}
         }
         @media (max-width:480px){
             .vaga{width:clamp(20px,6vw,30px);height:clamp(35px,8vw,50px);font-size:clamp(5px,1.5vw,8px)}
             .controles{grid-template-columns:1fr}
-            .estacionamento-container{height:clamp(800px,95vh,1300px)}
+            .estacionamento-container{height:clamp(900px,98vh,1500px)}
         }
         @media (min-width:1920px) and (max-width:2560px){
-            .estacionamento-container{height:clamp(1000px,85vh,1500px);max-width:1600px}
+            .estacionamento-container{height:clamp(1100px,90vh,1700px);max-width:1800px}
             .vaga{width:clamp(45px,3vw,60px);height:clamp(75px,5vw,90px);font-size:clamp(10px,1vw,14px)}
         }
         @media (min-width:2560px){
-            .estacionamento-container{height:clamp(1200px,80vh,1600px);max-width:1800px}
+            .estacionamento-container{height:clamp(1300px,85vh,1800px);max-width:2000px}
             .vaga{width:clamp(50px,2.5vw,70px);height:clamp(80px,4vw,110px);font-size:clamp(12px,0.8vw,16px)}
         }
     </style>
@@ -126,7 +130,7 @@
                 <button class="logout-btn" id="logout-btn" onclick="logout()" style="display:none;">Sair</button>
             </div>
             
-            <h1>🚗 SMAMUS - Sistema de Estacionamento</h1>
+            <h1>🚗 Sistema de Estacionamento</h1>
             <p><strong>Última atualização:</strong> <span id="ultima-atualizacao">Agora</span></p>
             
             <div class="stats">
@@ -143,6 +147,7 @@
                 <button class="admin-btn" id="btn-edit-mode" onclick="toggleEditMode()">✏️ Edição</button>
                 <button class="admin-btn" onclick="adicionarNovaVaga()">➕ Nova Vaga</button>
                 <button class="admin-btn" onclick="carregarPlantaBaixa()">🖼️ Planta</button>
+                <button class="admin-btn" id="btn-edit-planta" onclick="toggleEditPlanta()">📐 Ajustar Planta</button>
                 <button class="admin-btn" onclick="exportarLayout()">📤 Exportar</button>
                 <button class="admin-btn" onclick="importarLayout()">📥 Importar</button>
                 <button class="admin-btn" id="btn-multi-select" onclick="toggleSelecaoMultipla()">🔲 Multi</button>
@@ -166,6 +171,15 @@
                     Container: <span id="zoom-container">100%</span><br>
                     Planta: <span id="zoom-planta">100%</span>
                 </div>
+            </div>
+
+            <div class="planta-controls" id="planta-controls" style="display:none;">
+                <h4 style="color:#34495e;margin-bottom:10px;font-size:0.8rem;">📐 Planta Baixa</h4>
+                <button class="planta-btn" onclick="ajustarPlanta('cover')">📏 Cobrir Área</button>
+                <button class="planta-btn" onclick="ajustarPlanta('contain')">📐 Ajustar</button>
+                <button class="planta-btn" onclick="ajustarPlanta('fill')">🔄 Preencher</button>
+                <button class="planta-btn" onclick="centralizarPlanta()">⌖ Centralizar</button>
+                <button class="planta-btn" onclick="resetarPlanta()">⟲ Reset</button>
             </div>
 
             <div class="estacionamento-container" id="mapa-estacionamento">
@@ -249,7 +263,7 @@
 
     <script>
         var firebaseConfig={apiKey:"AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",authDomain:"teste-dbacd.firebaseapp.com",databaseURL:"https://teste-dbacd-default-rtdb.firebaseio.com/",projectId:"teste-dbacd",storageBucket:"teste-dbacd.firebasestorage.app",messagingSenderId:"381642195685",appId:"1:381642195685:web:746eb4df7667813b0e4a0c"};
-        var estadoVagas={},posicaoVagas={},firebaseConectado=false,database=null,totalVagas=62,usuarioAtual='viewer',tipoUsuario='viewer',modoEdicao=false,proximoIdVaga=63,vagaSelecionada=null,vagaArrastando=null,offsetX=0,offsetY=0,zoomContainer=1,zoomPlanta=1,selecaoMultipla=false,vagasMultiplasSelecao=[];
+        var estadoVagas={},posicaoVagas={},firebaseConectado=false,database=null,totalVagas=62,usuarioAtual='viewer',tipoUsuario='viewer',modoEdicao=false,proximoIdVaga=63,vagaSelecionada=null,vagaArrastando=null,offsetX=0,offsetY=0,zoomContainer=1,zoomPlanta=1,selecaoMultipla=false,vagasMultiplasSelecao=[],editandoPlanta=false,plantaConfig={size:'cover',posX:50,posY:50};
 
         function mostrarModalLogin(){document.getElementById('modal-login').classList.add('show')}
         function fecharModalLogin(){document.getElementById('modal-login').classList.remove('show')}
@@ -265,13 +279,14 @@
                 document.getElementById('logout-btn').style.display='inline-block';
                 document.getElementById('admin-panel').classList.add('show');
                 document.getElementById('zoom-controls').style.display='block';
+                document.getElementById('planta-controls').style.display='block';
                 habilitarControlesAdmin();mostrarNotificacao('🔧 Login realizado!','sucesso');
             }else{mostrarNotificacao('❌ Credenciais inválidas','erro')}
         }
 
         function logout(){
             if(confirm('Sair do modo administrador?')){
-                usuarioAtual='viewer';tipoUsuario='viewer';modoEdicao=false;selecaoMultipla=false;
+                usuarioAtual='viewer';tipoUsuario='viewer';modoEdicao=false;selecaoMultipla=false;editandoPlanta=false;
                 document.getElementById('user-name').textContent='Visualizador Público';
                 document.getElementById('user-badge').textContent='VIEWER';
                 document.getElementById('user-badge').className='user-badge';
@@ -280,7 +295,9 @@
                 document.getElementById('admin-panel').classList.remove('show');
                 document.getElementById('edit-controls').style.display='none';
                 document.getElementById('zoom-controls').style.display='none';
+                document.getElementById('planta-controls').style.display='none';
                 document.getElementById('mapa-estacionamento').classList.remove('modo-edicao');
+                document.getElementById('planta-baixa').classList.remove('ajustavel');
                 limparSelecaoMultipla();desabilitarControlesAdmin();
                 mostrarNotificacao('👋 Logout realizado','info');
             }
@@ -288,6 +305,51 @@
 
         function habilitarControlesAdmin(){['btn-reset','btn-ocupar','btn-liberar'].forEach(id=>{var btn=document.getElementById(id);if(btn){btn.disabled=false;btn.style.opacity='1'}})}
         function desabilitarControlesAdmin(){['btn-reset','btn-ocupar','btn-liberar'].forEach(id=>{var btn=document.getElementById(id);if(btn){btn.disabled=true;btn.style.opacity='0.3'}})}
+
+        function toggleEditPlanta(){
+            if(tipoUsuario!=='admin')return;
+            editandoPlanta=!editandoPlanta;
+            var btn=document.getElementById('btn-edit-planta'),planta=document.getElementById('planta-baixa');
+            if(editandoPlanta){
+                btn.classList.add('active');btn.textContent='✅ Finalizar Planta';
+                planta.classList.add('ajustavel');
+                mostrarNotificacao('📐 Modo ajuste de planta ativado','info');
+            }else{
+                btn.classList.remove('active');btn.textContent='📐 Ajustar Planta';
+                planta.classList.remove('ajustavel');
+                mostrarNotificacao('✅ Ajuste de planta finalizado','info');
+                salvarLocal();
+            }
+        }
+
+        function ajustarPlanta(tipo){
+            if(tipoUsuario!=='admin')return;
+            var planta=document.getElementById('planta-baixa');
+            plantaConfig.size=tipo;
+            planta.style.backgroundSize=tipo;
+            if(tipo==='cover'){planta.style.backgroundPosition='center'}
+            else if(tipo==='contain'){planta.style.backgroundPosition='center';planta.style.backgroundSize='contain'}
+            else if(tipo==='fill'){planta.style.backgroundSize='100% 100%'}
+            salvarLocal();mostrarNotificacao('📐 Planta ajustada: '+tipo,'info');
+        }
+
+        function centralizarPlanta(){
+            if(tipoUsuario!=='admin')return;
+            var planta=document.getElementById('planta-baixa');
+            plantaConfig.posX=50;plantaConfig.posY=50;
+            planta.style.backgroundPosition='50% 50%';
+            salvarLocal();mostrarNotificacao('⌖ Planta centralizada','info');
+        }
+
+        function resetarPlanta(){
+            if(tipoUsuario!=='admin')return;
+            var planta=document.getElementById('planta-baixa');
+            plantaConfig={size:'cover',posX:50,posY:50};
+            planta.style.backgroundSize='cover';planta.style.backgroundPosition='center';
+            planta.style.transform='scale(1)';zoomPlanta=1;
+            document.getElementById('zoom-planta').textContent='100%';
+            salvarLocal();mostrarNotificacao('⟲ Planta resetada','info');
+        }
 
         function ajustarZoom(tipo,incremento){
             if(tipoUsuario!=='admin')return;
@@ -519,7 +581,7 @@
 
         function exportarLayout(){
             if(tipoUsuario!=='admin')return;
-            var dados={timestamp:new Date().toISOString(),vagas:estadoVagas,posicoes:posicaoVagas,plantaBaixa:document.getElementById('planta-baixa').style.backgroundImage,totalVagas:totalVagas,proximoId:proximoIdVaga,zoomContainer:zoomContainer,zoomPlanta:zoomPlanta};
+            var dados={timestamp:new Date().toISOString(),vagas:estadoVagas,posicoes:posicaoVagas,plantaBaixa:document.getElementById('planta-baixa').style.backgroundImage,plantaConfig:plantaConfig,totalVagas:totalVagas,proximoId:proximoIdVaga,zoomContainer:zoomContainer,zoomPlanta:zoomPlanta};
             var blob=new Blob([JSON.stringify(dados,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
             a.href=url;a.download='layout_estacionamento_'+new Date().toISOString().slice(0,16).replace('T','_')+'.json';a.click();URL.revokeObjectURL(url);
             mostrarNotificacao('📤 Layout exportado!','sucesso');
@@ -539,6 +601,12 @@
                         if(dados.vagas)estadoVagas=dados.vagas;if(dados.posicoes)posicaoVagas=dados.posicoes;
                         if(dados.totalVagas)totalVagas=dados.totalVagas;if(dados.proximoId)proximoIdVaga=dados.proximoId;
                         if(dados.plantaBaixa)document.getElementById('planta-baixa').style.backgroundImage=dados.plantaBaixa;
+                        if(dados.plantaConfig){
+                            plantaConfig=dados.plantaConfig;
+                            var planta=document.getElementById('planta-baixa');
+                            planta.style.backgroundSize=plantaConfig.size;
+                            planta.style.backgroundPosition=plantaConfig.posX+'% '+plantaConfig.posY+'%';
+                        }
                         if(dados.zoomContainer){zoomContainer=dados.zoomContainer;document.getElementById('mapa-estacionamento').style.transform=`scale(${zoomContainer})`;document.getElementById('zoom-container').textContent=Math.round(zoomContainer*100)+'%'}
                         if(dados.zoomPlanta){zoomPlanta=dados.zoomPlanta;document.getElementById('planta-baixa').style.transform=`scale(${zoomPlanta})`;document.getElementById('zoom-planta').textContent=Math.round(zoomPlanta*100)+'%'}
                         for(var vagaId in posicaoVagas){
@@ -559,8 +627,11 @@
             if(file.size>10*1024*1024){mostrarNotificacao('❌ Arquivo muito grande (máx 10MB)','erro');return}
             var reader=new FileReader();
             reader.onload=function(e){
-                document.getElementById('planta-baixa').style.backgroundImage='url('+e.target.result+')';
-                salvarLocal();mostrarNotificacao('🖼️ Planta baixa carregada!','sucesso');
+                var planta=document.getElementById('planta-baixa');
+                planta.style.backgroundImage='url('+e.target.result+')';
+                planta.style.backgroundSize='cover';planta.style.backgroundPosition='center';
+                plantaConfig={size:'cover',posX:50,posY:50};
+                salvarLocal();mostrarNotificacao('🖼️ Planta baixa carregada e ajustada!','sucesso');
             };
             reader.readAsDataURL(file);event.target.value='';
         }
@@ -631,6 +702,7 @@
         function salvarLocal(){
             localStorage.setItem('estadoVagas',JSON.stringify(estadoVagas));
             localStorage.setItem('posicaoVagas',JSON.stringify(posicaoVagas));
+            localStorage.setItem('plantaConfig',JSON.stringify(plantaConfig));
             localStorage.setItem('totalVagas',totalVagas);localStorage.setItem('proximoIdVaga',proximoIdVaga);
         }
 
@@ -639,8 +711,15 @@
         function carregarLocal(){
             var estadoSalvo=localStorage.getItem('estadoVagas'),posicaoSalva=localStorage.getItem('posicaoVagas');
             var totalSalvo=localStorage.getItem('totalVagas'),proximoIdSalvo=localStorage.getItem('proximoIdVaga');
+            var plantaSalva=localStorage.getItem('plantaConfig');
             if(estadoSalvo)estadoVagas=JSON.parse(estadoSalvo);if(posicaoSalva)posicaoVagas=JSON.parse(posicaoSalva);
             if(totalSalvo)totalVagas=parseInt(totalSalvo);if(proximoIdSalvo)proximoIdVaga=parseInt(proximoIdSalvo);
+            if(plantaSalva){
+                plantaConfig=JSON.parse(plantaSalva);
+                var planta=document.getElementById('planta-baixa');
+                planta.style.backgroundSize=plantaConfig.size;
+                planta.style.backgroundPosition=plantaConfig.posX+'% '+plantaConfig.posY+'%';
+            }
         }
 
         function inicializarFirebase(){
@@ -681,29 +760,4 @@
             var posicoes=[
                 {id:'V01',x:50,y:50},{id:'V02',x:100,y:50},{id:'V03',x:150,y:50},{id:'V04',x:200,y:50},{id:'V05',x:250,y:50},
                 {id:'V06',x:300,y:50},{id:'V07',x:350,y:50},{id:'V08',x:400,y:50},{id:'V09',x:450,y:50},{id:'V10',x:500,y:50},
-                {id:'V11',x:50,y:150},{id:'V12',x:100,y:150},{id:'V13',x:150,y:150},{id:'V14',x:200,y:150},{id:'V15',x:250,y:150},
-                {id:'V16',x:300,y:150},{id:'V17',x:350,y:150},{id:'V18',x:400,y:150},{id:'V19',x:450,y:150},{id:'V20',x:500,y:150},
-                {id:'V21',x:50,y:250},{id:'V22',x:100,y:250},{id:'V23',x:150,y:250},{id:'V24',x:200,y:250},{id:'V25',x:250,y:250},
-                {id:'V26',x:300,y:250},{id:'V27',x:350,y:250},{id:'V28',x:400,y:250},{id:'V29',x:450,y:250},{id:'V30',x:500,y:250},
-                {id:'V31',x:50,y:350},{id:'V32',x:100,y:350},{id:'V33',x:150,y:350},{id:'V34',x:200,y:350},{id:'V35',x:250,y:350},
-                {id:'V36',x:300,y:350},{id:'V37',x:350,y:350},{id:'V38',x:400,y:350},{id:'V39',x:450,y:350},{id:'V40',x:500,y:350},
-                {id:'V41',x:50,y:450},{id:'V42',x:100,y:450},{id:'V43',x:150,y:450},{id:'V44',x:200,y:450},{id:'V45',x:250,y:450},
-                {id:'V46',x:300,y:450},{id:'V47',x:350,y:450},{id:'V48',x:400,y:450},{id:'V49',x:450,y:450},{id:'V50',x:500,y:450},
-                {id:'V51',x:50,y:550},{id:'V52',x:100,y:550},{id:'V53',x:150,y:550},{id:'V54',x:200,y:550},{id:'V55',x:250,y:550},
-                {id:'V56',x:300,y:550},{id:'V57',x:350,y:550},{id:'V58',x:400,y:550},{id:'V59',x:450,y:550},{id:'V60',x:500,y:550},
-                {id:'V61',x:275,y:650},{id:'V62',x:325,y:650}
-            ];
-            posicoes.forEach(pos=>criarVaga(pos.id,pos.x,pos.y));atualizarEstatisticas();
-        }
-
-        document.addEventListener('DOMContentLoaded',function(){
-            carregarLocal();inicializarVagas();inicializarFirebase();
-            document.addEventListener('mousemove',arrastar);document.addEventListener('mouseup',finalizarArraste);
-            document.getElementById('mapa-estacionamento').addEventListener('click',function(){
-                if(vagaSelecionada&&modoEdicao){vagaSelecionada.classList.remove('selecionada');vagaSelecionada=null;
-                document.getElementById('edit-controls').style.display='none'}
-            });
-        });
-    </script>
-</body>
-</html>
+                {id:'V11',x:50,y:150},{id:'V12',x:100,y:150},{id:'V13',x:150,y:150},{id:'V14',x:200
