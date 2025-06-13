@@ -179,15 +179,12 @@
             // ### CORREÇÃO DEFINITIVA DA LÓGICA DO FIREBASE ###
             initFirebase(){
                 try {
-                    // Garante que o app seja inicializado apenas uma vez.
                     this.firebase.app = !firebase.apps.length 
                         ? firebase.initializeApp(firebaseConfig) 
                         : firebase.app();
                     
-                    // Obtém a referência do banco de dados a partir da instância do app.
                     this.firebase.db = firebase.database(this.firebase.app);
 
-                    // Monitora o status da conexão.
                     this.firebase.db.ref('.info/connected').on('value', snap => {
                         this.firebase.connected = snap.val();
                         if(this.firebase.connected) {
@@ -205,7 +202,7 @@
             },
             loadFromFirebase() {
                 if(!this.firebase.db) return;
-                // CORREÇÃO: Usa .once() para a carga inicial do layout, evitando conflitos com escritas.
+                // Usa .once() para a carga inicial do layout, evitando conflitos de concorrência.
                 this.firebase.db.ref('layout').once('value', snap => {
                     const data = snap.val();
                     if(data) {
@@ -215,7 +212,7 @@
                     }
                 });
                 
-                // Mantém um listener ativo APENAS para os status, que é a informação mais dinâmica.
+                // Mantém um listener ativo APENAS para os status, que é a informação dinâmica.
                 this.firebase.db.ref('spots').on('value', snap => {
                     const statuses = snap.val();
                     if(statuses){
