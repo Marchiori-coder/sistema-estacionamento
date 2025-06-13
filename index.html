@@ -10,7 +10,7 @@
     <!-- Vue.js 3 via CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
-        /* O CSS foi mantido e refinado para o novo layout */
+        /* CSS GERAL E LAYOUT MODERNO */
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--r:clamp(8px,1vw,15px)}
         body{font-family:'Segoe UI',sans-serif;background-color:#f0f2f5;min-height:100vh;padding:var(--p);font-size:var(--f)}
@@ -47,7 +47,7 @@
         .stat-number{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:bold;display:block}
         .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:70vh;position:relative}
         .estacionamento-container{position:relative;width:100%;max-width:1600px;height:clamp(800px,90vh,1600px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:auto;transform-origin:center;transition:transform 0.3s;-webkit-overflow-scrolling:touch}
-        .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s}
+        .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-repeat:no-repeat;z-index:1;transform-origin:center;transition:all 0.3s}
         .vaga{position:absolute;width:clamp(25px,4vw,45px);height:clamp(40px,6vw,75px);border:2px solid #2c3e50;background:rgba(39,174,96,0.9);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1.2vw,10px);font-weight:bold;color:white;border-radius:4px;cursor:pointer;transition:all 0.3s;z-index:10;user-select:none}
         .vaga:hover{transform:scale(1.1);z-index:100}
         .vaga.viewer-mode{cursor:default!important}
@@ -62,10 +62,7 @@
         .edit-section{margin-bottom:20px}
         .edit-section h4{color:#34495e;margin-bottom:10px;font-size:0.8rem;text-align:center;padding:5px;background:#ecf0f1;border-radius:5px;}
         .edit-btn{width:100%;padding:10px;margin:5px 0;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:0.8rem}
-        .edit-btn.rotate{background:#3498db;color:white}
-        .edit-btn.resize{background:#e67e22;color:white}
-        .edit-btn.delete{background:#e74c3c;color:white}
-        .edit-btn.multi{background:#27ae60;color:white}
+        .edit-btn.rotate{background:#3498db;color:white}.edit-btn.resize{background:#e67e22;color:white}.edit-btn.delete{background:#e74c3c;color:white}.edit-btn.multi{background:#27ae60;color:white}
         .size-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
         .controles{padding:30px;background:#ecf0f1;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:15px;justify-items:center}
         .btn{padding:12px 20px;border:none;border-radius:20px;cursor:pointer;font-weight:bold;font-size:0.8rem;transition:all 0.3s;min-width:120px}
@@ -86,76 +83,33 @@
         <!-- Cabeçalho Moderno SMAMUS -->
         <header class="header">
             <div class="header-identidade">
-                <div class="header-logo">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 95C74.8528 95 95 74.8528 95 50C95 25.1472 74.8528 5 50 5C25.1472 5 5 25.1472 5 50C5 74.8528 25.1472 95 50 95Z" fill="#2c3e50"/><path d="M62 70V59C62 56.7909 60.2091 55 58 55H42C39.7909 55 38 56.7909 38 59V70H62Z" fill="#ffffff"/><path d="M58 55V46H42V55H58Z" fill="#bdc3c7"/><path d="M68 53C68 46.2 62.8333 34 50 34C37.1667 34 32 46.2 32 53C39.3333 49.4 60.6667 49.4 68 53Z" fill="#4CAF50"/></svg>
-                </div>
-                <div class="header-titulo">
-                    <h1>Sistema de Gerenciamento de Vagas</h1>
-                    <h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2>
-                </div>
+                <div class="header-logo"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 95C74.8528 95 95 74.8528 95 50C95 25.1472 74.8528 5 50 5C25.1472 5 5 25.1472 5 50C5 74.8528 25.1472 95 50 95Z" fill="#2c3e50"/><path d="M62 70V59C62 56.7909 60.2091 55 58 55H42C39.7909 55 38 56.7909 38 59V70H62Z" fill="#ffffff"/><path d="M58 55V46H42V55H58Z" fill="#bdc3c7"/><path d="M68 53C68 46.2 62.8333 34 50 34C37.1667 34 32 46.2 32 53C39.3333 49.4 60.6667 49.4 68 53Z" fill="#4CAF50"/></svg></div>
+                <div class="header-titulo"><h1>Sistema de Gerenciamento de Vagas</h1><h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2></div>
             </div>
-            <div class="user-info">
-                <span>{{ user.name }}</span><span class="user-badge" :class="{ admin: user.isAdmin }">{{ user.isAdmin ? 'ADMIN' : 'VIEWER' }}</span>
-                <button v-if="!user.isAdmin" class="admin-login-btn" @click="ui.loginModal.show = true">Login</button>
-                <button v-else class="logout-btn" @click="handleLogout">Sair</button>
-            </div>
+            <div class="user-info"><span>{{ user.name }}</span><span class="user-badge" :class="{ admin: user.isAdmin }">{{ user.isAdmin ? 'ADMIN' : 'VIEWER' }}</span><button v-if="!user.isAdmin" class="admin-login-btn" @click="ui.loginModal.show = true">Login</button><button v-else class="logout-btn" @click="handleLogout">Sair</button></div>
         </header>
 
         <!-- Painel de Estatísticas -->
-        <div class="stats">
-            <div class="stat-box"><span class="stat-number">{{ stats.total }}</span><span>Vagas Totais</span></div>
-            <div class="stat-box"><span class="stat-number">{{ stats.free }}</span><span>Vagas Livres</span></div>
-            <div class="stat-box"><span class="stat-number">{{ stats.occupied }}</span><span>Vagas Ocupadas</span></div>
-            <div class="stat-box"><span class="stat-number">{{ stats.occupationRate }}%</span><span>Taxa de Ocupação</span></div>
-        </div>
+        <div class="stats"><div class="stat-box"><span class="stat-number">{{ stats.total }}</span><span>Vagas Totais</span></div><div class="stat-box"><span class="stat-number">{{ stats.free }}</span><span>Vagas Livres</span></div><div class="stat-box"><span class="stat-number">{{ stats.occupied }}</span><span>Vagas Ocupadas</span></div><div class="stat-box"><span class="stat-number">{{ stats.occupationRate }}%</span><span>Taxa de Ocupação</span></div></div>
 
         <!-- Painel de Administração -->
-        <div class="admin-panel" v-if="user.isAdmin">
-            <h3>🔧 Painel de Administração</h3>
-            <div class="admin-controls">
-                <button class="admin-btn" :class="{active: ui.editMode}" @click="toggleEditMode">✏️ {{ ui.editMode ? 'Finalizar Edição' : 'Modo Edição' }}</button>
-                <button class="admin-btn" @click="addSpot">➕ Nova Vaga</button>
-                <button class="admin-btn" @click="() => this.$refs.plantaInput.click()">🖼️ Alterar Planta</button>
-                <button class="admin-btn" @click="exportLayout">📤 Exportar</button>
-                <button class="admin-btn" @click="() => this.$refs.importInput.click()">📥 Importar</button>
-                <button class="admin-btn" :class="{active: ui.multiSelect}" @click="toggleMultiSelect">🔲 {{ ui.multiSelect ? '✅ Multi-Seleção' : 'Multi-Seleção' }}</button>
-            </div>
-        </div>
+        <div class="admin-panel" v-if="user.isAdmin"><h3>🔧 Painel de Administração</h3><div class="admin-controls"><button class="admin-btn" :class="{active: ui.editMode}" @click="toggleEditMode">✏️ {{ ui.editMode ? 'Finalizar Edição' : 'Modo Edição' }}</button><button class="admin-btn" @click="addSpot">➕ Nova Vaga</button><button class="admin-btn" @click="() => this.$refs.plantaInput.click()">🖼️ Alterar Planta</button><button class="admin-btn" :class="{active: ui.editPlanta}" @click="toggleEditPlanta">📐 {{ ui.editPlanta ? '✅ Finalizar Planta' : 'Ajustar Planta' }}</button><button class="admin-btn" @click="exportLayout">📤 Exportar</button><button class="admin-btn" @click="() => this.$refs.importInput.click()">📥 Importar</button><button class="admin-btn" :class="{active: ui.multiSelect}" @click="toggleMultiSelect">🔲 {{ ui.multiSelect ? '✅ Multi' : 'Multi' }}</button></div></div>
 
         <!-- Mapa de Vagas -->
-        <div class="estacionamento-wrapper">
-             <div class="estacionamento-container" ref="mapContainer">
-                <div class="planta-baixa" :style="plantStyle"></div>
-                <div v-for="spot in spots" :key="spot.id" class="vaga"
-                     :class="[spot.status, {'selecionada': ui.selectedSpotId === spot.id && ui.multiSelectedIds.length === 0, 'multipla-selecionada': ui.multiSelectedIds.includes(spot.id), 'arrastando': ui.draggingSpotId === spot.id, 'viewer-mode': !user.isAdmin }]"
-                     :style="spotStyle(spot)" @mousedown.prevent="startDrag(spot, $event)" @click.stop="handleSpotClick(spot)">
-                    {{ spot.id }}
-                </div>
-            </div>
-        </div>
+        <div class="estacionamento-wrapper"><div class="estacionamento-container" ref="mapContainer"><div class="planta-baixa" :style="plantStyle"></div><div v-for="spot in spots" :key="spot.id" class="vaga" :class="[spot.status, {'selecionada': ui.selectedSpotId === spot.id && ui.multiSelectedIds.length === 0, 'multipla-selecionada': ui.multiSelectedIds.includes(spot.id), 'arrastando': ui.draggingSpotId === spot.id, 'viewer-mode': !user.isAdmin }]" :style="spotStyle(spot)" @mousedown.prevent="startDrag(spot, $event)" @click.stop="handleSpotClick(spot)">{{ spot.id }}</div></div></div>
 
-        <!-- Painel de Edição (flutuante) -->
-        <div class="edit-controls" v-if="user.isAdmin && ui.editMode && (ui.selectedSpotId || ui.multiSelectedIds.length > 0)">
-            <div v-if="ui.multiSelectedIds.length > 0"><div class="edit-section"><h4>{{ ui.multiSelectedIds.length }} Vagas Selecionadas</h4></div></div>
-            <div v-else-if="selectedSpot"><div class="edit-section"><h4>ID da Vaga: {{ selectedSpot.id }}</h4></div></div>
-            <div class="edit-section"><h4>Rotação</h4><div class="size-controls"><button class="edit-btn rotate" @click="rotateSpot(-90)">-90°</button><button class="edit-btn rotate" @click="rotateSpot(90)">+90°</button><button class="edit-btn rotate" @click="rotateSpot(-1)">-1°</button><button class="edit-btn rotate" @click="rotateSpot(1)">+1°</button></div></div>
-            <div class="edit-section"><h4>Tamanho</h4><div class="size-controls"><button class="edit-btn resize" @click="resizeSpot('width', -2)">↔ -</button><button class="edit-btn resize" @click="resizeSpot('width', 2)">↔ +</button><button class="edit-btn resize" @click="resizeSpot('height', -2)">↕ -</button><button class="edit-btn resize" @click="resizeSpot('height', 2)">↕ +</button></div></div>
-            <div class="edit-section" v-if="ui.multiSelectedIds.length > 1"><h4>Alinhar</h4><div class="size-controls"><button class="edit-btn multi" @click="alignSpots('x')">Horizontal</button><button class="edit-btn multi" @click="alignSpots('y')">Vertical</button></div></div>
-            <div class="edit-section"><button class="edit-btn delete" @click="deleteSelected">🗑️ Deletar</button></div>
-        </div>
+        <!-- Painel de Edição de Vagas (flutuante) -->
+        <div class="edit-controls" v-if="user.isAdmin && ui.editMode && !ui.editPlanta && (ui.selectedSpotId || ui.multiSelectedIds.length > 0)"><div v-if="ui.multiSelectedIds.length > 0"><div class="edit-section"><h4>{{ ui.multiSelectedIds.length }} Vagas Selecionadas</h4></div></div><div v-else-if="selectedSpot"><div class="edit-section"><h4>ID da Vaga: {{ selectedSpot.id }}</h4></div></div><div class="edit-section"><h4>Rotação</h4><div class="size-controls"><button class="edit-btn rotate" @click="rotateSpot(-90)">-90°</button><button class="edit-btn rotate" @click="rotateSpot(90)">+90°</button><button class="edit-btn rotate" @click="rotateSpot(-1)">-1°</button><button class="edit-btn rotate" @click="rotateSpot(1)">+1°</button></div></div><div class="edit-section"><h4>Tamanho</h4><div class="size-controls"><button class="edit-btn resize" @click="resizeSpot('width', -2)">↔ -</button><button class="edit-btn resize" @click="resizeSpot('width', 2)">↔ +</button><button class="edit-btn resize" @click="resizeSpot('height', -2)">↕ -</button><button class="edit-btn resize" @click="resizeSpot('height', 2)">↕ +</button></div></div><div class="edit-section" v-if="ui.multiSelectedIds.length > 1"><h4>Alinhar</h4><div class="size-controls"><button class="edit-btn multi" @click="alignSpots('x')">Horizontal</button><button class="edit-btn multi" @click="alignSpots('y')">Vertical</button></div></div><div class="edit-section"><button class="edit-btn delete" @click="deleteSelected">🗑️ Deletar</button></div></div>
+        
+        <!-- Painel de Edição da Planta (flutuante) -->
+        <div class="edit-controls" v-if="user.isAdmin && ui.editPlanta"><div class="edit-section"><h4>Ajustes da Planta Baixa</h4></div><div class="edit-section"><h4>Preenchimento</h4><div class="size-controls"><button class="edit-btn resize" @click="setPlantSize('cover')">Preencher</button><button class="edit-btn resize" @click="setPlantSize('contain')">Ajustar</button></div></div><div class="edit-section"><h4>Zoom</h4><div class="size-controls"><button class="edit-btn rotate" @click="zoomPlant(-0.1)">-</button><button class="edit-btn rotate" @click="zoomPlant(0.1)">+</button></div></div><div class="edit-section"><h4>Posição</h4><div class="size-controls"><button class="edit-btn" @click="movePlant('x', -1)">⬅️</button><button class="edit-btn" @click="movePlant('x', 1)">➡️</button><button class="edit-btn" @click="movePlant('y', -1)">⬆️</button><button class="edit-btn" @click="movePlant('y', 1)">⬇️</button></div></div></div>
 
         <!-- Controles Gerais -->
-        <div class="controles">
-            <button class="btn" :disabled="!user.isAdmin" @click="setAllSpotsStatus('livre')">Resetar Tudo</button>
-            <button class="btn" :disabled="!user.isAdmin" @click="setAllSpotsStatus('ocupada')">Ocupar Tudo</button>
-            <button class="btn" :disabled="!user.isAdmin" @click="saveStateLocal">Salvar Local</button>
-            <button class="btn" :disabled="!user.isAdmin || !firebase.connected" @click="saveToFirebase">Salvar Firebase</button>
-        </div>
+        <div class="controles"><button class="btn" :disabled="!user.isAdmin" @click="setAllSpotsStatus('livre')">Resetar Tudo</button><button class="btn" :disabled="!user.isAdmin" @click="setAllSpotsStatus('ocupada')">Ocupar Tudo</button><button class="btn" :disabled="!user.isAdmin" @click="saveStateLocal">Salvar Local</button><button class="btn" :disabled="!user.isAdmin || !firebase.connected" @click="saveToFirebase">Salvar Firebase</button></div>
     </div>
-    <input type="file" ref="importInput" accept=".json" style="display:none;" @change="importLayout">
-    <input type="file" ref="plantaInput" accept="image/*" style="display:none;" @change="uploadPlant">
+    <input type="file" ref="importInput" accept=".json" style="display:none;" @change="importLayout"><input type="file" ref="plantaInput" accept="image/*" style="display:none;" @change="uploadPlant">
     <div class="notificacao" :class="['mostrar', n.type]" v-for="n in notifications" :key="n.id">{{ n.message }}</div>
-    <div class="status-firebase" :class="firebase.connected ? 'conectado' : 'desconectado'"><div class="indicador-firebase"></div><span>{{ firebase.connected ? 'Firebase Conectado' : 'Desconectado' }}</span></div>
+    <div class="status-firebase" :class="firebase.connected ? 'conectado' : 'desconectado'"><div class="indicador-firebase"></div><span>{{ firebase.connected ? 'Firebase Conectado' : 'Firebase Desconectado' }}</span></div>
 </div>
 
 <script>
@@ -178,10 +132,10 @@
                 user: { name: 'Visualizador', isAdmin: false },
                 spots: [],
                 nextSpotId: 1,
-                plantConfig: { image: '' },
+                plantConfig: { image: '', size: 'cover', posX: 50, posY: 50, zoom: 1 },
                 ui: {
                     loginModal: { show: false, user: '', pass: '' },
-                    editMode: false, multiSelect: false,
+                    editMode: false, editPlanta: false, multiSelect: false,
                     selectedSpotId: null, multiSelectedIds: [],
                     draggingSpotId: null, dragOffset: { x: 0, y: 0 },
                     multiDragInitialPositions: [],
@@ -190,113 +144,42 @@
             }
         },
         computed: {
-            stats() { const total = this.spots.length; if (total === 0) return { total: 0, free: 0, occupied: 0, occupationRate: 0 }; const occupied = this.spots.filter(s => s.status === 'ocupada').length; const free = total - occupied; const occupationRate = Math.round((occupied / total) * 100); return { total, free, occupied, occupationRate }; },
-            plantStyle() { return { backgroundImage: `url(${this.plantConfig.image})` }; },
+            stats() { const t=this.spots.length; if(t===0)return{total:0,free:0,occupied:0,occupationRate:0};const o=this.spots.filter(s=>s.status==='ocupada').length;const f=t-o;const r=Math.round((o/t)*100);return{total:t,free:f,occupied:o,occupationRate:r}; },
+            plantStyle() { return { backgroundImage: `url(${this.plantConfig.image})`, backgroundSize: this.plantConfig.size, backgroundPosition: `${this.plantConfig.posX}% ${this.plantConfig.posY}%`, transform: `scale(${this.plantConfig.zoom})` }; },
             selectedSpot() { return this.spots.find(s => s.id === this.ui.selectedSpotId); }
         },
         methods: {
-            showNotification(message, type = 'info', duration = 3000) { const id = Date.now(); this.notifications.push({ id, message, type }); setTimeout(() => { this.notifications = this.notifications.filter(n => n.id !== id); }, duration); },
-            handleLogin() { if (this.ui.loginModal.user === 'admin' && this.ui.loginModal.pass === 'admin123') { this.user = { name: 'Administrador', isAdmin: true }; this.ui.loginModal.show = false; this.showNotification('Login como Administrador bem-sucedido!', 'sucesso'); } else { this.showNotification('Credenciais inválidas!', 'erro'); } this.ui.loginModal.user = ''; this.ui.loginModal.pass = ''; },
-            handleLogout() { if (confirm('Sair do modo administrador?')) { this.user = { name: 'Visualizador', isAdmin: false }; this.ui.editMode = false; this.ui.multiSelect = false; this.ui.selectedSpotId = null; this.ui.multiSelectedIds = []; this.showNotification('Logout realizado.', 'info'); } },
-            toggleEditMode() { this.ui.editMode = !this.ui.editMode; if (!this.ui.editMode) { this.ui.selectedSpotId = null; this.ui.multiSelectedIds = []; this.syncFullLayout(); }},
-            toggleMultiSelect() { this.ui.multiSelect = !this.ui.multiSelect; if (!this.ui.multiSelect) this.ui.multiSelectedIds = []; },
-            spotStyle(spot) { return { left: `${spot.x}px`, top: `${spot.y}px`, width: `${spot.width || 40}px`, height: `${spot.height || 70}px`, transform: `rotate(${spot.angle || 0}deg)` }; },
-            handleSpotClick(spot) {
-                if (!this.user.isAdmin) return;
-                if (this.ui.editMode) {
-                    if (this.ui.multiSelect) { const index = this.ui.multiSelectedIds.indexOf(spot.id); if (index > -1) this.ui.multiSelectedIds.splice(index, 1); else this.ui.multiSelectedIds.push(spot.id); this.ui.selectedSpotId = null; } 
-                    else { this.ui.selectedSpotId = this.ui.selectedSpotId === spot.id ? null : spot.id; this.ui.multiSelectedIds = []; }
-                } else { spot.status = spot.status === 'livre' ? 'ocupada' : 'livre'; this.updateSpotStatusInFirebase(spot); }
-            },
-            startDrag(spot, event) {
-                if (!this.user.isAdmin || !this.ui.editMode) return;
-                this.ui.draggingSpotId = spot.id;
-                const rect = event.target.getBoundingClientRect();
-                this.ui.dragOffset = { x: event.clientX - rect.left, y: event.clientY - rect.top, };
-                if (this.ui.multiSelect && this.ui.multiSelectedIds.includes(spot.id)) { this.ui.multiDragInitialPositions = this.ui.multiSelectedIds.map(id => { const s = this.spots.find(sp => sp.id === id); return { id, dx: s.x - spot.x, dy: s.y - spot.y }; }); } 
-                else { this.ui.multiDragInitialPositions = []; }
-                document.addEventListener('mousemove', this.drag);
-                document.addEventListener('mouseup', this.stopDrag);
-            },
-            drag(event) {
-                if (!this.ui.draggingSpotId) return;
-                const spot = this.spots.find(s => s.id === this.ui.draggingSpotId);
-                const containerRect = this.$refs.mapContainer.getBoundingClientRect();
-                const newX = (event.clientX - containerRect.left) - this.ui.dragOffset.x;
-                const newY = (event.clientY - containerRect.top) - this.ui.dragOffset.y;
-                spot.x = newX; spot.y = newY;
-                if (this.ui.multiDragInitialPositions.length > 0) { this.ui.multiDragInitialPositions.forEach(pos => { if (pos.id !== this.ui.draggingSpotId) { const otherSpot = this.spots.find(s => s.id === pos.id); if(otherSpot) { otherSpot.x = newX + pos.dx; otherSpot.y = newY + pos.dy; } } }); }
-            },
-            stopDrag() { this.ui.draggingSpotId = null; this.ui.multiDragInitialPositions = []; document.removeEventListener('mousemove', this.drag); document.removeEventListener('mouseup', this.stopDrag); this.syncFullLayout(); },
-            applyToSelected(callback) {
-                const ids = this.ui.multiSelectedIds.length > 0 ? this.ui.multiSelectedIds : (this.ui.selectedSpotId ? [this.ui.selectedSpotId] : []);
-                ids.forEach(id => { const spot = this.spots.find(s => s.id === id); if (spot) callback(spot); });
-                this.syncFullLayout();
-            },
-            deleteSelected() { if (confirm('Deletar vagas selecionadas?')) { const idsToDelete = this.ui.multiSelectedIds.length > 0 ? this.ui.multiSelectedIds : [this.ui.selectedSpotId]; this.spots = this.spots.filter(s => !idsToDelete.includes(s.id)); this.ui.multiSelectedIds = []; this.ui.selectedSpotId = null; this.syncFullLayout(); }},
-            rotateSpot(angle) { this.applyToSelected(spot => spot.angle = (spot.angle || 0) + angle); },
-            resizeSpot(axis, amount) { this.applyToSelected(spot => spot[axis] = (spot[axis] || (axis === 'width' ? 40 : 70)) + amount); },
-            alignSpots(axis) { if (this.ui.multiSelectedIds.length < 2) return; const firstSpotPos = this.spots.find(s => s.id === this.ui.multiSelectedIds[0])[axis]; this.applyToSelected(spot => spot[axis] = firstSpotPos); },
-            setAllSpotsStatus(status) { if (!this.user.isAdmin || !confirm(`Marcar todas as vagas como ${status.toUpperCase()}?`)) return; this.spots.forEach(s => s.status = status); this.saveToFirebase(); },
-            saveStateLocal() { localStorage.setItem('parkingSystemState', JSON.stringify({ spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId })); this.showNotification('Layout salvo localmente!', 'sucesso'); },
-            loadStateLocal() { const savedState = localStorage.getItem('parkingSystemState'); if (savedState) { const data = JSON.parse(savedState); this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || (this.spots.length > 0 ? Math.max(...this.spots.map(s => parseInt(s.id.replace('V','')))) + 1 : 1); } else { this.spots = Array.from({ length: 10 }, (_, i) => ({ id: `V${String(i + 1).padStart(2, '0')}`, x: 50 + (i % 5) * 60, y: 50 + Math.floor(i / 5) * 100, width: 40, height: 70, angle: 0, status: 'livre' })); this.nextSpotId = 11; } },
-            exportLayout() { const dataStr = JSON.stringify({ spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId }, null, 2); const blob = new Blob([dataStr], { type: "application/json" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `layout_estacionamento.json`; a.click(); URL.revokeObjectURL(a.href); },
-            importLayout(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { try { const data = JSON.parse(e.target.result); if (confirm('Importar novo layout?')) { this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.spots.length + 1; this.syncFullLayout(); this.showNotification('Layout importado!', 'sucesso'); }} catch (err) { this.showNotification('Arquivo de layout inválido.', 'erro'); }}; reader.readAsText(file); event.target.value = ''; },
-            uploadPlant(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { this.plantConfig.image = e.target.result; this.syncFullLayout(); }; reader.readAsDataURL(file); },
-            addSpot() { const newId = `V${String(this.nextSpotId).padStart(2, '0')}`; this.spots.push({ id: newId, x: 50, y: 50, width: 40, height: 70, angle: 0, status: 'livre' }); this.nextSpotId++; this.syncFullLayout(); },
-            
-            // ### CORREÇÃO CRÍTICA NA INICIALIZAÇÃO DO FIREBASE ###
-            initFirebase() {
-                try {
-                    // Garante que o app não seja inicializado mais de uma vez
-                    const app = !firebase.apps.length 
-                        ? firebase.initializeApp(firebaseConfig) 
-                        : firebase.app();
-                    
-                    // Associa a instância do app ao serviço de banco de dados
-                    this.firebase.db = firebase.database(app);
-                    
-                    this.firebase.db.ref('.info/connected').on('value', snapshot => {
-                        this.firebase.connected = snapshot.val();
-                        if (snapshot.val()) {
-                            this.showNotification('Firebase Conectado', 'sucesso');
-                            this.loadFromFirebase();
-                        } else {
-                            this.showNotification('Firebase Desconectado', 'erro');
-                        }
-                    });
-                } catch (e) {
-                    console.error("Erro ao inicializar Firebase:", e);
-                    this.firebase.connected = false;
-                    this.showNotification(`Erro Firebase: ${e.message}`, 'erro');
-                }
-            },
-            loadFromFirebase() {
-                if (!this.firebase.db) return;
-                this.firebase.db.ref('layout').once('value', snap => {
-                    const data = snap.val();
-                    // Carrega o layout completo apenas para viewers ou na primeira carga do admin
-                    if (data && (!this.user.isAdmin || this.spots.length === 0)) {
-                        this.spots = data.spots || this.spots;
-                        this.plantConfig = data.plantConfig || this.plantConfig;
-                        this.nextSpotId = data.nextSpotId || this.nextSpotId;
-                    }
-                });
-                // Mantém um listener ativo para o status das vagas para todos os usuários
-                this.firebase.db.ref('spots').on('value', snap => {
-                    const statuses = snap.val();
-                    if (statuses) { this.spots.forEach(s => { if (statuses[s.id] !== undefined) s.status = statuses[s.id]; });}
-                });
-            },
-            updateSpotStatusInFirebase(spot) { if (this.firebase.connected && this.user.isAdmin) this.firebase.db.ref(`spots/${spot.id}`).set(spot.status); },
-            syncFullLayout() { if (!this.firebase.connected || !this.user.isAdmin) return; const layout = { spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId }; this.firebase.db.ref('layout').set(layout); },
-            saveToFirebase() {
-                if (!this.firebase.connected || !this.user.isAdmin) { this.showNotification('Não é possível salvar. Verifique a conexão e o login.', 'erro'); return; }
-                const spotsStatus = this.spots.reduce((acc, spot) => ({...acc, [spot.id]: spot.status }), {});
-                this.firebase.db.ref('spots').set(spotsStatus);
-                this.syncFullLayout();
-                this.showNotification('Estado salvo no Firebase!', 'sucesso');
-            }
+            showNotification(msg, type='info', dur=3000) { const id=Date.now();this.notifications.push({id,message:msg,type});setTimeout(()=>this.notifications=this.notifications.filter(n=>n.id!==id),dur);},
+            handleLogin(){if(this.ui.loginModal.user==='admin'&&this.ui.loginModal.pass==='admin123'){this.user={name:'Administrador',isAdmin:true};this.ui.loginModal.show=false;this.showNotification('Login como Administrador bem-sucedido!','sucesso')}else{this.showNotification('Credenciais inválidas!','erro')}this.ui.loginModal.user='';this.ui.loginModal.pass=''},
+            handleLogout(){if(confirm('Sair do modo administrador?')){this.user={name:'Visualizador',isAdmin:false};this.ui.editMode=false;this.ui.multiSelect=false;this.ui.editPlanta=false;this.ui.selectedSpotId=null;this.ui.multiSelectedIds=[];this.showNotification('Logout realizado.','info')}},
+            toggleEditMode(){this.ui.editMode=!this.ui.editMode;if(!this.ui.editMode){this.ui.selectedSpotId=null;this.ui.multiSelectedIds=[];this.syncFullLayout()}this.ui.editPlanta=false},
+            toggleEditPlanta(){this.ui.editPlanta=!this.ui.editPlanta;if(this.ui.editPlanta)this.ui.editMode=false},
+            toggleMultiSelect(){this.ui.multiSelect=!this.ui.multiSelect;if(!this.ui.multiSelect)this.ui.multiSelectedIds=[]},
+            spotStyle(spot){return{left:`${spot.x}px`,top:`${spot.y}px`,width:`${spot.width||40}px`,height:`${spot.height||70}px`,transform:`rotate(${spot.angle||0}deg)`}},
+            handleSpotClick(spot){if(!this.user.isAdmin)return;if(this.ui.editMode){if(this.ui.multiSelect){const i=this.ui.multiSelectedIds.indexOf(spot.id);if(i>-1)this.ui.multiSelectedIds.splice(i,1);else this.ui.multiSelectedIds.push(spot.id);this.ui.selectedSpotId=null}else{this.ui.selectedSpotId=this.ui.selectedSpotId===spot.id?null:spot.id;this.ui.multiSelectedIds=[]}}else{spot.status=spot.status==='livre'?'ocupada':'livre';this.updateSpotStatusInFirebase(spot)}},
+            startDrag(spot,evt){if(!this.user.isAdmin||!this.ui.editMode)return;this.ui.draggingSpotId=spot.id;const r=evt.target.getBoundingClientRect();this.ui.dragOffset={x:evt.clientX-r.left,y:evt.clientY-r.top};if(this.ui.multiSelect&&this.ui.multiSelectedIds.includes(spot.id)){this.ui.multiDragInitialPositions=this.ui.multiSelectedIds.map(id=>{const s=this.spots.find(sp=>sp.id===id);return{id,dx:s.x-spot.x,dy:s.y-spot.y}})}else{this.ui.multiDragInitialPositions=[]}document.addEventListener('mousemove',this.drag);document.addEventListener('mouseup',this.stopDrag)},
+            drag(evt){if(!this.ui.draggingSpotId)return;const s=this.spots.find(sp=>sp.id===this.ui.draggingSpotId);const r=this.$refs.mapContainer.getBoundingClientRect();const nX=(evt.clientX-r.left)-this.ui.dragOffset.x;const nY=(evt.clientY-r.top)-this.ui.dragOffset.y;s.x=nX;s.y=nY;if(this.ui.multiDragInitialPositions.length>0){this.ui.multiDragInitialPositions.forEach(p=>{if(p.id!==this.ui.draggingSpotId){const oS=this.spots.find(sp=>sp.id===p.id);if(oS){oS.x=nX+p.dx;oS.y=nY+p.dy}}})}},
+            stopDrag(){this.ui.draggingSpotId=null;this.ui.multiDragInitialPositions=[];document.removeEventListener('mousemove',this.drag);document.removeEventListener('mouseup',this.stopDrag);this.syncFullLayout()},
+            applyToSelected(cb){const ids=this.ui.multiSelectedIds.length>0?this.ui.multiSelectedIds:(this.ui.selectedSpotId?[this.ui.selectedSpotId]:[]);ids.forEach(id=>{const s=this.spots.find(sp=>sp.id===id);if(s)cb(s)});this.syncFullLayout()},
+            deleteSelected(){if(confirm('Deletar vagas selecionadas?')){const ids=this.ui.multiSelectedIds.length>0?this.ui.multiSelectedIds:[this.ui.selectedSpotId];this.spots=this.spots.filter(s=>!ids.includes(s.id));this.ui.multiSelectedIds=[];this.ui.selectedSpotId=null;this.syncFullLayout()}},
+            rotateSpot(a){this.applyToSelected(s=>s.angle=(s.angle||0)+a)},
+            resizeSpot(ax,am){this.applyToSelected(s=>s[ax]=(s[ax]||(ax==='width'?40:70))+am)},
+            alignSpots(ax){if(this.ui.multiSelectedIds.length<2)return;const p=this.spots.find(s=>s.id===this.ui.multiSelectedIds[0])[ax];this.applyToSelected(s=>s[ax]=p)},
+            setPlantSize(size){this.plantConfig.size=size;this.syncFullLayout()},
+            zoomPlant(amount){this.plantConfig.zoom=(this.plantConfig.zoom||1)+amount;this.syncFullLayout()},
+            movePlant(axis,amount){this.plantConfig[axis==='x'?'posX':'posY']+=amount;this.syncFullLayout()},
+            setAllSpotsStatus(st){if(!this.user.isAdmin||!confirm(`Marcar todas as vagas como ${st.toUpperCase()}?`))return;this.spots.forEach(s=>s.status=st);this.saveToFirebase()},
+            saveStateLocal(){localStorage.setItem('parkingSystemState',JSON.stringify({spots:this.spots,plantConfig:this.plantConfig,nextSpotId:this.nextSpotId}));this.showNotification('Layout salvo localmente!','sucesso')},
+            loadStateLocal(){const s=localStorage.getItem('parkingSystemState');if(s){const d=JSON.parse(s);this.spots=d.spots||[];this.plantConfig=d.plantConfig||this.plantConfig;this.nextSpotId=d.nextSpotId||(this.spots.length>0?Math.max(...this.spots.map(s=>parseInt(s.id.replace('V',''))))+1:1)}else{this.spots=Array.from({length:10},(_,i)=>({id:`V${String(i+1).padStart(2,'0')}`,x:50+(i%5)*60,y:50+Math.floor(i/5)*100,width:40,height:70,angle:0,status:'livre'}));this.nextSpotId=11}},
+            exportLayout(){const d=JSON.stringify({spots:this.spots,plantConfig:this.plantConfig,nextSpotId:this.nextSpotId},null,2);const b=new Blob([d],{type:"application/json"});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='layout_estacionamento.json';a.click();URL.revokeObjectURL(a.href)},
+            importLayout(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(confirm('Importar novo layout?')){this.spots=d.spots||[];this.plantConfig=d.plantConfig||this.plantConfig;this.nextSpotId=d.nextSpotId||this.spots.length+1;this.syncFullLayout();this.showNotification('Layout importado!','sucesso')}}catch(err){this.showNotification('Arquivo de layout inválido.','erro')}};r.readAsText(f);e.target.value=''},
+            uploadPlant(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{this.plantConfig.image=ev.target.result;this.syncFullLayout()};r.readAsDataURL(f)},
+            addSpot(){const id=`V${String(this.nextSpotId).padStart(2,'0')}`;this.spots.push({id,x:50,y:50,width:40,height:70,angle:0,status:'livre'});this.nextSpotId++;this.syncFullLayout()},
+            initFirebase(){try{this.firebase.app=!firebase.apps.length?firebase.initializeApp(firebaseConfig):firebase.app();this.firebase.db=firebase.database(this.firebase.app);this.firebase.db.ref('.info/connected').on('value',snap=>{this.firebase.connected=snap.val();if(snap.val()){this.showNotification('Firebase Conectado','sucesso');this.loadFromFirebase()}else{this.showNotification('Firebase Desconectado','erro')}})}catch(e){console.error("Erro Firebase:",e);this.firebase.connected=false;this.showNotification(`Erro Firebase: ${e.message}`,'erro')}},
+            loadFromFirebase(){if(!this.firebase.db)return;this.firebase.db.ref('layout').once('value',s=>{const d=s.val();if(d){this.spots=d.spots||this.spots;this.plantConfig=d.plantConfig||this.plantConfig;this.nextSpotId=d.nextSpotId||this.nextSpotId}});this.firebase.db.ref('spots').on('value',s=>{const st=s.val();if(st){this.spots.forEach(sp=>{if(st[sp.id]!==undefined)sp.status=st[sp.id]})}})},
+            updateSpotStatusInFirebase(s){if(this.firebase.connected&&this.user.isAdmin)this.firebase.db.ref(`spots/${s.id}`).set(s.status)},
+            syncFullLayout(){if(!this.firebase.connected||!this.user.isAdmin)return;const l={spots:this.spots,plantConfig:this.plantConfig,nextSpotId:this.nextSpotId};this.firebase.db.ref('layout').set(l)},
+            saveToFirebase(){if(!this.firebase.connected||!this.user.isAdmin){this.showNotification('Não é possível salvar. Verifique a conexão e o login.','erro');return}const sS=this.spots.reduce((a,s)=>({...a,[s.id]:s.status}),{});this.firebase.db.ref('spots').set(sS);this.syncFullLayout();this.showNotification('Estado salvo no Firebase!','sucesso')}
         },
         mounted() {
             this.loadStateLocal();
