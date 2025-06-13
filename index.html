@@ -58,7 +58,7 @@
         .modo-edicao .vaga{cursor:move!important;border:3px dashed #f39c12!important;background:rgba(243,156,18,0.8)!important}
         .vaga.selecionada{border:4px solid #9b59b6!important;background:rgba(155,89,182,0.9)!important;z-index:1000!important}
         .vaga.multipla-selecionada{border:4px solid #e67e22!important;background:rgba(230,126,34,0.9)!important;z-index:999!important}
-        .vaga.arrastando{z-index:1001!important;transform:scale(1.3) rotate(5deg)!important;opacity:0.9}
+        .vaga.arrastando{z-index:1001!important;transform:scale(1.2)!important;opacity:0.8;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
         .edit-controls{position:fixed;top:50%;right:20px;transform:translateY(-50%);background:white;padding:20px;border-radius:15px;box-shadow:0 15px 40px rgba(0,0,0,0.3);display:none;z-index:1000;min-width:280px;max-height:85vh;overflow-y:auto}
         .edit-controls.show{display:block!important}
         .edit-section{margin-bottom:20px}
@@ -159,7 +159,7 @@
                 <button class="logout-btn" id="logout-btn" onclick="logout()" style="display:none;">Sair</button>
             </div>
             
-            <h1>🚗 SMAMUS 2025 - Sistema de Estacionamento</h1>
+            <h1>🚗 SMAMUS - Sistema de Estacionamento</h1>
             <p><strong>Última atualização:</strong> <span id="ultima-atualizacao">Agora</span></p>
             
             <div class="stats">
@@ -295,12 +295,10 @@
         (function() {
             'use strict';
             
-            // Suprimir erros relacionados a ethereum/MetaMask
             if (typeof window.ethereum !== 'undefined') {
                 console.log('Carteira crypto detectada - ignorando conflitos');
             }
             
-            // Suprimir erros de runtime do Chrome
             if (typeof chrome !== 'undefined' && chrome.runtime) {
                 const originalAddListener = chrome.runtime.onMessage.addListener;
                 chrome.runtime.onMessage.addListener = function(callback) {
@@ -318,7 +316,6 @@
                 };
             }
             
-            // Suprimir erros de ad blockers
             window.addEventListener('error', function(e) {
                 if (e.message.includes('ERR_BLOCKED_BY_CLIENT') || 
                     e.message.includes('adsbygoogle') ||
@@ -465,6 +462,7 @@
                 planta.classList.remove('ajustavel');
                 mostrarNotificacao('✅ Ajuste de planta finalizado', 'info');
                 salvarLocal();
+                sincronizarLayoutCompleto();
             }
         }
 
@@ -482,6 +480,7 @@
                 planta.style.backgroundSize = '100% 100%';
             }
             salvarLocal();
+            sincronizarLayoutCompleto();
             mostrarNotificacao('📐 Planta ajustada: ' + tipo, 'info');
         }
 
@@ -492,6 +491,7 @@
             plantaConfig.posY = 50;
             planta.style.backgroundPosition = '50% 50%';
             salvarLocal();
+            sincronizarLayoutCompleto();
             mostrarNotificacao('⌖ Planta centralizada', 'info');
         }
 
@@ -505,6 +505,7 @@
             zoomPlanta = 1;
             document.getElementById('zoom-planta').textContent = '100%';
             salvarLocal();
+            sincronizarLayoutCompleto();
             mostrarNotificacao('⟲ Planta resetada', 'info');
         }
 
@@ -549,7 +550,7 @@
                     zoomControls.style.display = 'block';
                     plantaControls.style.display = 'block';
                 }
-                mostrarNotificacao('✏️ Modo edição ativado', 'info');
+                mostrarNotificacao('✏️ Modo edição ativado - Arraste vagas livremente!', 'info');
             } else {
                 container.classList.remove('modo-edicao');
                 btn.classList.remove('active');
@@ -563,6 +564,7 @@
                 }
                 limparSelecaoMultipla();
                 salvarLocal();
+                sincronizarLayoutCompleto();
                 mostrarNotificacao('✅ Modo edição finalizado', 'info');
             }
         }
@@ -628,6 +630,7 @@
                 posicaoVagas[vagaId].angle = novoAngulo;
                 vaga.style.transform = 'rotate(' + novoAngulo + 'deg)';
             });
+            sincronizarLayoutCompleto();
         }
 
         function redimensionarMultiplas(dimensao, valor) {
@@ -644,6 +647,7 @@
                     vaga.style.height = posicaoVagas[vagaId].height + 'px';
                 }
             });
+            sincronizarLayoutCompleto();
         }
 
         function alinharVagasMultiplas(tipo) {
@@ -660,6 +664,7 @@
                     vaga.style.left = refPos.x + 'px';
                 }
             });
+            sincronizarLayoutCompleto();
         }
 
         function excluirVagasMultiplas() {
@@ -675,6 +680,7 @@
                 vagasMultiplasSelecao = [];
                 atualizarInterfaceSelecaoMultipla();
                 atualizarEstatisticas();
+                sincronizarLayoutCompleto();
             }
         }
 
@@ -766,6 +772,7 @@
             posicaoVagas[novoId].y += 50;
             totalVagas++;
             atualizarEstatisticas();
+            sincronizarLayoutCompleto();
         }
 
         function renomearVaga() {
@@ -784,6 +791,7 @@
                 vagaSelecionada.id = novoNome;
                 vagaSelecionada.textContent = novoNome;
                 document.getElementById('vaga-selecionada').textContent = novoNome;
+                sincronizarLayoutCompleto();
             }
         }
 
@@ -798,6 +806,7 @@
                 totalVagas--;
                 document.getElementById('edit-controls').style.display = 'none';
                 atualizarEstatisticas();
+                sincronizarLayoutCompleto();
             }
         }
 
@@ -809,6 +818,69 @@
             totalVagas++;
             atualizarEstatisticas();
             if (modoEdicao) selecionarVaga(novaVaga);
+            sincronizarLayoutCompleto();
+        }
+
+        // Sistema de arraste melhorado para movimento livre
+        function iniciarArraste(e) {
+            if (!modoEdicao || tipoUsuario !== 'admin') return;
+            
+            if (selecaoMultipla && e.ctrlKey) {
+                adicionarVagaSelecaoMultipla(e.target);
+                e.preventDefault();
+                return;
+            }
+            
+            vagaArrastando = e.target;
+            selecionarVaga(vagaArrastando);
+            vagaArrastando.classList.add('arrastando');
+            
+            var rect = vagaArrastando.getBoundingClientRect();
+            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
+            
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            document.body.style.cursor = 'move';
+            vagaArrastando.style.pointerEvents = 'none';
+        }
+
+        function arrastar(e) {
+            if (painelArrastando) {
+                arrastarPainel(e);
+                return;
+            }
+            
+            if (!vagaArrastando || !modoEdicao || tipoUsuario !== 'admin') return;
+            
+            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
+            
+            var x = e.clientX - containerRect.left - offsetX;
+            var y = e.clientY - containerRect.top - offsetY;
+            
+            x = Math.max(0, Math.min(x, containerRect.width - vagaArrastando.offsetWidth));
+            y = Math.max(0, Math.min(y, containerRect.height - vagaArrastando.offsetHeight));
+            
+            vagaArrastando.style.left = x + 'px';
+            vagaArrastando.style.top = y + 'px';
+            
+            posicaoVagas[vagaArrastando.id].x = x;
+            posicaoVagas[vagaArrastando.id].y = y;
+        }
+
+        function finalizarArraste() {
+            if (vagaArrastando && tipoUsuario === 'admin') {
+                vagaArrastando.classList.remove('arrastando');
+                vagaArrastando.style.pointerEvents = 'auto';
+                document.body.style.cursor = 'default';
+                vagaArrastando = null;
+                salvarLocal();
+                sincronizarLayoutCompleto();
+            }
+            finalizarArrastePainel();
         }
 
         function iniciarArrastePainel(e) {
@@ -843,47 +915,6 @@
                 painelArrastando.classList.remove('dragging');
                 painelArrastando = null;
             }
-        }
-
-        function iniciarArraste(e) {
-            if (!modoEdicao || tipoUsuario !== 'admin') return;
-            if (selecaoMultipla && e.ctrlKey) {
-                adicionarVagaSelecaoMultipla(e.target);
-                e.preventDefault();
-                return;
-            }
-            vagaArrastando = e.target;
-            selecionarVaga(vagaArrastando);
-            vagaArrastando.classList.add('arrastando');
-            var rect = vagaArrastando.getBoundingClientRect();
-            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-            e.preventDefault();
-        }
-
-        function arrastar(e) {
-            if (painelArrastando) {
-                arrastarPainel(e);
-                return;
-            }
-            if (!vagaArrastando || !modoEdicao || tipoUsuario !== 'admin') return;
-            var containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
-            var x = Math.max(0, Math.min(e.clientX - containerRect.left - offsetX, containerRect.width - 40));
-            var y = Math.max(0, Math.min(e.clientY - containerRect.top - offsetY, containerRect.height - 70));
-            vagaArrastando.style.left = x + 'px';
-            vagaArrastando.style.top = y + 'px';
-            posicaoVagas[vagaArrastando.id].x = x;
-            posicaoVagas[vagaArrastando.id].y = y;
-        }
-
-        function finalizarArraste() {
-            if (vagaArrastando && tipoUsuario === 'admin') {
-                vagaArrastando.classList.remove('arrastando');
-                vagaArrastando = null;
-                salvarLocal();
-            }
-            finalizarArrastePainel();
         }
 
         function exportarLayout() {
@@ -935,7 +966,7 @@
                         if (dados.posicoes) posicaoVagas = dados.posicoes;
                         if (dados.totalVagas) totalVagas = dados.totalVagas;
                         if (dados.proximoId) proximoIdVaga = dados.proximoId;
-                        if (dados.plantaBaixa) {
+                                               if (dados.plantaBaixa) {
                             document.getElementById('planta-baixa').style.backgroundImage = dados.plantaBaixa;
                         }
                         if (dados.plantaConfig) {
@@ -949,7 +980,7 @@
                             document.getElementById('mapa-estacionamento').style.transform = 'scale(' + zoomContainer + ')';
                             document.getElementById('zoom-container').textContent = Math.round(zoomContainer * 100) + '%';
                         }
-                                                if (dados.zoomPlanta) {
+                        if (dados.zoomPlanta) {
                             zoomPlanta = dados.zoomPlanta;
                             document.getElementById('planta-baixa').style.transform = 'scale(' + zoomPlanta + ')';
                             document.getElementById('zoom-planta').textContent = Math.round(zoomPlanta * 100) + '%';
@@ -968,6 +999,7 @@
                         atualizarEstatisticas();
                         salvarLocal();
                         aplicarModoVisualizacao();
+                        sincronizarLayoutCompleto();
                         mostrarNotificacao('📥 Layout importado!', 'sucesso');
                     }
                 } catch (error) {
@@ -989,12 +1021,14 @@
             var reader = new FileReader();
             reader.onload = function(e) {
                 var planta = document.getElementById('planta-baixa');
-                planta.style.backgroundImage = 'url(' + e.target.result + ')';
+                var imagemBase64 = e.target.result;
+                planta.style.backgroundImage = 'url(' + imagemBase64 + ')';
                 planta.style.backgroundSize = 'cover';
                 planta.style.backgroundPosition = 'center';
-                plantaConfig = {size: 'cover', posX: 50, posY: 50};
+                plantaConfig = {size: 'cover', posX: 50, posY: 50, imagem: imagemBase64};
                 salvarLocal();
-                mostrarNotificacao('🖼️ Planta baixa carregada e ajustada!', 'sucesso');
+                sincronizarLayoutCompleto();
+                mostrarNotificacao('🖼️ Planta baixa carregada e sincronizada!', 'sucesso');
             };
             reader.readAsDataURL(file);
             event.target.value = '';
@@ -1143,7 +1177,8 @@
                     vagaSelecionada = null;
                 }
                 limparSelecaoMultipla();
-                mostrarNotificacao('💾 Estado salvo e modo edição finalizado!', 'sucesso');
+                sincronizarLayoutCompleto();
+                mostrarNotificacao('💾 Estado salvo e sincronizado!', 'sucesso');
             } else {
                 mostrarNotificacao('💾 Estado salvo localmente!', 'sucesso');
             }
@@ -1162,9 +1197,31 @@
             if (plantaSalva) {
                 plantaConfig = JSON.parse(plantaSalva);
                 var planta = document.getElementById('planta-baixa');
-                planta.style.backgroundSize = plantaConfig.size;
-                planta.style.backgroundPosition = plantaConfig.posX + '% ' + plantaConfig.posY + '%';
+                if (plantaConfig.imagem) {
+                    planta.style.backgroundImage = 'url(' + plantaConfig.imagem + ')';
+                }
+                planta.style.backgroundSize = plantaConfig.size || 'cover';
+                planta.style.backgroundPosition = (plantaConfig.posX || 50) + '% ' + (plantaConfig.posY || 50) + '%';
             }
+        }
+
+        function sincronizarLayoutCompleto() {
+            if (!firebaseConectado || tipoUsuario !== 'admin') return;
+            
+            var layoutCompleto = {
+                vagas: estadoVagas,
+                posicoes: posicaoVagas,
+                plantaConfig: plantaConfig,
+                totalVagas: totalVagas,
+                proximoId: proximoIdVaga,
+                timestamp: new Date().toISOString()
+            };
+            
+            database.ref('layout').set(layoutCompleto).then(function() {
+                console.log('Layout sincronizado com sucesso');
+            }).catch(function(error) {
+                console.error('Erro ao sincronizar layout:', error);
+            });
         }
 
         function inicializarFirebase() {
@@ -1174,6 +1231,7 @@
                 firebaseConectado = true;
                 document.getElementById('status-firebase').className = 'status-firebase conectado';
                 document.getElementById('texto-firebase').textContent = 'Firebase Conectado';
+                
                 database.ref('vagas').on('value', function(snapshot) {
                     var dados = snapshot.val();
                     if (dados) {
@@ -1190,6 +1248,44 @@
                         atualizarEstatisticas();
                     }
                 });
+                
+                if (tipoUsuario === 'viewer') {
+                    database.ref('layout').on('value', function(snapshot) {
+                        var layout = snapshot.val();
+                        if (layout && layout.timestamp) {
+                            if (layout.plantaConfig && layout.plantaConfig.imagem) {
+                                var planta = document.getElementById('planta-baixa');
+                                planta.style.backgroundImage = 'url(' + layout.plantaConfig.imagem + ')';
+                                planta.style.backgroundSize = layout.plantaConfig.size || 'cover';
+                                planta.style.backgroundPosition = (layout.plantaConfig.posX || 50) + '% ' + (layout.plantaConfig.posY || 50) + '%';
+                                plantaConfig = layout.plantaConfig;
+                            }
+                            
+                            if (layout.posicoes) {
+                                for (var vagaId in layout.posicoes) {
+                                    var elemento = document.getElementById(vagaId);
+                                    if (elemento) {
+                                        var pos = layout.posicoes[vagaId];
+                                        elemento.style.left = pos.x + 'px';
+                                        elemento.style.top = pos.y + 'px';
+                                        if (pos.width) elemento.style.width = pos.width + 'px';
+                                        if (pos.height) elemento.style.height = pos.height + 'px';
+                                        if (pos.angle) elemento.style.transform = 'rotate(' + pos.angle + 'deg)';
+                                    }
+                                }
+                                posicaoVagas = layout.posicoes;
+                            }
+                            
+                            if (layout.totalVagas) {
+                                totalVagas = layout.totalVagas;
+                                document.getElementById('total-vagas').textContent = totalVagas;
+                            }
+                            
+                            salvarLocal();
+                        }
+                    });
+                }
+                
             } catch (error) {
                 firebaseConectado = false;
                 document.getElementById('status-firebase').className = 'status-firebase desconectado';
@@ -1202,8 +1298,11 @@
                 mostrarNotificacao('❌ Firebase desconectado ou sem permissão', 'erro');
                 return;
             }
+            
             database.ref('vagas').set(estadoVagas).then(function() {
-                mostrarNotificacao('🌐 Salvo no Firebase!', 'sucesso');
+                return sincronizarLayoutCompleto();
+            }).then(function() {
+                mostrarNotificacao('🌐 Tudo salvo no Firebase!', 'sucesso');
             }).catch(function(error) {
                 mostrarNotificacao('❌ Erro Firebase: ' + error.message, 'erro');
             });
@@ -1243,9 +1342,25 @@
                 {id: 'V56', x: 300, y: 550}, {id: 'V57', x: 350, y: 550}, {id: 'V58', x: 400, y: 550}, {id: 'V59', x: 450, y: 550}, {id: 'V60', x: 500, y: 550},
                 {id: 'V61', x: 275, y: 650}, {id: 'V62', x: 325, y: 650}
             ];
-            posicoes.forEach(function(pos) {
-                criarVaga(pos.id, pos.x, pos.y);
-            });
+            
+            if (Object.keys(posicaoVagas).length > 0) {
+                for (var vagaId in posicaoVagas) {
+                    var pos = posicaoVagas[vagaId];
+                    var vaga = criarVaga(vagaId, pos.x, pos.y);
+                    if (pos.width) vaga.style.width = pos.width + 'px';
+                    if (pos.height) vaga.style.height = pos.height + 'px';
+                    if (pos.angle) vaga.style.transform = 'rotate(' + pos.angle + 'deg)';
+                    if (estadoVagas[vagaId]) {
+                        vaga.classList.remove('livre', 'ocupada');
+                        vaga.classList.add(estadoVagas[vagaId]);
+                    }
+                }
+            } else {
+                posicoes.forEach(function(pos) {
+                    criarVaga(pos.id, pos.x, pos.y);
+                });
+            }
+            
             atualizarEstatisticas();
             aplicarModoVisualizacao();
         }
@@ -1278,3 +1393,4 @@
     </script>
 </body>
 </html>
+
