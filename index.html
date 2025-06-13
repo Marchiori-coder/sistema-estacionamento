@@ -84,7 +84,7 @@
         <header class="header">
             <div class="header-identidade">
                 <div class="header-logo"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 95C74.8528 95 95 74.8528 95 50C95 25.1472 74.8528 5 50 5C25.1472 5 5 25.1472 5 50C5 74.8528 25.1472 95 50 95Z" fill="#2c3e50"/><path d="M62 70V59C62 56.7909 60.2091 55 58 55H42C39.7909 55 38 56.7909 38 59V70H62Z" fill="#ffffff"/><path d="M58 55V46H42V55H58Z" fill="#bdc3c7"/><path d="M68 53C68 46.2 62.8333 34 50 34C37.1667 34 32 46.2 32 53C39.3333 49.4 60.6667 49.4 68 53Z" fill="#4CAF50"/></svg></div>
-                <div class="header-titulo"><h1>Sistema de Gerenciamento de Vagas 2025</h1><h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2></div>
+                <div class="header-titulo"><h1>Sistema de Gerenciamento de Vagas</h1><h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2></div>
             </div>
             <div class="user-info"><span>{{ user.name }}</span><span class="user-badge" :class="{ admin: user.isAdmin }">{{ user.isAdmin ? 'ADMIN' : 'VIEWER' }}</span><button v-if="!user.isAdmin" class="admin-login-btn" @click="ui.loginModal.show = true">Login</button><button v-else class="logout-btn" @click="handleLogout">Sair</button></div>
         </header>
@@ -101,7 +101,7 @@
         <!-- Painel de Edição de Vagas (flutuante) -->
         <div class="edit-controls" v-if="user.isAdmin && ui.editMode && !ui.editPlanta && (ui.selectedSpotId || ui.multiSelectedIds.length > 0)"><div v-if="ui.multiSelectedIds.length > 0"><div class="edit-section"><h4>{{ ui.multiSelectedIds.length }} Vagas Selecionadas</h4></div></div><div v-else-if="selectedSpot"><div class="edit-section"><h4>ID da Vaga: {{ selectedSpot.id }}</h4></div></div><div class="edit-section"><h4>Rotação</h4><div class="size-controls"><button class="edit-btn rotate" @click="rotateSpot(-90)">-90°</button><button class="edit-btn rotate" @click="rotateSpot(90)">+90°</button><button class="edit-btn rotate" @click="rotateSpot(-1)">-1°</button><button class="edit-btn rotate" @click="rotateSpot(1)">+1°</button></div></div><div class="edit-section"><h4>Tamanho</h4><div class="size-controls"><button class="edit-btn resize" @click="resizeSpot('width', -2)">↔ -</button><button class="edit-btn resize" @click="resizeSpot('width', 2)">↔ +</button><button class="edit-btn resize" @click="resizeSpot('height', -2)">↕ -</button><button class="edit-btn resize" @click="resizeSpot('height', 2)">↕ +</button></div></div><div class="edit-section" v-if="ui.multiSelectedIds.length > 1"><h4>Alinhar</h4><div class="size-controls"><button class="edit-btn multi" @click="alignSpots('x')">Horizontal</button><button class="edit-btn multi" @click="alignSpots('y')">Vertical</button></div></div><div class="edit-section"><button class="edit-btn delete" @click="deleteSelected">🗑️ Deletar</button></div></div>
         
-        <!-- Painel de Edição da Planta (flutuante) - CORRIGIDO E REINTRODUZIDO -->
+        <!-- Painel de Edição da Planta (flutuante) - RESTAURADO -->
         <div class="edit-controls" v-if="user.isAdmin && ui.editPlanta"><div class="edit-section"><h4>Ajustes da Planta Baixa</h4></div><div class="edit-section"><h4>Preenchimento</h4><div class="size-controls"><button class="edit-btn resize" @click="setPlantSize('cover')">Preencher</button><button class="edit-btn resize" @click="setPlantSize('contain')">Ajustar</button></div></div><div class="edit-section"><h4>Zoom</h4><div class="size-controls"><button class="edit-btn rotate" @click="zoomPlant(-0.1)">-</button><button class="edit-btn rotate" @click="zoomPlant(0.1)">+</button></div></div><div class="edit-section"><h4>Posição</h4><div class="size-controls"><button class="edit-btn" @click="movePlant('x', -1)">⬅️</button><button class="edit-btn" @click="movePlant('x', 1)">➡️</button><button class="edit-btn" @click="movePlant('y', -1)">⬆️</button><button class="edit-btn" @click="movePlant('y', 1)">⬇️</button></div></div></div>
 
         <!-- Controles Gerais -->
@@ -175,11 +175,61 @@
             importLayout(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(confirm('Importar novo layout?')){this.spots=d.spots||[];this.plantConfig=d.plantConfig||this.plantConfig;this.nextSpotId=d.nextSpotId||this.spots.length+1;this.syncFullLayout();this.showNotification('Layout importado!','sucesso');}}catch(err){this.showNotification('Arquivo de layout inválido.','erro');}};r.readAsText(f);e.target.value='';},
             uploadPlant(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{this.plantConfig.image=ev.target.result;this.syncFullLayout();};r.readAsDataURL(f);},
             addSpot(){const id=`V${String(this.nextSpotId).padStart(2,'0')}`;this.spots.push({id,x:50,y:50,width:40,height:70,angle:0,status:'livre'});this.nextSpotId++;this.syncFullLayout();},
-            initFirebase(){try{this.firebase.app=!firebase.apps.length?firebase.initializeApp(firebaseConfig):firebase.app();this.firebase.db=firebase.database(this.firebase.app);this.firebase.db.ref('.info/connected').on('value',snap=>{this.firebase.connected=snap.val();if(snap.val()){this.showNotification('Firebase Conectado','sucesso');this.loadFromFirebase();}else{this.showNotification('Firebase Desconectado','erro');}});}catch(e){console.error("Erro Firebase:",e);this.firebase.connected=false;this.showNotification(`Erro Firebase: ${e.message}`,'erro');}},
-            loadFromFirebase(){if(!this.firebase.db)return;this.firebase.db.ref('layout').once('value',s=>{const d=s.val();if(d){this.spots=d.spots||this.spots;this.plantConfig=d.plantConfig||this.plantConfig;this.nextSpotId=d.nextSpotId||this.nextSpotId;}});this.firebase.db.ref('spots').on('value',s=>{const st=s.val();if(st){this.spots.forEach(sp=>{if(st[sp.id]!==undefined)sp.status=st[sp.id];});}});},
-            updateSpotStatusInFirebase(s){if(this.firebase.connected&&this.user.isAdmin)this.firebase.db.ref(`spots/${s.id}`).set(s.status);},
-            syncFullLayout(){if(!this.firebase.connected||!this.user.isAdmin)return;const l={spots:this.spots,plantConfig:this.plantConfig,nextSpotId:this.nextSpotId};this.firebase.db.ref('layout').set(l);},
-            saveToFirebase(){if(!this.firebase.connected||!this.user.isAdmin){this.showNotification('Não é possível salvar. Verifique a conexão e o login.','erro');return;}const sS=this.spots.reduce((a,s)=>({...a,[s.id]:s.status}),{});this.firebase.db.ref('spots').set(sS);this.syncFullLayout();this.showNotification('Estado salvo no Firebase!','sucesso');}
+            
+            // ### CORREÇÃO DEFINITIVA DA LÓGICA DO FIREBASE ###
+            initFirebase(){
+                try {
+                    // Garante que o app seja inicializado apenas uma vez.
+                    this.firebase.app = !firebase.apps.length 
+                        ? firebase.initializeApp(firebaseConfig) 
+                        : firebase.app();
+                    
+                    // Obtém a referência do banco de dados a partir da instância do app.
+                    this.firebase.db = firebase.database(this.firebase.app);
+
+                    // Monitora o status da conexão.
+                    this.firebase.db.ref('.info/connected').on('value', snap => {
+                        this.firebase.connected = snap.val();
+                        if(this.firebase.connected) {
+                            this.showNotification('Firebase Conectado', 'sucesso');
+                            this.loadFromFirebase(); 
+                        } else {
+                            this.showNotification('Firebase Desconectado', 'erro');
+                        }
+                    });
+                } catch(e) {
+                    console.error("Erro na inicialização do Firebase:", e);
+                    this.firebase.connected = false;
+                    this.showNotification(`Erro Firebase: ${e.message}`, 'erro');
+                }
+            },
+            loadFromFirebase() {
+                if(!this.firebase.db) return;
+                // CORREÇÃO: Usa .once() para a carga inicial do layout, evitando conflitos com escritas.
+                this.firebase.db.ref('layout').once('value', snap => {
+                    const data = snap.val();
+                    if(data) {
+                        this.spots = data.spots || this.spots;
+                        this.plantConfig = data.plantConfig || this.plantConfig;
+                        this.nextSpotId = data.nextSpotId || this.nextSpotId;
+                    }
+                });
+                
+                // Mantém um listener ativo APENAS para os status, que é a informação mais dinâmica.
+                this.firebase.db.ref('spots').on('value', snap => {
+                    const statuses = snap.val();
+                    if(statuses){
+                        this.spots.forEach(spot => {
+                            if(statuses[spot.id] !== undefined) {
+                                spot.status = statuses[spot.id];
+                            }
+                        });
+                    }
+                });
+            },
+            updateSpotStatusInFirebase(spot){if(this.firebase.connected&&this.user.isAdmin)this.firebase.db.ref(`spots/${spot.id}`).set(spot.status);},
+            syncFullLayout(){if(!this.firebase.connected||!this.user.isAdmin)return;const layout={spots:this.spots,plantConfig:this.plantConfig,nextSpotId:this.nextSpotId};this.firebase.db.ref('layout').set(layout);},
+            saveToFirebase(){if(!this.firebase.connected||!this.user.isAdmin){this.showNotification('Não é possível salvar. Verifique a conexão e o login.','erro');return;}const spotsStatus=this.spots.reduce((a,s)=>({...a,[s.id]:s.status}),{});this.firebase.db.ref('spots').set(spotsStatus);this.syncFullLayout();this.showNotification('Estado salvo no Firebase!','sucesso');}
         },
         mounted() {
             this.loadStateLocal();
