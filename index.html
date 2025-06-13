@@ -3,44 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estacionamento (Vue.js - Corrigido)</title>
+    <title>SMAMUS - Sistema de Gerenciamento de Vagas</title>
     <!-- SDKs do Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <!-- Vue.js 3 via CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
-        /* O CSS original foi mantido para preservar o layout. */
+        /* CSS GERAL E CORREÇÕES (CSS Original Mantido com Adaptações) */
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--r:clamp(8px,1vw,15px)}
-        body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:var(--p);font-size:var(--f)}
+        body{font-family:'Segoe UI',sans-serif;background-color:#f0f2f5;min-height:100vh;padding:var(--p);font-size:var(--f)}
         [v-cloak] { display: none; }
+
+        /* NOVO CABEÇALHO SMAMUS */
+        .header{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;background:linear-gradient(135deg,#1d2b34,#2c3e50);color:white;padding:20px var(--p);border-bottom:5px solid #4CAF50;}
+        .header-identidade{display:flex;align-items:center;gap:20px}
+        .header-logo svg{width:clamp(40px, 5vw, 60px);height:clamp(40px, 5vw, 60px)}
+        .header-titulo h1{font-size:clamp(1.2rem,3vw,1.8rem);margin:0;font-weight:600}
+        .header-titulo h2{font-size:clamp(0.8rem,1.5vw,1rem);margin:0;font-weight:300;opacity:0.9;color:#bdc3c7}
+        .user-info{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:8px 15px;border-radius:25px}
+        .user-badge{background:#27ae60;color:white;padding:6px 12px;border-radius:15px;font-size:0.8rem;font-weight:bold}
+        .user-badge.admin{background:#f39c12}
+        .admin-login-btn,.logout-btn{background:#3498db;color:white;border:none;padding:8px 15px;border-radius:15px;cursor:pointer;font-size:0.8rem;font-weight:bold}
+        .logout-btn{background:#e74c3c}
+        
+        /* RESTANTE DO CSS */
         .modal-login{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:10000;opacity:0;visibility:hidden;transition:all .3s}
         .modal-login.show{opacity:1;visibility:visible}
         .login-box{background:white;padding:30px;border-radius:var(--r);text-align:center;max-width:400px;width:90%}
         .login-input{width:100%;padding:12px;margin:8px 0;border:2px solid #ecf0f1;border-radius:8px;font-size:var(--f)}
         .login-btn{width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
         .close-modal{position:absolute;top:15px;right:20px;background:none;border:none;font-size:2rem;cursor:pointer;color:#7f8c8d}
-        .container{max-width:min(1600px,95vw);margin:0 auto;background:white;border-radius:var(--r);box-shadow:0 10px 30px rgba(0,0,0,0.2);overflow:hidden}
-        .header{background:linear-gradient(135deg,#2c3e50,#3498db);color:white;padding:var(--p);text-align:center;position:relative;padding-top:clamp(60px,8vw,100px)}
-        .header h1{font-size:clamp(1.5rem,4vw,2.5rem);margin-bottom:10px}
-        .user-info{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.25);padding:10px 20px;border-radius:25px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-        .user-badge{background:#27ae60;color:white;padding:6px 12px;border-radius:15px;font-size:0.8rem;font-weight:bold}
-        .user-badge.admin{background:#f39c12}
-        .admin-login-btn,.logout-btn{background:#3498db;color:white;border:none;padding:8px 15px;border-radius:15px;cursor:pointer;font-size:0.8rem;font-weight:bold}
-        .logout-btn{background:#e74c3c}
-        .status-firebase{position:fixed;top:var(--p);left:var(--p);padding:10px 15px;border-radius:20px;color:white;font-weight:bold;z-index:1000;display:flex;align-items:center;gap:8px;font-size:0.8rem}
+        .container{max-width:min(1800px,95vw);margin:0 auto;background:white;border-radius:var(--r);box-shadow:0 10px 30px rgba(0,0,0,0.1);overflow:hidden}
+        .status-firebase{position:fixed;bottom:20px;left:20px;padding:10px 15px;border-radius:20px;color:white;font-weight:bold;z-index:1000;display:flex;align-items:center;gap:8px;font-size:0.8rem;box-shadow:0 4px 10px rgba(0,0,0,0.2)}
         .status-firebase.conectado{background:#27ae60}
         .status-firebase.desconectado{background:#e74c3c}
         .indicador-firebase{width:10px;height:10px;border-radius:50%;background:white;animation:pulse 2s infinite}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-        .admin-panel{background:linear-gradient(135deg,#f39c12,#e67e22);color:white;padding:20px;text-align:center;}
+        .admin-panel{background:#ecf0f1;color:#2c3e50;padding:20px;text-align:center;border-top:1px solid #bdc3c7; border-bottom:1px solid #bdc3c7;}
         .admin-controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-        .admin-btn{padding:10px 15px;background:rgba(255,255,255,0.2);color:white;border:2px solid white;border-radius:20px;cursor:pointer;font-weight:bold;font-size:0.8rem}
-        .admin-btn:hover,.admin-btn.active{background:white;color:#f39c12}
-        .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:15px;margin-top:20px}
-        .stat-box{background:rgba(255,255,255,0.2);padding:15px;border-radius:10px;text-align:center}
-        .stat-number{font-size:clamp(1.2rem,3vw,1.8rem);font-weight:bold;display:block}
+        .admin-btn{padding:10px 15px;background:#fff;color:#34495e;border:2px solid #bdc3c7;border-radius:20px;cursor:pointer;font-weight:bold;font-size:0.8rem;transition: all 0.2s ease;}
+        .admin-btn:hover{background:#3498db;color:white;border-color:#3498db;}
+        .admin-btn.active{background:#f39c12;color:white;border-color:#f39c12;}
+        .stats{display:flex;background:#34495e;color:white;justify-content:space-around;padding:var(--p);gap:15px;flex-wrap:wrap;}
+        .stat-box{text-align:center;flex-grow:1;}
+        .stat-number{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:bold;display:block}
         .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:70vh;position:relative}
         .estacionamento-container{position:relative;width:100%;max-width:1600px;height:clamp(800px,90vh,1600px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:auto;transform-origin:center;transition:transform 0.3s;-webkit-overflow-scrolling:touch}
         .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s}
@@ -48,7 +56,6 @@
         .zoom-controls,.planta-controls{position:absolute;background:rgba(255,255,255,0.95);padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:150;user-select:none}
         .zoom-controls{top:20px;left:20px}
         .planta-controls{top:20px;right:20px}
-        .zoom-controls.dragging,.planta-controls.dragging{z-index:200;box-shadow:0 8px 25px rgba(0,0,0,0.4);transform:scale(1.05)}
         .zoom-controls h4,.planta-controls h4{color:#34495e;margin-bottom:10px;font-size:0.8rem;cursor:move;padding:5px;background:rgba(52,73,94,0.1);border-radius:5px;text-align:center}
         .zoom-btn,.planta-btn{padding:8px 12px;margin:2px;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
         .zoom-btn{background:#3498db}
@@ -69,13 +76,9 @@
         .edit-btn{width:100%;padding:10px;margin:5px 0;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:0.8rem}
         .edit-btn.rotate{background:#3498db;color:white}
         .edit-btn.resize{background:#e67e22;color:white}
-        .edit-btn.action{background:#9b59b6;color:white}
         .edit-btn.delete{background:#e74c3c;color:white}
         .edit-btn.multi{background:#27ae60;color:white}
         .size-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-        .size-btn{padding:8px;background:#95a5a6;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
-        .position-controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
-        .position-btn{padding:6px;background:#2c3e50;color:white;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem}
         .controles{padding:30px;background:#ecf0f1;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:15px;justify-items:center}
         .btn{padding:12px 20px;border:none;border-radius:20px;cursor:pointer;font-weight:bold;font-size:0.8rem;transition:all 0.3s;min-width:120px}
         .btn:hover{transform:translateY(-2px)}
@@ -85,53 +88,45 @@
         .btn-liberar{background:linear-gradient(135deg,#27ae60,#2ecc71);color:white}
         .btn-salvar{background:linear-gradient(135deg,#3498db,#2980b9);color:white}
         .btn-firebase{background:linear-gradient(135deg,#ff9800,#f57c00);color:white}
-        .notificacao{position:fixed;bottom:20px;right:20px;background:#2c3e50;color:white;padding:15px 20px;border-radius:10px;z-index:1000;max-width:min(350px,90vw);transform:translateX(400px);transition:transform 0.3s}
+        .notificacao{position:fixed;bottom:20px;right:20px;background:#2c3e50;color:white;padding:15px 20px;border-radius:10px;z-index:20000;max-width:min(350px,90vw);transform:translateX(400px);transition:transform 0.3s}
         .notificacao.mostrar{transform:translateX(0)}
         .notificacao.sucesso{background:#27ae60}
         .notificacao.erro{background:#e74c3c}
         .notificacao.info{background:#3498db}
-        @media (max-width:768px){.user-info{position:static;margin-bottom:15px;justify-content:center}.header{padding-top:20px}.status-firebase{position:relative;margin-bottom:10px;align-self:flex-start}.edit-controls{position:fixed;top:auto;right:0;left:0;bottom:0;transform:none;max-height:50vh;border-radius:0;width:100%}.estacionamento-container{height:clamp(400px,60vh,600px);overflow:auto;-webkit-overflow-scrolling:touch;min-width:800px}.estacionamento-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:10px}.zoom-controls,.planta-controls{display:none!important}.controles{grid-template-columns:repeat(2,1fr);gap:10px;padding:15px}.vaga{width:clamp(30px,8vw,50px);height:clamp(50px,10vw,80px);font-size:clamp(8px,2vw,12px)}.admin-panel{padding:10px}.admin-controls{gap:5px}.admin-btn{padding:8px 12px;font-size:0.7rem}}
-        @media (max-width:480px){.estacionamento-container{height:clamp(350px,50vh,500px);min-width:1000px}.vaga{width:clamp(35px,10vw,55px);height:clamp(55px,12vw,85px);font-size:clamp(9px,2.5vw,14px)}.controles{grid-template-columns:1fr;gap:8px;padding:10px}.btn{min-width:100px;padding:10px 15px;font-size:0.7rem}.header h1{font-size:clamp(1.2rem,5vw,1.8rem)}.stats{grid-template-columns:repeat(2,1fr);gap:10px}.stat-box{padding:10px}.stat-number{font-size:clamp(1rem,4vw,1.4rem)}}
+        @media (max-width: 768px){.header-identidade{width:100%; justify-content:center; text-align:center}.user-info{width:100%; justify-content:center}.edit-controls{bottom:0;top:auto;transform:none;width:100%;border-radius:0}}
     </style>
 </head>
 <body>
 <div id="app" v-cloak>
-    <!-- Modal de Login (sem alterações) -->
-    <div class="modal-login" :class="{ show: ui.loginModal.show }">
-        <div class="login-box">
-            <button class="close-modal" @click="ui.loginModal.show = false">×</button>
-            <h2>🔐 Login Administrador</h2>
-            <input type="text" class="login-input" placeholder="Usuário" v-model="ui.loginModal.user">
-            <input type="password" class="login-input" placeholder="Senha" v-model="ui.loginModal.pass" @keyup.enter="handleLogin">
-            <button class="login-btn" @click="handleLogin">Entrar como Admin</button>
-        </div>
-    </div>
-
-    <!-- Indicador de conexão (sem alterações) -->
-    <div class="status-firebase" :class="firebase.connected ? 'conectado' : 'desconectado'">
-        <div class="indicador-firebase"></div>
-        <span>{{ firebase.connected ? 'Firebase Conectado' : 'Firebase Desconectado' }}</span>
-    </div>
-
+    <!-- MODAL LOGIN (Sem alterações) -->
+    <div class="modal-login" :class="{ show: ui.loginModal.show }"><div class="login-box"><button class="close-modal" @click="ui.loginModal.show = false">×</button><h2>🔐 Login Administrador</h2><input type="text" class="login-input" placeholder="Usuário" v-model="ui.loginModal.user"><input type="password" class="login-input" placeholder="Senha" v-model="ui.loginModal.pass" @keyup.enter="handleLogin"><button class="login-btn" @click="handleLogin">Entrar como Admin</button></div></div>
+    
     <div class="container">
-        <!-- Cabeçalho (sem alterações) -->
-        <div class="header">
-             <div class="user-info">
-                <span>{{ user.name }}</span>
-                <span class="user-badge" :class="{ admin: user.isAdmin }">{{ user.isAdmin ? 'ADMIN' : 'VIEWER' }}</span>
-                <button v-if="!user.isAdmin" class="admin-login-btn" @click="ui.loginModal.show = true">Login Admin</button>
+        <!-- CABEÇALHO ATUALIZADO -->
+        <header class="header">
+            <div class="header-identidade">
+                <div class="header-logo">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 95C74.8528 95 95 74.8528 95 50C95 25.1472 74.8528 5 50 5C25.1472 5 5 25.1472 5 50C5 74.8528 25.1472 95 50 95Z" fill="#2c3e50"/><path d="M62 70V59C62 56.7909 60.2091 55 58 55H42C39.7909 55 38 56.7909 38 59V70H62Z" fill="#ffffff"/><path d="M58 55V46H42V55H58Z" fill="#bdc3c7"/><path d="M68 53C68 46.2 62.8333 34 50 34C37.1667 34 32 46.2 32 53C39.3333 49.4 60.6667 49.4 68 53Z" fill="#4CAF50"/></svg>
+                </div>
+                <div class="header-titulo">
+                    <h1>Sistema de Gerenciamento de Vagas</h1>
+                    <h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2>
+                </div>
+            </div>
+            <div class="user-info">
+                <span>{{ user.name }}</span><span class="user-badge" :class="{ admin: user.isAdmin }">{{ user.isAdmin ? 'ADMIN' : 'VIEWER' }}</span>
+                <button v-if="!user.isAdmin" class="admin-login-btn" @click="ui.loginModal.show = true">Login</button>
                 <button v-else class="logout-btn" @click="handleLogout">Sair</button>
             </div>
-            <h1>🚗 SMAMUS - Sistema de Estacionamento</h1>
-            <p><strong>Última atualização:</strong> <span>{{ ui.lastUpdate }}</span></p>
-            <div class="stats">
-                <div class="stat-box"><span class="stat-number">{{ stats.total }}</span><span>Total</span></div>
-                <div class="stat-box"><span class="stat-number">{{ stats.free }}</span><span>Livres</span></div>
-                <div class="stat-box"><span class="stat-number">{{ stats.occupied }}</span><span>Ocupadas</span></div>
-                <div class="stat-box"><span class="stat-number">{{ stats.occupationRate }}%</span><span>Ocupação</span></div>
-            </div>
+        </header>
+
+        <div class="stats">
+            <div class="stat-box"><span class="stat-number">{{ stats.total }}</span><span>Vagas Totais</span></div>
+            <div class="stat-box"><span class="stat-number">{{ stats.free }}</span><span>Vagas Livres</span></div>
+            <div class="stat-box"><span class="stat-number">{{ stats.occupied }}</span><span>Vagas Ocupadas</span></div>
+            <div class="stat-box"><span class="stat-number">{{ stats.occupationRate }}%</span><span>Taxa de Ocupação</span></div>
         </div>
-        <!-- Painel de Administração (sem alterações) -->
+
         <div class="admin-panel" v-if="user.isAdmin">
             <h3>🔧 Painel de Administração</h3>
             <div class="admin-controls">
@@ -139,84 +134,33 @@
                 <button class="admin-btn" @click="addSpot">➕ Nova Vaga</button>
                 <button class="admin-btn" @click="() => this.$refs.plantaInput.click()">🖼️ Alterar Planta</button>
                 <button class="admin-btn" :class="{active: ui.editPlanta}" @click="toggleEditPlanta">📐 {{ ui.editPlanta ? '✅ Finalizar Planta' : 'Ajustar Planta' }}</button>
-                <button class="admin-btn" @click="exportLayout">📤 Exportar Layout</button>
-                <button class="admin-btn" @click="() => this.$refs.importInput.click()">📥 Importar Layout</button>
+                <button class="admin-btn" @click="exportLayout">📤 Exportar</button>
+                <button class="admin-btn" @click="() => this.$refs.importInput.click()">📥 Importar</button>
                 <button class="admin-btn" :class="{active: ui.multiSelect}" @click="toggleMultiSelect">🔲 {{ ui.multiSelect ? '✅ Multi-Seleção' : 'Multi-Seleção' }}</button>
             </div>
         </div>
 
         <div class="estacionamento-wrapper">
-             <!-- CORREÇÃO: Painéis de Zoom e Planta agora podem ser arrastados -->
-             <div class="zoom-controls" v-show="user.isAdmin && ui.editMode" :style="{ top: ui.zoomControlsPos.y + 'px', left: ui.zoomControlsPos.x + 'px' }">
-                <h4 @mousedown.prevent="dragPanel('zoomControls', $event)">🔍 Zoom - Arraste</h4>
-                <button class="zoom-btn" @click="zoomMap(0.1)">+</button>
-                <button class="zoom-btn" @click="zoomMap(-0.1)">-</button>
-            </div>
-            <div class="planta-controls" v-show="user.isAdmin && ui.editPlanta" :style="{ top: ui.plantaControlsPos.y + 'px', right: ui.plantaControlsPos.x + 'px' }">
-                <h4 @mousedown.prevent="dragPanel('plantaControls', $event)">📐 Planta - Arraste</h4>
-                <button class="planta-btn" @click="zoomPlant(0.1)">Zoom +</button>
-                <button class="planta-btn" @click="zoomPlant(-0.1)">Zoom -</button>
-            </div>
-            
-            <div class="estacionamento-container" :class="{'modo-edicao': user.isAdmin && ui.editMode}" ref="mapContainer" :style="mapStyle">
+             <div class="estacionamento-container" :class="{'modo-edicao': user.isAdmin && ui.editMode}" ref="mapContainer" :style="mapStyle">
                 <div class="planta-baixa" :class="{'ajustavel': user.isAdmin && ui.editPlanta}" :style="plantStyle"></div>
-                <div v-for="spot in spots"
-                     :key="spot.id"
-                     class="vaga"
-                     :class="[spot.status, {
-                         'selecionada': ui.selectedSpotId === spot.id,
-                         'multipla-selecionada': ui.multiSelectedIds.includes(spot.id),
-                         'arrastando': ui.draggingSpotId === spot.id,
-                         'viewer-mode': !user.isAdmin
-                     }]"
-                     :style="spotStyle(spot)"
-                     @mousedown.prevent="startDrag(spot, $event)"
-                     @click.stop="handleSpotClick(spot)">
+                <div v-for="spot in spots" :key="spot.id" class="vaga"
+                     :class="[spot.status, {'selecionada': ui.selectedSpotId === spot.id && ui.multiSelectedIds.length === 0, 'multipla-selecionada': ui.multiSelectedIds.includes(spot.id), 'arrastando': ui.draggingSpotId === spot.id, 'viewer-mode': !user.isAdmin }]"
+                     :style="spotStyle(spot)" @mousedown.prevent="startDrag(spot, $event)" @click.stop="handleSpotClick(spot)">
                     {{ spot.id }}
                 </div>
             </div>
         </div>
 
-        <!-- CORREÇÃO: Painel de Edição completo e funcional -->
-        <div class="edit-controls" v-if="user.isAdmin && ui.editMode && (selectedSpot || ui.multiSelectedIds.length > 0)">
-            <div v-if="selectedSpot && ui.multiSelectedIds.length === 0">
-                 <div class="edit-section"><h4>ID da Vaga: {{ selectedSpot.id }}</h4></div>
-            </div>
-            <div v-else>
-                 <div class="edit-section"><h4>{{ ui.multiSelectedIds.length }} Vagas Selecionadas</h4></div>
-            </div>
-            
-            <div class="edit-section">
-                <h4>Rotação</h4>
-                <div class="size-controls">
-                    <button class="edit-btn rotate" @click="rotateSpot(-90)">-90°</button>
-                    <button class="edit-btn rotate" @click="rotateSpot(90)">+90°</button>
-                    <button class="edit-btn rotate" @click="rotateSpot(-1)">-1°</button>
-                    <button class="edit-btn rotate" @click="rotateSpot(1)">+1°</button>
-                </div>
-            </div>
-            <div class="edit-section">
-                <h4>Tamanho</h4>
-                <div class="size-controls">
-                    <button class="edit-btn resize" @click="resizeSpot('width', -2)">↔ -</button>
-                    <button class="edit-btn resize" @click="resizeSpot('width', 2)">↔ +</button>
-                    <button class="edit-btn resize" @click="resizeSpot('height', -2)">↕ -</button>
-                    <button class="edit-btn resize" @click="resizeSpot('height', 2)">↕ +</button>
-                </div>
-            </div>
-            <div class="edit-section" v-if="ui.multiSelectedIds.length > 1">
-                <h4>Alinhar Vagas</h4>
-                <div class="size-controls">
-                    <button class="edit-btn multi" @click="alignSpots('x')">Alinhar Horizontal</button>
-                    <button class="edit-btn multi" @click="alignSpots('y')">Alinhar Vertical</button>
-                </div>
-            </div>
-            <div class="edit-section">
-                <button class="edit-btn delete" @click="deleteSelected">🗑️ Deletar Vaga(s)</button>
-            </div>
+        <div class="edit-controls" v-if="user.isAdmin && ui.editMode && (ui.selectedSpotId || ui.multiSelectedIds.length > 0)">
+            <!-- PAINEL DE EDIÇÃO COMPLETO -->
+            <div v-if="ui.multiSelectedIds.length > 0"><div class="edit-section"><h4>{{ ui.multiSelectedIds.length }} Vagas Selecionadas</h4></div></div>
+            <div v-else-if="selectedSpot"><div class="edit-section"><h4>ID da Vaga: {{ selectedSpot.id }}</h4></div></div>
+            <div class="edit-section"><h4>Rotação</h4><div class="size-controls"><button class="edit-btn rotate" @click="rotateSpot(-90)">-90°</button><button class="edit-btn rotate" @click="rotateSpot(90)">+90°</button><button class="edit-btn rotate" @click="rotateSpot(-1)">-1°</button><button class="edit-btn rotate" @click="rotateSpot(1)">+1°</button></div></div>
+            <div class="edit-section"><h4>Tamanho</h4><div class="size-controls"><button class="edit-btn resize" @click="resizeSpot('width', -2)">↔ -</button><button class="edit-btn resize" @click="resizeSpot('width', 2)">↔ +</button><button class="edit-btn resize" @click="resizeSpot('height', -2)">↕ -</button><button class="edit-btn resize" @click="resizeSpot('height', 2)">↕ +</button></div></div>
+            <div class="edit-section" v-if="ui.multiSelectedIds.length > 1"><h4>Alinhar Vagas</h4><div class="size-controls"><button class="edit-btn multi" @click="alignSpots('x')">Alinhar Horizontal</button><button class="edit-btn multi" @click="alignSpots('y')">Alinhar Vertical</button></div></div>
+            <div class="edit-section"><button class="edit-btn delete" @click="deleteSelected">🗑️ Deletar Vaga(s)</button></div>
         </div>
 
-        <!-- Controles gerais (sem alterações) -->
         <div class="controles">
             <button class="btn btn-reset" :disabled="!user.isAdmin" @click="setAllSpotsStatus('livre')">🔄 Resetar Tudo</button>
             <button class="btn btn-ocupar" :disabled="!user.isAdmin" @click="setAllSpotsStatus('ocupada')">🚗 Ocupar Tudo</button>
@@ -228,10 +172,11 @@
     <input type="file" ref="importInput" accept=".json" style="display:none;" @change="importLayout">
     <input type="file" ref="plantaInput" accept="image/*" style="display:none;" @change="uploadPlant">
     <div class="notificacao" :class="['mostrar', n.type]" v-for="n in notifications" :key="n.id">{{ n.message }}</div>
+    <div class="status-firebase" :class="firebase.connected ? 'conectado' : 'desconectado'"><div class="indicador-firebase"></div><span>{{ firebase.connected ? 'Firebase Conectado' : 'Firebase Desconectado' }}</span></div>
 </div>
 
 <script>
-    const { createApp, reactive } = Vue;
+    const { createApp } = Vue;
 
     const firebaseConfig = {
         apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
@@ -247,26 +192,17 @@
         data() {
             return {
                 firebase: { db: null, connected: false },
-                user: { name: 'Visualizador Público', isAdmin: false },
+                user: { name: 'Visualizador', isAdmin: false },
                 spots: [],
                 nextSpotId: 1,
                 plantConfig: { image: '', size: 'cover', posX: 50, posY: 50 },
                 ui: {
                     loginModal: { show: false, user: '', pass: '' },
-                    lastUpdate: '...',
-                    editMode: false,
-                    editPlanta: false,
-                    multiSelect: false,
-                    selectedSpotId: null,
-                    multiSelectedIds: [],
-                    draggingSpotId: null,
-                    dragOffset: { x: 0, y: 0 },
+                    editMode: false, editPlanta: false, multiSelect: false,
+                    selectedSpotId: null, multiSelectedIds: [],
+                    draggingSpotId: null, dragOffset: { x: 0, y: 0 },
+                    multiDragInitialPositions: [], // Para arrastar múltiplos
                     zoom: { container: 1, plant: 1 },
-                    // CORREÇÃO: Adicionadas propriedades ausentes para os painéis
-                    zoomControlsPos: { x: 20, y: 20 },
-                    plantaControlsPos: { x: 20, y: 20 },
-                    draggingPanel: null,
-                    panelDragOffset: { x: 0, y: 0 },
                 },
                 notifications: [],
             }
@@ -281,53 +217,20 @@
                 return { total, free, occupied, occupationRate };
             },
             mapStyle() { return { transform: `scale(${this.ui.zoom.container})` }; },
-            plantStyle() {
-                return {
-                    backgroundImage: `url(${this.plantConfig.image})`,
-                    backgroundSize: this.plantConfig.size,
-                    backgroundPosition: `${this.plantConfig.posX}% ${this.plantConfig.posY}%`,
-                    transform: `scale(${this.ui.zoom.plant})`
-                };
-            },
-            selectedSpot() {
-                if (this.ui.multiSelectedIds.length > 0) return this.spots.find(s => s.id === this.ui.multiSelectedIds[0]);
-                return this.spots.find(s => s.id === this.ui.selectedSpotId);
-            }
+            plantStyle() { return { backgroundImage: `url(${this.plantConfig.image})`, backgroundSize: this.plantConfig.size, backgroundPosition: `${this.plantConfig.posX}% ${this.plantConfig.posY}%`, transform: `scale(${this.ui.zoom.plant})` }; },
+            selectedSpot() { return this.spots.find(s => s.id === this.ui.selectedSpotId); }
         },
         methods: {
-            // Notificações e Login (sem alterações)
-            showNotification(message, type = 'info', duration = 3000) {
-                const id = Date.now();
-                this.notifications.push({ id, message, type });
-                setTimeout(() => {
-                    this.notifications = this.notifications.filter(n => n.id !== id);
-                }, duration);
-            },
-            handleLogin() {
-                const { user, pass } = this.ui.loginModal;
-                if (user === 'admin' && pass === 'admin123') {
-                    this.user = { name: 'Administrador', isAdmin: true };
-                    this.ui.loginModal.show = false;
-                    this.showNotification('Login realizado com sucesso!', 'sucesso');
-                } else {
-                    this.showNotification('Credenciais inválidas!', 'erro');
-                }
-                this.ui.loginModal.user = ''; this.ui.loginModal.pass = '';
-            },
-            handleLogout() {
-                if (confirm('Sair do modo administrador?')) {
-                    this.user = { name: 'Visualizador Público', isAdmin: false };
-                    this.ui.editMode = false; this.ui.multiSelect = false; this.ui.selectedSpotId = null; this.ui.multiSelectedIds = [];
-                    this.showNotification('Logout realizado.', 'info');
-                }
-            },
-            // Estilos e Interações com Vagas
-            spotStyle(spot) {
-                return { left: `${spot.x}px`, top: `${spot.y}px`, width: `${spot.width || 40}px`, height: `${spot.height || 70}px`, transform: `rotate(${spot.angle || 0}deg)` };
-            },
+            // Notificações, Login e UI (sem alterações críticas)
+            showNotification(message, type = 'info', duration = 3000) { const id = Date.now(); this.notifications.push({ id, message, type }); setTimeout(() => { this.notifications = this.notifications.filter(n => n.id !== id); }, duration); },
+            handleLogin() { if (this.ui.loginModal.user === 'admin' && this.ui.loginModal.pass === 'admin123') { this.user = { name: 'Administrador', isAdmin: true }; this.ui.loginModal.show = false; this.showNotification('Login como Administrador bem-sucedido!', 'sucesso'); } else { this.showNotification('Credenciais inválidas!', 'erro'); } this.ui.loginModal.user = ''; this.ui.loginModal.pass = ''; },
+            handleLogout() { if (confirm('Sair do modo administrador?')) { this.user = { name: 'Visualizador', isAdmin: false }; this.ui.editMode = false; this.ui.multiSelect = false; this.ui.selectedSpotId = null; this.ui.multiSelectedIds = []; this.showNotification('Logout realizado.', 'info'); } },
             toggleEditMode() { this.ui.editMode = !this.ui.editMode; if (!this.ui.editMode) { this.ui.selectedSpotId = null; this.ui.multiSelectedIds = []; this.syncFullLayout(); }},
             toggleEditPlanta() { this.ui.editPlanta = !this.ui.editPlanta; },
             toggleMultiSelect() { this.ui.multiSelect = !this.ui.multiSelect; if (!this.ui.multiSelect) this.ui.multiSelectedIds = []; },
+            spotStyle(spot) { return { left: `${spot.x}px`, top: `${spot.y}px`, width: `${spot.width || 40}px`, height: `${spot.height || 70}px`, transform: `rotate(${spot.angle || 0}deg)` }; },
+
+            // Interação com Vagas
             handleSpotClick(spot) {
                 if (!this.user.isAdmin) return;
                 if (this.ui.editMode) {
@@ -335,15 +238,25 @@
                         const index = this.ui.multiSelectedIds.indexOf(spot.id);
                         if (index > -1) this.ui.multiSelectedIds.splice(index, 1);
                         else this.ui.multiSelectedIds.push(spot.id);
-                    } else { this.ui.selectedSpotId = this.ui.selectedSpotId === spot.id ? null : spot.id; }
+                        this.ui.selectedSpotId = null;
+                    } else { this.ui.selectedSpotId = this.ui.selectedSpotId === spot.id ? null : spot.id; this.ui.multiSelectedIds = []; }
                 } else { spot.status = spot.status === 'livre' ? 'ocupada' : 'livre'; this.updateSpotStatusInFirebase(spot); }
             },
-            // Lógica de Arrastar Vagas
+
+            // Lógica de Arrastar Vagas (com Multi-drag)
             startDrag(spot, event) {
                 if (!this.user.isAdmin || !this.ui.editMode) return;
                 this.ui.draggingSpotId = spot.id;
                 const rect = event.target.getBoundingClientRect();
                 this.ui.dragOffset = { x: event.clientX - rect.left, y: event.clientY - rect.top, };
+
+                if (this.ui.multiSelect && this.ui.multiSelectedIds.includes(spot.id)) {
+                    this.ui.multiDragInitialPositions = this.ui.multiSelectedIds.map(id => {
+                        const s = this.spots.find(sp => sp.id === id);
+                        return { id, dx: s.x - spot.x, dy: s.y - spot.y };
+                    });
+                } else { this.ui.multiDragInitialPositions = []; }
+
                 document.addEventListener('mousemove', this.drag);
                 document.addEventListener('mouseup', this.stopDrag);
             },
@@ -351,130 +264,91 @@
                 if (!this.ui.draggingSpotId) return;
                 const spot = this.spots.find(s => s.id === this.ui.draggingSpotId);
                 const containerRect = this.$refs.mapContainer.getBoundingClientRect();
-                spot.x = (event.clientX - containerRect.left) / this.ui.zoom.container - this.ui.dragOffset.x;
-                spot.y = (event.clientY - containerRect.top) / this.ui.zoom.container - this.ui.dragOffset.y;
-            },
-            stopDrag() { this.ui.draggingSpotId = null; document.removeEventListener('mousemove', this.drag); document.removeEventListener('mouseup', this.stopDrag); this.syncFullLayout(); },
-            // CORREÇÃO: Métodos para arrastar os painéis de controle
-            dragPanel(panelName, event) {
-                this.ui.draggingPanel = panelName;
-                const panel = event.currentTarget.parentElement;
-                const rect = panel.getBoundingClientRect();
-                this.ui.panelDragOffset = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-                document.addEventListener('mousemove', this.movePanel);
-                document.addEventListener('mouseup', this.stopDragPanel);
-            },
-            movePanel(event) {
-                if (!this.ui.draggingPanel) return;
-                if (this.ui.draggingPanel === 'zoomControls') {
-                    this.ui.zoomControlsPos.x = event.clientX - this.ui.panelDragOffset.x;
-                    this.ui.zoomControlsPos.y = event.clientY - this.ui.panelDragOffset.y;
-                } else if (this.ui.draggingPanel === 'plantaControls') {
-                    const parentWidth = this.$refs.mapContainer.parentElement.clientWidth;
-                    this.ui.plantaControlsPos.x = parentWidth - event.clientX - (event.currentTarget.parentElement.clientWidth - this.ui.panelDragOffset.x);
-                    this.ui.plantaControlsPos.y = event.clientY - this.ui.panelDragOffset.y;
+                
+                const newX = (event.clientX - containerRect.left) / this.ui.zoom.container - this.ui.dragOffset.x;
+                const newY = (event.clientY - containerRect.top) / this.ui.zoom.container - this.ui.dragOffset.y;
+                spot.x = newX; spot.y = newY;
+
+                if (this.ui.multiDragInitialPositions.length > 0) {
+                    this.ui.multiDragInitialPositions.forEach(pos => {
+                        if (pos.id !== this.ui.draggingSpotId) {
+                            const otherSpot = this.spots.find(s => s.id === pos.id);
+                            if(otherSpot) { otherSpot.x = newX + pos.dx; otherSpot.y = newY + pos.dy; }
+                        }
+                    });
                 }
             },
-            stopDragPanel() { this.ui.draggingPanel = null; document.removeEventListener('mousemove', this.movePanel); document.removeEventListener('mouseup', this.stopDragPanel); },
-            // Controles de Edição
-            deleteSelected() {
-                if (confirm('Tem certeza que deseja deletar as vagas selecionadas?')) {
-                    if (this.ui.multiSelectedIds.length > 0) {
-                        this.spots = this.spots.filter(s => !this.ui.multiSelectedIds.includes(s.id));
-                        this.ui.multiSelectedIds = [];
-                    } else if (this.ui.selectedSpotId) {
-                        this.spots = this.spots.filter(s => s.id !== this.ui.selectedSpotId);
-                        this.ui.selectedSpotId = null;
-                    }
-                    this.syncFullLayout();
-                }
-            },
+            stopDrag() { this.ui.draggingSpotId = null; this.ui.multiDragInitialPositions = []; document.removeEventListener('mousemove', this.drag); document.removeEventListener('mouseup', this.stopDrag); this.syncFullLayout(); },
+
+            // Controles de Edição (com applyToSelected)
             applyToSelected(callback) {
-                const ids = this.ui.multiSelectedIds.length > 0 ? this.ui.multiSelectedIds : [this.ui.selectedSpotId];
-                ids.forEach(id => {
-                    const spot = this.spots.find(s => s.id === id);
-                    if (spot) callback(spot);
-                });
+                const ids = this.ui.multiSelectedIds.length > 0 ? this.ui.multiSelectedIds : (this.ui.selectedSpotId ? [this.ui.selectedSpotId] : []);
+                ids.forEach(id => { const spot = this.spots.find(s => s.id === id); if (spot) callback(spot); });
                 this.syncFullLayout();
             },
+            deleteSelected() { if (confirm('Deletar vagas selecionadas?')) { const idsToDelete = this.ui.multiSelectedIds.length > 0 ? this.ui.multiSelectedIds : [this.ui.selectedSpotId]; this.spots = this.spots.filter(s => !idsToDelete.includes(s.id)); this.ui.multiSelectedIds = []; this.ui.selectedSpotId = null; this.syncFullLayout(); }},
             rotateSpot(angle) { this.applyToSelected(spot => spot.angle = (spot.angle || 0) + angle); },
             resizeSpot(axis, amount) { this.applyToSelected(spot => spot[axis] = (spot[axis] || (axis === 'width' ? 40 : 70)) + amount); },
-            alignSpots(axis) {
-                if (this.ui.multiSelectedIds.length < 2) return;
-                const firstSpotPos = this.spots.find(s => s.id === this.ui.multiSelectedIds[0])[axis];
-                this.applyToSelected(spot => spot[axis] = firstSpotPos);
-            },
-            zoomMap(amount) { this.ui.zoom.container = Math.max(0.2, this.ui.zoom.container + amount); },
-            zoomPlant(amount) { this.ui.zoom.plant = Math.max(0.2, this.ui.zoom.plant + amount); },
-            // Controles Gerais
+            alignSpots(axis) { if (this.ui.multiSelectedIds.length < 2) return; const firstSpotPos = this.spots.find(s => s.id === this.ui.multiSelectedIds[0])[axis]; this.applyToSelected(spot => spot[axis] = firstSpotPos); },
+
+            // Controles Gerais e Persistência
             setAllSpotsStatus(status) { if (!this.user.isAdmin || !confirm(`Marcar todas as vagas como ${status.toUpperCase()}?`)) return; this.spots.forEach(s => s.status = status); this.saveToFirebase(); },
             saveStateLocal() { localStorage.setItem('parkingSystemState', JSON.stringify({ spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId })); this.showNotification('Layout salvo localmente!', 'sucesso'); },
             loadStateLocal() {
                 const savedState = localStorage.getItem('parkingSystemState');
                 if (savedState) {
                     const data = JSON.parse(savedState);
-                    this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.spots.length + 1;
-                } else {
-                    this.spots = Array.from({ length: 62 }, (_, i) => ({ id: `V${String(i + 1).padStart(2, '0')}`, x: 50 + (i % 10) * 50, y: 50 + Math.floor(i / 10) * 100, width: 40, height: 70, angle: 0, status: 'livre' }));
-                    this.nextSpotId = 63;
+                    this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || (this.spots.length > 0 ? Math.max(...this.spots.map(s => parseInt(s.id.replace('V','')))) + 1 : 1);
+                } else { // Estado Padrão Inicial
+                    this.spots = Array.from({ length: 10 }, (_, i) => ({ id: `V${String(i + 1).padStart(2, '0')}`, x: 50 + (i % 5) * 60, y: 50 + Math.floor(i / 5) * 100, width: 40, height: 70, angle: 0, status: 'livre' })); this.nextSpotId = 11;
                 }
             },
-            // Funções Firebase
+            exportLayout() { const dataStr = JSON.stringify({ spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId }, null, 2); const blob = new Blob([dataStr], { type: "application/json" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `layout_estacionamento.json`; a.click(); URL.revokeObjectURL(a.href); },
+            importLayout(event) {
+                const file = event.target.files[0]; if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => { try { const data = JSON.parse(e.target.result); if (confirm('Importar novo layout?')) { this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.spots.length + 1; this.syncFullLayout(); this.showNotification('Layout importado!', 'sucesso'); }} catch (err) { this.showNotification('Arquivo de layout inválido.', 'erro'); }};
+                reader.readAsText(file); event.target.value = '';
+            },
+            uploadPlant(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { this.plantConfig.image = e.target.result; this.syncFullLayout(); }; reader.readAsDataURL(file); },
+            addSpot() { const newId = `V${String(this.nextSpotId).padStart(2, '0')}`; this.spots.push({ id: newId, x: 50, y: 50, width: 40, height: 70, angle: 0, status: 'livre' }); this.nextSpotId++; this.syncFullLayout(); },
+
+            // Funções Firebase Corrigidas
             initFirebase() {
                 try {
-                    firebase.initializeApp(firebaseConfig);
+                    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
                     this.firebase.db = firebase.database();
-                    this.firebase.connected = true;
-                    this.firebase.db.ref('layout').on('value', snap => {
-                        const data = snap.val();
-                        if (data && !this.user.isAdmin) {
-                            this.spots = data.spots || this.spots; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.nextSpotId;
-                        }
+                    this.firebase.db.ref('.info/connected').on('value', snapshot => {
+                        this.firebase.connected = snapshot.val();
+                        this.showNotification(`Firebase ${snapshot.val() ? 'Conectado' : 'Desconectado'}.`, snapshot.val() ? 'sucesso' : 'erro');
+                        if(snapshot.val()) { this.loadFromFirebase(); }
                     });
-                    this.firebase.db.ref('spots').on('value', snap => {
-                        const statuses = snap.val();
-                        if (statuses) { this.spots.forEach(s => { if (statuses[s.id]) s.status = statuses[s.id]; });}
-                    });
-                } catch (e) { this.firebase.connected = false; this.showNotification(`Erro Firebase: ${e.message}`, 'erro'); }
+                } catch (e) { console.error("Erro ao inicializar Firebase:", e); this.firebase.connected = false; this.showNotification(`Erro Firebase: ${e.message}`, 'erro'); }
+            },
+            loadFromFirebase() {
+                this.firebase.db.ref('layout').once('value', snap => {
+                    const data = snap.val();
+                    if (data && !this.user.isAdmin) { // Carrega layout completo para viewers
+                        this.spots = data.spots || this.spots; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.nextSpotId;
+                    }
+                });
+                this.firebase.db.ref('spots').on('value', snap => { // Listener de status para todos
+                    const statuses = snap.val(); if (statuses) { this.spots.forEach(s => { if (statuses[s.id] !== undefined) s.status = statuses[s.id]; });}
+                });
             },
             updateSpotStatusInFirebase(spot) { if (this.firebase.connected && this.user.isAdmin) this.firebase.db.ref(`spots/${spot.id}`).set(spot.status); },
-            syncFullLayout() {
-                 if (!this.firebase.connected || !this.user.isAdmin) return;
-                 const layout = { spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId };
-                 this.firebase.db.ref('layout').set(layout);
-            },
+            syncFullLayout() { if (!this.firebase.connected || !this.user.isAdmin) return; const layout = { spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId }; this.firebase.db.ref('layout').set(layout); },
             saveToFirebase() {
                 if (!this.firebase.connected || !this.user.isAdmin) return;
                 const spotsStatus = this.spots.reduce((acc, spot) => ({...acc, [spot.id]: spot.status }), {});
                 this.firebase.db.ref('spots').set(spotsStatus);
                 this.syncFullLayout();
                 this.showNotification('Estado salvo no Firebase!', 'sucesso');
-            },
-            // Import/Export
-            addSpot() { const newId = `V${String(this.nextSpotId).padStart(2, '0')}`; this.spots.push({ id: newId, x: 50, y: 50, width: 40, height: 70, angle: 0, status: 'livre' }); this.nextSpotId++; this.syncFullLayout(); },
-            exportLayout() { const dataStr = JSON.stringify({ spots: this.spots, plantConfig: this.plantConfig, nextSpotId: this.nextSpotId }, null, 2); const blob = new Blob([dataStr], { type: "application/json" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `layout_estacionamento.json`; a.click(); URL.revokeObjectURL(a.href); },
-            importLayout(event) {
-                const file = event.target.files[0]; if (!file) return;
-                const reader = new FileReader();
-                reader.onload = e => {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        if (confirm('Importar novo layout?')) { this.spots = data.spots || []; this.plantConfig = data.plantConfig || this.plantConfig; this.nextSpotId = data.nextSpotId || this.spots.length + 1; this.syncFullLayout(); }
-                    } catch (err) { this.showNotification('Arquivo de layout inválido.', 'erro'); }
-                };
-                reader.readAsText(file); event.target.value = '';
-            },
-            uploadPlant(event) {
-                const file = event.target.files[0]; if (!file) return;
-                const reader = new FileReader();
-                reader.onload = e => { this.plantConfig.image = e.target.result; this.syncFullLayout(); };
-                reader.readAsDataURL(file);
             }
         },
         mounted() {
             this.loadStateLocal();
             this.initFirebase();
-            setInterval(() => { this.ui.lastUpdate = new Date().toLocaleTimeString('pt-BR'); }, 1000);
         }
     }).mount('#app');
 </script>
