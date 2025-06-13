@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--r:clamp(8px,1vw,15px)}
+        :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--g:clamp(8px,1.5vw,15px);--r:clamp(8px,1vw,15px)}
         body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:var(--p);font-size:var(--f)}
         .modal-login{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:none;justify-content:center;align-items:center;z-index:10000}
         .modal-login.show{display:flex!important}
@@ -39,14 +39,13 @@
         .stat-number{font-size:clamp(1.2rem,3vw,1.8rem);font-weight:bold;display:block}
         .estacionamento-wrapper{padding:var(--p);background:#f8f9fa;min-height:70vh;position:relative}
         .estacionamento-container{position:relative;width:100%;max-width:1600px;height:clamp(800px,90vh,1600px);margin:0 auto;background:#e8e8e8;border-radius:var(--r);border:3px solid #34495e;overflow:visible;transform-origin:center;transition:transform 0.3s}
-        .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s}
+        .planta-baixa{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center;opacity:0.8;z-index:1;transform-origin:center;transition:all 0.3s;cursor:move}
         .planta-baixa.ajustavel{border:2px dashed #3498db;opacity:0.9}
-        .zoom-controls,.planta-controls{position:absolute;top:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
-        .zoom-controls{left:20px}
-        .planta-controls{right:20px}
-        .zoom-btn,.planta-btn{padding:8px 12px;margin:2px;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
-        .zoom-btn{background:#3498db}
-        .planta-btn{background:#e67e22;display:block;width:100%;margin-bottom:5px}
+        .zoom-controls{position:absolute;top:20px;left:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
+        .zoom-btn{padding:8px 12px;margin:2px;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
+        .planta-controls{position:absolute;top:20px;right:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;display:none}
+        .planta-btn{padding:8px 12px;margin:2px;background:#e67e22;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem;display:block;width:100%;margin-bottom:5px}
+        .planta-btn:hover{background:#d35400}
         .vaga{position:absolute;width:clamp(25px,4vw,45px);height:clamp(40px,6vw,75px);border:2px solid #2c3e50;background:rgba(39,174,96,0.9);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1.2vw,10px);font-weight:bold;color:white;border-radius:4px;cursor:pointer;transition:all 0.3s;z-index:10;user-select:none}
         .vaga:hover{transform:scale(1.1);z-index:100}
         .vaga.viewer-mode{cursor:default!important}
@@ -133,7 +132,7 @@
                 <button class="logout-btn" id="logout-btn" onclick="logout()" style="display:none;">Sair</button>
             </div>
             
-            <h1>🚗 SMAMUS - Sistema de Estacionamento</h1>
+            <h1>🚗 A  Sistema de Estacionamento</h1>
             <p><strong>Última atualização:</strong> <span id="ultima-atualizacao">Agora</span></p>
             
             <div class="stats">
@@ -158,7 +157,7 @@
         </div>
 
         <div class="estacionamento-wrapper">
-            <div class="zoom-controls" id="zoom-controls">
+            <div class="zoom-controls" id="zoom-controls" style="display:none;">
                 <h4>🔍 Zoom</h4>
                 <div>
                     <button class="zoom-btn" onclick="ajustarZoom('container',0.1)">🔍+</button>
@@ -176,7 +175,7 @@
                 </div>
             </div>
 
-            <div class="planta-controls" id="planta-controls">
+            <div class="planta-controls" id="planta-controls" style="display:none;">
                 <h4 style="color:#34495e;margin-bottom:10px;font-size:0.8rem;">📐 Planta Baixa</h4>
                 <button class="planta-btn" onclick="ajustarPlanta('cover')">📏 Cobrir Área</button>
                 <button class="planta-btn" onclick="ajustarPlanta('contain')">📐 Ajustar</button>
@@ -767,12 +766,3 @@
                 document.getElementById('texto-firebase').textContent='Firebase Desconectado';
             }
         }
-
-        function salvarNoFirebase(){
-            if(!firebaseConectado||tipoUsuario!=='admin'){mostrarNotificacao('❌ Firebase desconectado ou sem permissão','erro');return}
-            database.ref('vagas').set(estadoVagas).then(()=>mostrarNotificacao('🌐 Salvo no Firebase!','sucesso'))
-            .catch(error=>mostrarNotificacao('❌ Erro Firebase: '+error.message,'erro'));
-        }
-
-        function mostrarNotificacao(mensagem,tipo){
-            var notif=document.createElement('div');notif.className='notificacao '+tipo;notif.textContent=mensagem
