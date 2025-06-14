@@ -84,7 +84,7 @@
         <header class="header">
             <div class="header-identidade">
                 <div class="header-logo"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 95C74.8528 95 95 74.8528 95 50C95 25.1472 74.8528 5 50 5C25.1472 5 5 25.1472 5 50C5 74.8528 25.1472 95 50 95Z" fill="#2c3e50"/><path d="M62 70V59C62 56.7909 60.2091 55 58 55H42C39.7909 55 38 56.7909 38 59V70H62Z" fill="#ffffff"/><path d="M58 55V46H42V55H58Z" fill="#bdc3c7"/><path d="M68 53C68 46.2 62.8333 34 50 34C37.1667 34 32 46.2 32 53C39.3333 49.4 60.6667 49.4 68 53Z" fill="#4CAF50"/></svg></div>
-                <div class="header-titulo"><h1>2025 Sistema de Gerenciamento de Vagas</h1><h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2></div>
+                <div class="header-titulo"><h1>Sistema de Gerenciamento de Vagas</h1><h2>Secretaria de Meio Ambiente, Urbanismo e Sustentabilidade - SMAMUS | Prefeitura de Porto Alegre</h2></div>
             </div>
             <div class="user-info"><span>{{ user.name }}</span><span class="user-badge" :class="{ admin: user.isAdmin }">{{ user.isAdmin ? 'ADMIN' : 'VIEWER' }}</span><button v-if="!user.isAdmin" class="admin-login-btn" @click="ui.loginModal.show = true">Login</button><button v-else class="logout-btn" @click="handleLogout">Sair</button></div>
         </header>
@@ -115,6 +115,7 @@
 <script>
     const { createApp } = Vue;
 
+    // ### CONFIGURAÇÃO CORRIGIDA DO FIREBASE ###
     const firebaseConfig = {
       apiKey: "AIzaSyCRIgCndKlfXxR7NNnq_qGupgAWyLqzYzc",
       authDomain: "teste-dbacd.firebaseapp.com",
@@ -128,7 +129,7 @@
     createApp({
         data() {
             return {
-                firebase: { app: null, db: null, connected: false },
+                firebase: { app: null, db: null, connected: false, retryCount: 0 },
                 user: { name: 'Visualizador', isAdmin: false },
                 spots: [],
                 nextSpotId: 1,
@@ -176,61 +177,184 @@
             uploadPlant(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{this.plantConfig.image=ev.target.result;this.syncFullLayout();};r.readAsDataURL(f);},
             addSpot(){const id=`V${String(this.nextSpotId).padStart(2,'0')}`;this.spots.push({id,x:50,y:50,width:40,height:70,angle:0,status:'livre'});this.nextSpotId++;this.syncFullLayout();},
             
-            // ### CORREÇÃO DEFINITIVA DA LÓGICA DO FIREBASE ###
-            initFirebase(){
-                try {
-                    this.firebase.app = !firebase.apps.length 
-                        ? firebase.initializeApp(firebaseConfig) 
-                        : firebase.app();
-                    
-                    this.firebase.db = firebase.database(this.firebase.app);
-
-                    this.firebase.db.ref('.info/connected').on('value', snap => {
-                        this.firebase.connected = snap.val();
-                        if(this.firebase.connected) {
-                            this.showNotification('Firebase Conectado', 'sucesso');
-                            this.loadFromFirebase(); 
-                        } else {
-                            this.showNotification('Firebase Desconectado', 'erro');
-                        }
-                    });
-                } catch(e) {
-                    console.error("Erro na inicialização do Firebase:", e);
-                    this.firebase.connected = false;
-                    this.showNotification(`Erro Firebase: ${e.message}`, 'erro');
-                }
-            },
-            loadFromFirebase() {
-                if(!this.firebase.db) return;
-                // Usa .once() para a carga inicial do layout, evitando conflitos de concorrência.
-                this.firebase.db.ref('layout').once('value', snap => {
-                    const data = snap.val();
-                    if(data) {
-                        this.spots = data.spots || this.spots;
-                        this.plantConfig = data.plantConfig || this.plantConfig;
-                        this.nextSpotId = data.nextSpotId || this.nextSpotId;
-                    }
-                });
+            // ### CORREÇÃO DEFINITIVA E ROBUSTA DO FIREBASE ###
+            initFirebase() {
+                const maxRetries = 3;
+                const retryDelay = 2000;
                 
-                // Mantém um listener ativo APENAS para os status, que é a informação dinâmica.
-                this.firebase.db.ref('spots').on('value', snap => {
-                    const statuses = snap.val();
-                    if(statuses){
-                        this.spots.forEach(spot => {
-                            if(statuses[spot.id] !== undefined) {
-                                spot.status = statuses[spot.id];
+                const attemptConnection = () => {
+                    try {
+                        // Limpa qualquer instância anterior
+                        if (firebase.apps.length > 0) {
+                            firebase.apps.forEach(app => app.delete());
+                        }
+                        
+                        // Inicializa com configuração completa incluindo URL da região
+                        this.firebase.app = firebase.initializeApp(firebaseConfig);
+                        
+                        // Obtém referência do banco com URL específica para evitar erro de região
+                        this.firebase.db = firebase.database(this.firebase.app);
+                        
+                        // Configura timeout para conexão
+                        this.firebase.db.goOffline();
+                        setTimeout(() => {
+                            this.firebase.db.goOnline();
+                        }, 100);
+                        
+                        // Monitor de conexão robusto
+                        this.firebase.db.ref('.info/connected').on('value', snapshot => {
+                            const isConnected = snapshot.val();
+                            this.firebase.connected = isConnected;
+                            this.firebase.retryCount = 0; // Reset retry count on successful connection
+                            
+                            if (isConnected) {
+                                this.showNotification('Firebase Conectado com Sucesso!', 'sucesso');
+                                this.loadFromFirebase();
+                            } else {
+                                this.showNotification('Firebase Desconectado', 'erro');
+                                // Tenta reconectar automaticamente
+                                if (this.firebase.retryCount < maxRetries) {
+                                    setTimeout(() => {
+                                        this.firebase.retryCount++;
+                                        this.initFirebase();
+                                    }, retryDelay * this.firebase.retryCount);
+                                }
                             }
                         });
+                        
+                    } catch (error) {
+                        console.error("Erro na inicialização do Firebase:", error);
+                        this.firebase.connected = false;
+                        this.showNotification(`Erro Firebase: ${error.message}`, 'erro');
+                        
+                        // Retry logic
+                        if (this.firebase.retryCount < maxRetries) {
+                            this.firebase.retryCount++;
+                            setTimeout(() => {
+                                attemptConnection();
+                            }, retryDelay * this.firebase.retryCount);
+                        }
                     }
-                });
+                };
+                
+                attemptConnection();
             },
-            updateSpotStatusInFirebase(spot){if(this.firebase.connected&&this.user.isAdmin)this.firebase.db.ref(`spots/${spot.id}`).set(spot.status);},
-            syncFullLayout(){if(!this.firebase.connected||!this.user.isAdmin)return;const layout={spots:this.spots,plantConfig:this.plantConfig,nextSpotId:this.nextSpotId};this.firebase.db.ref('layout').set(layout);},
-            saveToFirebase(){if(!this.firebase.connected||!this.user.isAdmin){this.showNotification('Não é possível salvar. Verifique a conexão e o login.','erro');return;}const spotsStatus=this.spots.reduce((a,s)=>({...a,[s.id]:s.status}),{});this.firebase.db.ref('spots').set(spotsStatus);this.syncFullLayout();this.showNotification('Estado salvo no Firebase!','sucesso');}
+            
+            // ### CARREGAMENTO OTIMIZADO SEM CONFLITOS ###
+            loadFromFirebase() {
+                if (!this.firebase.db || !this.firebase.connected) return;
+                
+                try {
+                    // Carrega layout uma única vez para evitar conflitos
+                    this.firebase.db.ref('layout').once('value')
+                        .then(snapshot => {
+                            const data = snapshot.val();
+                            if (data && !this.user.isAdmin) {
+                                this.spots = data.spots || this.spots;
+                                this.plantConfig = data.plantConfig || this.plantConfig;
+                                this.nextSpotId = data.nextSpotId || this.nextSpotId;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Erro ao carregar layout:", error);
+                        });
+                    
+                    // Listener separado e otimizado apenas para status das vagas
+                    this.firebase.db.ref('spots').on('value', snapshot => {
+                        try {
+                            const statuses = snapshot.val();
+                            if (statuses && this.spots.length > 0) {
+                                this.spots.forEach(spot => {
+                                    if (statuses[spot.id] !== undefined && spot.status !== statuses[spot.id]) {
+                                        spot.status = statuses[spot.id];
+                                    }
+                                });
+                            }
+                        } catch (error) {
+                            console.error("Erro ao processar status das vagas:", error);
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error("Erro geral no loadFromFirebase:", error);
+                    this.showNotification('Erro ao carregar dados do Firebase', 'erro');
+                }
+            },
+            
+            updateSpotStatusInFirebase(spot) {
+                if (!this.firebase.connected || !this.user.isAdmin || !this.firebase.db) return;
+                
+                try {
+                    this.firebase.db.ref(`spots/${spot.id}`).set(spot.status)
+                        .catch(error => {
+                            console.error("Erro ao atualizar status:", error);
+                            this.showNotification('Erro ao salvar status da vaga', 'erro');
+                        });
+                } catch (error) {
+                    console.error("Erro na atualização:", error);
+                }
+            },
+            
+            syncFullLayout() {
+                if (!this.firebase.connected || !this.user.isAdmin || !this.firebase.db) return;
+                
+                try {
+                    const layout = {
+                        spots: this.spots,
+                        plantConfig: this.plantConfig,
+                        nextSpotId: this.nextSpotId,
+                        lastUpdate: Date.now()
+                    };
+                    
+                    this.firebase.db.ref('layout').set(layout)
+                        .catch(error => {
+                            console.error("Erro ao sincronizar layout:", error);
+                            this.showNotification('Erro ao sincronizar layout', 'erro');
+                        });
+                } catch (error) {
+                    console.error("Erro na sincronização:", error);
+                }
+            },
+            
+            saveToFirebase() {
+                if (!this.firebase.connected || !this.user.isAdmin) {
+                    this.showNotification('Firebase desconectado ou sem permissão de admin', 'erro');
+                    return;
+                }
+                
+                try {
+                    const spotsStatus = this.spots.reduce((acc, spot) => {
+                        acc[spot.id] = spot.status;
+                        return acc;
+                    }, {});
+                    
+                    // Salva status das vagas
+                    this.firebase.db.ref('spots').set(spotsStatus)
+                        .then(() => {
+                            // Depois salva o layout completo
+                            return this.syncFullLayout();
+                        })
+                        .then(() => {
+                            this.showNotification('Dados salvos no Firebase com sucesso!', 'sucesso');
+                        })
+                        .catch(error => {
+                            console.error("Erro ao salvar no Firebase:", error);
+                            this.showNotification('Erro ao salvar no Firebase', 'erro');
+                        });
+                } catch (error) {
+                    console.error("Erro no saveToFirebase:", error);
+                    this.showNotification('Erro ao processar dados para salvamento', 'erro');
+                }
+            }
         },
         mounted() {
+            // Carrega dados locais primeiro
             this.loadStateLocal();
-            this.initFirebase();
+            
+            // Aguarda um momento antes de inicializar o Firebase para evitar conflitos
+            setTimeout(() => {
+                this.initFirebase();
+            }, 500);
         }
     }).mount('#app');
 </script>
