@@ -49,15 +49,21 @@
         .zoom-btn,.planta-btn{padding:8px 12px;margin:2px;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
         .zoom-btn{background:#3498db}
         .planta-btn{background:#e67e22;display:block;width:100%;margin-bottom:5px}
-        .vaga{position:absolute;width:clamp(25px,4vw,45px);height:clamp(40px,6vw,75px);border:2px solid #2c3e50;background:rgba(39,174,96,0.9);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1.2vw,10px);font-weight:bold;color:white;border-radius:4px;cursor:pointer;transition:all 0.3s;z-index:10;user-select:none}
+        
+        .vaga{position:absolute;width:clamp(35px,6vw,55px);height:clamp(25px,4vw,40px);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1vw,9px);font-weight:bold;color:white;cursor:pointer;transition:all 0.3s;z-index:10;user-select:none;border-radius:8px;overflow:visible}
         .vaga:hover{transform:scale(1.1);z-index:100}
         .vaga.viewer-mode{cursor:default!important}
         .vaga.viewer-mode:hover{transform:none!important}
-        .livre{background:rgba(39,174,96,0.9)!important}
-        .ocupada{background:rgba(231,76,60,0.9)!important}
-        .modo-edicao .vaga{cursor:move!important;border:3px dashed #f39c12!important;background:rgba(243,156,18,0.8)!important}
-        .vaga.selecionada{border:4px solid #9b59b6!important;background:rgba(155,89,182,0.9)!important;z-index:1000!important}
-        .vaga.multipla-selecionada{border:4px solid #e67e22!important;background:rgba(230,126,34,0.9)!important;z-index:999!important}
+        
+        .car-icon{width:100%;height:100%;transition:all 0.3s}
+        .car-text{position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:clamp(8px,1.2vw,10px);font-weight:bold;color:#2c3e50;background:rgba(255,255,255,0.9);padding:1px 4px;border-radius:3px;white-space:nowrap}
+        
+        .livre .car-icon{fill:#27ae60;filter:drop-shadow(0 2px 4px rgba(39,174,96,0.3))}
+        .ocupada .car-icon{fill:#e74c3c;filter:drop-shadow(0 2px 4px rgba(231,76,60,0.3))}
+        
+        .modo-edicao .vaga{border:2px dashed #f39c12!important;background:rgba(243,156,18,0.1)!important}
+        .vaga.selecionada{border:3px solid #9b59b6!important;background:rgba(155,89,182,0.1)!important;z-index:1000!important}
+        .vaga.multipla-selecionada{border:3px solid #e67e22!important;background:rgba(230,126,34,0.1)!important;z-index:999!important}
         .vaga.arrastando{z-index:1001!important;transform:scale(1.2)!important;opacity:0.8;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
         
         .vaga-handles{position:absolute;display:none;pointer-events:none}
@@ -139,8 +145,8 @@
             .zoom-controls,.planta-controls{display:none!important}
             .controles{grid-template-columns:repeat(2,1fr);gap:8px;padding:10px}
             .btn{min-width:auto;padding:12px 8px;font-size:0.8rem}
-            .vaga{width:clamp(40px,10vw,60px);height:clamp(60px,12vw,90px);font-size:clamp(10px,2.5vw,14px);border-radius:6px;touch-action:manipulation}
-            .vaga:active{transform:scale(1.05);background:rgba(52,152,219,0.9)!important}
+            .vaga{width:clamp(45px,12vw,65px);height:clamp(30px,8vw,45px);touch-action:manipulation}
+            .vaga:active{transform:scale(1.05)!important}
             .handle{width:12px;height:12px}
             .handle.nw,.handle.ne,.handle.sw,.handle.se{width:12px;height:12px}
             .handle.n,.handle.s,.handle.w,.handle.e{width:10px;height:10px}
@@ -152,12 +158,13 @@
             .login-btn{padding:15px;font-size:1rem;border-radius:10px}
             .close-modal{font-size:1.5rem;top:10px;right:15px;padding:10px}
             .edit-hint{bottom:10px;left:10px;font-size:0.7rem}
+            .car-text{font-size:clamp(9px,1.5vw,11px)}
         }
         
         @media (max-width:480px){
             .header h1{font-size:clamp(1.1rem,5vw,1.6rem)}
             .estacionamento-container{height:calc(100vh - 250px);min-height:350px}
-            .vaga{width:clamp(45px,12vw,65px);height:clamp(65px,14vw,95px);font-size:clamp(11px,3vw,16px)}
+            .vaga{width:clamp(50px,14vw,70px);height:clamp(35px,10vw,50px)}
             .controles{grid-template-columns:1fr;gap:6px;padding:8px}
             .btn{padding:15px 10px;font-size:0.9rem}
             .stats{grid-template-columns:repeat(2,1fr);gap:6px}
@@ -388,6 +395,37 @@
         var pontoInicialMouse = { x: 0, y: 0 };
         var dimensoesIniciaisResize = { width: 0, height: 0 };
         var anguloInicialRotacao = 0;
+
+        function criarIconeCarro() {
+            return `<svg class="car-icon" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="carGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-opacity:1" />
+                        <stop offset="100%" style="stop-opacity:0.8" />
+                    </linearGradient>
+                </defs>
+                <!-- Corpo principal do carro -->
+                <rect x="10" y="25" width="80" height="20" rx="8" fill="url(#carGradient)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <!-- Teto do carro -->
+                <rect x="25" y="15" width="50" height="15" rx="6" fill="url(#carGradient)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <!-- Rodas -->
+                <circle cx="25" cy="50" r="6" fill="#2c3e50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                <circle cx="75" cy="50" r="6" fill="#2c3e50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                <!-- Detalhes das rodas -->
+                <circle cx="25" cy="50" r="3" fill="#34495e"/>
+                <circle cx="75" cy="50" r="3" fill="#34495e"/>
+                <!-- Para-brisa -->
+                <rect x="30" y="18" width="15" height="8" rx="2" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/>
+                <!-- Janela traseira -->
+                <rect x="55" y="18" width="15" height="8" rx="2" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/>
+                <!-- Faróis -->
+                <circle cx="15" cy="30" r="3" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,1)" stroke-width="0.5"/>
+                <circle cx="15" cy="40" r="3" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,1)" stroke-width="0.5"/>
+                <!-- Lanternas traseiras -->
+                <circle cx="85" cy="30" r="2" fill="rgba(255,100,100,0.8)"/>
+                <circle cx="85" cy="40" r="2" fill="rgba(255,100,100,0.8)"/>
+            </svg>`;
+        }
         
         function mostrarModalLogin() { document.getElementById('modal-login').classList.add('show'); }
         function fecharModalLogin() { document.getElementById('modal-login').classList.remove('show'); }
@@ -523,7 +561,7 @@
                     document.getElementById('zoom-controls').style.display = 'block';
                     document.getElementById('planta-controls').style.display = 'block';
                 }
-                mostrarNotificacao('✏️ Modo edição ativado! Clique nas vagas para editar diretamente.', 'info');
+                mostrarNotificacao('✏️ Modo edição ativado! Clique nos carros para editar diretamente.', 'info');
             } else {
                 container.classList.remove('modo-edicao');
                 btn.classList.remove('active');
@@ -822,7 +860,7 @@
             moverVagaIndividual(vagaSelecionada, deltaX, deltaY);
         }
 
-        function rotacionarVaga(graus) {
+                function rotacionarVaga(graus) {
             if (!vagaSelecionada || tipoUsuario !== 'admin') return;
             rotacionarVagaIndividual(vagaSelecionada, graus);
         }
@@ -844,7 +882,6 @@
             const vagaClicada = e.target.closest('.vaga');
             if (!vagaClicada || handleArrastando) return;
 
-            // Verificar se clicou em um handle ou toolbar
             if (e.target.classList.contains('handle') || e.target.classList.contains('quick-btn')) {
                 return;
             }
@@ -852,7 +889,6 @@
             e.preventDefault();
             e.stopPropagation();
 
-            // Rotação com scroll + clique
             if (e.shiftKey || (e.type === 'wheel' && e.ctrlKey)) {
                 const graus = e.deltaY > 0 ? 15 : -15;
                 rotacionarVagaIndividual(vagaClicada, graus);
@@ -884,7 +920,7 @@
             pontoInicialMouse.x = ((e.clientX || e.touches[0].clientX) - containerRect.left) / zoomContainer;
             pontoInicialMouse.y = ((e.clientY || e.touches[0].clientY) - containerRect.top) / zoomContainer;
 
-                     (isArrastandoMultiplos ? vagasMultiplasSelecao : [vagaArrastando]).forEach(v => {
+            (isArrastandoMultiplos ? vagasMultiplasSelecao : [vagaArrastando]).forEach(v => {
                 v.classList.add('arrastando');
                 v.style.pointerEvents = 'none';
             });
@@ -1098,7 +1134,7 @@
             var vaga = document.createElement('div');
             vaga.className = 'vaga livre';
             vaga.id = id;
-            vaga.textContent = id;
+            vaga.innerHTML = criarIconeCarro() + `<div class="car-text">${id}</div>`;
             vaga.style.left = `${posicao.x}px`;
             vaga.style.top = `${posicao.y}px`;
             
@@ -1118,7 +1154,6 @@
             vaga.addEventListener('touchstart', iniciarArraste, {passive: false});
             vaga.addEventListener('wheel', iniciarArraste, {passive: false});
 
-            // Criar handles de redimensionamento
             criarHandlesVaga(vaga);
 
             document.getElementById('mapa-estacionamento').appendChild(vaga);
@@ -1244,7 +1279,7 @@
                 delete estadoVagas[antigoId];
                 delete posicaoVagas[antigoId];
                 vagaSelecionada.id = novoNome;
-                vagaSelecionada.textContent = novoNome;
+                vagaSelecionada.querySelector('.car-text').textContent = novoNome;
                 document.getElementById('vaga-selecionada').textContent = novoNome;
                 salvarLocal();
                 sincronizarLayoutCompleto();
