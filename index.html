@@ -754,7 +754,7 @@
                 handles.appendChild(handle);
             });
             
-            const toolbar = document.createElement('div');
+                       const toolbar = document.createElement('div');
             toolbar.className = 'quick-toolbar';
             toolbar.innerHTML = `
                 <button class="quick-btn duplicate" onclick="duplicarVagaRapida('${vaga.id}')">📋</button>
@@ -767,7 +767,7 @@
             vaga.appendChild(handles);
         }
 
-             function iniciarResize(e, handleType, vaga) {
+        function iniciarResize(e, handleType, vaga) {
             if (!modoEdicao || tipoUsuario !== 'admin') return;
             e.preventDefault();
             e.stopPropagation();
@@ -1229,16 +1229,44 @@
             proximoIdVaga = Math.max(proximoIdVaga, parseInt(id.replace(/\D/g, '')) + 1);
         }
 
+        // FUNÇÃO CORRIGIDA - Atualiza status visual corretamente
         function alternarStatusVaga(id) {
             if (tipoUsuario !== 'admin') return;
             var vaga = document.getElementById(id);
             if (!vaga) return;
             
+            // Alterna o status no objeto
             estadoVagas[id] = estadoVagas[id] === 'livre' ? 'ocupada' : 'livre';
+            
+            // CORREÇÃO: Remove todas as classes de status e aplica a nova
+            vaga.classList.remove('livre', 'ocupada');
+            vaga.classList.add(estadoVagas[id]);
+            
+            // Força a atualização visual
             vaga.className = `vaga ${estadoVagas[id]}`;
+            
             atualizarEstatisticas();
             salvarLocal();
             sincronizarEstadoFirebase();
+            
+            // Notificação visual do status
+            const statusTexto = estadoVagas[id] === 'livre' ? 'liberada' : 'ocupada';
+            mostrarNotificacao(`🚗 Vaga ${id} ${statusTexto}`, 'info');
+        }
+
+        // FUNÇÃO CORRIGIDA - Atualiza status em lote corretamente
+        function atualizarStatusVaga(id, novoStatus) {
+            var vaga = document.getElementById(id);
+            if (!vaga) return;
+            
+            estadoVagas[id] = novoStatus;
+            
+            // Remove todas as classes de status e aplica a nova
+            vaga.classList.remove('livre', 'ocupada');
+            vaga.classList.add(novoStatus);
+            
+            // Força a atualização visual
+            vaga.className = `vaga ${novoStatus}`;
         }
 
         function atualizarEstatisticas() {
@@ -1257,9 +1285,7 @@
             if (tipoUsuario !== 'admin') return;
             if (confirm('Resetar todas as vagas para LIVRE?')) {
                 Object.keys(estadoVagas).forEach(id => {
-                    estadoVagas[id] = 'livre';
-                    var vaga = document.getElementById(id);
-                    if (vaga) vaga.className = 'vaga livre';
+                    atualizarStatusVaga(id, 'livre');
                 });
                 atualizarEstatisticas();
                 salvarLocal();
@@ -1272,9 +1298,7 @@
             if (tipoUsuario !== 'admin') return;
             if (confirm('Ocupar todas as vagas?')) {
                 Object.keys(estadoVagas).forEach(id => {
-                    estadoVagas[id] = 'ocupada';
-                    var vaga = document.getElementById(id);
-                    if (vaga) vaga.className = 'vaga ocupada';
+                    atualizarStatusVaga(id, 'ocupada');
                 });
                 atualizarEstatisticas();
                 salvarLocal();
@@ -1287,9 +1311,7 @@
             if (tipoUsuario !== 'admin') return;
             if (confirm('Liberar todas as vagas?')) {
                 Object.keys(estadoVagas).forEach(id => {
-                    estadoVagas[id] = 'livre';
-                    var vaga = document.getElementById(id);
-                    if (vaga) vaga.className = 'vaga livre';
+                    atualizarStatusVaga(id, 'livre');
                 });
                 atualizarEstatisticas();
                 salvarLocal();
@@ -1525,14 +1547,14 @@
                 firebaseConectado = true;
                 atualizarStatusFirebase('conectado', 'Firebase Conectado');
                 
+                // CORREÇÃO: Listener melhorado para sincronização de estados
                 database.ref('estacionamento/estados').on('value', function(snapshot) {
                     if (snapshot.exists()) {
                         var dadosRemoto = snapshot.val();
                         Object.keys(dadosRemoto).forEach(id => {
                             if (estadoVagas[id] !== dadosRemoto[id]) {
                                 estadoVagas[id] = dadosRemoto[id];
-                                var vaga = document.getElementById(id);
-                                if (vaga) vaga.className = `vaga ${dadosRemoto[id]}`;
+                                atualizarStatusVaga(id, dadosRemoto[id]);
                             }
                         });
                         atualizarEstatisticas();
@@ -1672,4 +1694,3 @@
     </script>
 </body>
 </html>
-
