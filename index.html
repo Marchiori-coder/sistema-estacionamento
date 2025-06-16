@@ -753,7 +753,8 @@
                 handle.addEventListener('touchstart', (e) => iniciarResize(e, type, vaga), {passive: false});
                 handles.appendChild(handle);
             });
-                        const toolbar = document.createElement('div');
+            
+            const toolbar = document.createElement('div');
             toolbar.className = 'quick-toolbar';
             toolbar.innerHTML = `
                 <button class="quick-btn duplicate" onclick="duplicarVagaRapida('${vaga.id}')">📋</button>
@@ -766,7 +767,7 @@
             vaga.appendChild(handles);
         }
 
-        function iniciarResize(e, handleType, vaga) {
+             function iniciarResize(e, handleType, vaga) {
             if (!modoEdicao || tipoUsuario !== 'admin') return;
             e.preventDefault();
             e.stopPropagation();
@@ -1136,7 +1137,16 @@
             sincronizarLayoutCompleto();
         }
 
+        // FUNÇÃO CORRIGIDA - Remove apenas vagas, mantém planta baixa
         function inicializarVagas() {
+            // Remove apenas as vagas, mantendo a planta-baixa
+            const container = document.getElementById('mapa-estacionamento');
+            Array.from(container.children).forEach(child => {
+                if (!child.classList.contains('planta-baixa')) {
+                    container.removeChild(child);
+                }
+            });
+
             var posicoesDefault = [
                 {id: 'V01', x: 50, y: 50}, {id: 'V02', x: 100, y: 50}, {id: 'V03', x: 150, y: 50},
                 {id: 'V04', x: 200, y: 50}, {id: 'V05', x: 250, y: 50}, {id: 'V06', x: 300, y: 50},
@@ -1160,11 +1170,10 @@
                 {id: 'V58', x: 400, y: 550}, {id: 'V59', x: 450, y: 550}, {id: 'V60', x: 500, y: 550},
                 {id: 'V61', x: 275, y: 650}, {id: 'V62', x: 325, y: 650}
             ];
-            
+
             totalVagas = 0;
             proximoIdVaga = 1;
-            document.getElementById('mapa-estacionamento').innerHTML = '<div class="planta-baixa" id="planta-baixa"></div>';
-            
+
             var posicoesParaUsar = Object.keys(posicaoVagas).length > 0 ? posicaoVagas : {};
             if (Object.keys(posicoesParaUsar).length === 0) {
                 posicoesDefault.forEach(p => { 
@@ -1664,4 +1673,3 @@
 </body>
 </html>
 
-          
