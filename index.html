@@ -59,6 +59,27 @@
         .vaga.selecionada{border:4px solid #9b59b6!important;background:rgba(155,89,182,0.9)!important;z-index:1000!important}
         .vaga.multipla-selecionada{border:4px solid #e67e22!important;background:rgba(230,126,34,0.9)!important;z-index:999!important}
         .vaga.arrastando{z-index:1001!important;transform:scale(1.2)!important;opacity:0.8;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
+        
+        .vaga-handles{position:absolute;display:none;pointer-events:none}
+        .vaga.selecionada .vaga-handles{display:block!important;pointer-events:auto}
+        .handle{position:absolute;width:8px;height:8px;background:#9b59b6;border:2px solid white;border-radius:50%;cursor:pointer;z-index:1002}
+        .handle.nw{top:-6px;left:-6px;cursor:nw-resize}
+        .handle.ne{top:-6px;right:-6px;cursor:ne-resize}
+        .handle.sw{bottom:-6px;left:-6px;cursor:sw-resize}
+        .handle.se{bottom:-6px;right:-6px;cursor:se-resize}
+        .handle.n{top:-6px;left:50%;transform:translateX(-50%);cursor:n-resize}
+        .handle.s{bottom:-6px;left:50%;transform:translateX(-50%);cursor:s-resize}
+        .handle.w{top:50%;left:-6px;transform:translateY(-50%);cursor:w-resize}
+        .handle.e{top:50%;right:-6px;transform:translateY(-50%);cursor:e-resize}
+        .handle.rotate{top:-20px;left:50%;transform:translateX(-50%);background:#e74c3c;cursor:crosshair;border-radius:3px;width:12px;height:6px}
+        
+        .quick-toolbar{position:absolute;top:-35px;left:0;background:rgba(52,73,94,0.95);padding:5px;border-radius:5px;display:none;white-space:nowrap;z-index:1003}
+        .vaga.selecionada .quick-toolbar{display:block!important}
+        .quick-btn{padding:3px 6px;margin:0 2px;background:#3498db;color:white;border:none;border-radius:3px;cursor:pointer;font-size:10px}
+        .quick-btn:hover{background:#2980b9}
+        .quick-btn.delete{background:#e74c3c}
+        .quick-btn.duplicate{background:#27ae60}
+        
         .edit-controls{position:fixed;top:50%;right:20px;transform:translateY(-50%);background:white;padding:20px;border-radius:15px;box-shadow:0 15px 40px rgba(0,0,0,0.3);display:none;z-index:1000;min-width:280px;max-height:85vh;overflow-y:auto}
         .edit-controls.show{display:block!important}
         .edit-section{margin-bottom:20px}
@@ -87,6 +108,9 @@
         .notificacao.sucesso{background:#27ae60}
         .notificacao.erro{background:#e74c3c}
         .notificacao.info{background:#3498db}
+        
+        .edit-hint{position:fixed;bottom:20px;left:20px;background:rgba(52,73,94,0.9);color:white;padding:10px 15px;border-radius:8px;font-size:0.8rem;z-index:1000;display:none}
+        .modo-edicao .edit-hint{display:block!important}
         
         @media (max-width:768px){
             body{padding:5px;overflow-x:hidden}
@@ -117,11 +141,17 @@
             .btn{min-width:auto;padding:12px 8px;font-size:0.8rem}
             .vaga{width:clamp(40px,10vw,60px);height:clamp(60px,12vw,90px);font-size:clamp(10px,2.5vw,14px);border-radius:6px;touch-action:manipulation}
             .vaga:active{transform:scale(1.05);background:rgba(52,152,219,0.9)!important}
+            .handle{width:12px;height:12px}
+            .handle.nw,.handle.ne,.handle.sw,.handle.se{width:12px;height:12px}
+            .handle.n,.handle.s,.handle.w,.handle.e{width:10px;height:10px}
+            .quick-toolbar{top:-40px;font-size:12px}
+            .quick-btn{padding:5px 8px;font-size:11px}
             .notificacao{bottom:10px;right:10px;left:10px;max-width:none;padding:12px 15px;font-size:0.8rem}
             .modal-login .login-box{width:95%;padding:20px;margin:10px}
             .login-input{padding:15px;font-size:1rem;border-radius:10px}
             .login-btn{padding:15px;font-size:1rem;border-radius:10px}
             .close-modal{font-size:1.5rem;top:10px;right:15px;padding:10px}
+            .edit-hint{bottom:10px;left:10px;font-size:0.7rem}
         }
         
         @media (max-width:480px){
@@ -312,6 +342,10 @@
         </div>
     </div>
 
+    <div class="edit-hint">
+        💡 Clique para selecionar • Arraste para mover • Use handles para redimensionar • Scroll+Clique para rotacionar
+    </div>
+
     <input type="file" id="import-input" accept=".json" style="display:none;" onchange="processarImportacao(event)">
     <input type="file" id="planta-input" accept="image/*" style="display:none;" onchange="processarPlantaBaixa(event)">
 
@@ -337,6 +371,8 @@
         var proximoIdVaga = 63;
         var vagaSelecionada = null;
         var vagaArrastando = null;
+        var handleArrastando = null;
+        var rotacionandoVaga = false;
         var zoomContainer = 1;
         var zoomPlanta = 1;
         var selecaoMultipla = false;
@@ -350,6 +386,8 @@
         var isArrastandoMultiplos = false;
         var posicoesIniciaisArrastar = [];
         var pontoInicialMouse = { x: 0, y: 0 };
+        var dimensoesIniciaisResize = { width: 0, height: 0 };
+        var anguloInicialRotacao = 0;
         
         function mostrarModalLogin() { document.getElementById('modal-login').classList.add('show'); }
         function fecharModalLogin() { document.getElementById('modal-login').classList.remove('show'); }
@@ -485,7 +523,7 @@
                     document.getElementById('zoom-controls').style.display = 'block';
                     document.getElementById('planta-controls').style.display = 'block';
                 }
-                mostrarNotificacao('✏️ Modo edição ativado! Use o teclado para ajustes finos.', 'info');
+                mostrarNotificacao('✏️ Modo edição ativado! Clique nas vagas para editar diretamente.', 'info');
             } else {
                 container.classList.remove('modo-edicao');
                 btn.classList.remove('active');
@@ -605,6 +643,180 @@
             document.getElementById('vaga-selecionada').textContent = vaga.id;
         }
 
+        function criarHandlesVaga(vaga) {
+            const handles = document.createElement('div');
+            handles.className = 'vaga-handles';
+            
+            const handleTypes = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se', 'rotate'];
+            handleTypes.forEach(type => {
+                const handle = document.createElement('div');
+                handle.className = `handle ${type}`;
+                handle.addEventListener('mousedown', (e) => iniciarResize(e, type, vaga));
+                handle.addEventListener('touchstart', (e) => iniciarResize(e, type, vaga), {passive: false});
+                handles.appendChild(handle);
+            });
+            
+            const toolbar = document.createElement('div');
+            toolbar.className = 'quick-toolbar';
+            toolbar.innerHTML = `
+                <button class="quick-btn duplicate" onclick="duplicarVagaRapida('${vaga.id}')">📋</button>
+                <button class="quick-btn" onclick="rotacionarVagaRapida('${vaga.id}', 90)">↷</button>
+                <button class="quick-btn" onclick="rotacionarVagaRapida('${vaga.id}', -90)">↶</button>
+                <button class="quick-btn delete" onclick="excluirVagaRapida('${vaga.id}')">🗑️</button>
+            `;
+            handles.appendChild(toolbar);
+            
+            vaga.appendChild(handles);
+        }
+
+        function iniciarResize(e, handleType, vaga) {
+            if (!modoEdicao || tipoUsuario !== 'admin') return;
+            e.preventDefault();
+            e.stopPropagation();
+            
+            handleArrastando = handleType;
+            vagaArrastando = vaga;
+            
+            const containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
+            pontoInicialMouse.x = (e.clientX || e.touches[0].clientX - containerRect.left) / zoomContainer;
+            pontoInicialMouse.y = (e.clientY || e.touches[0].clientY - containerRect.top) / zoomContainer;
+            
+            dimensoesIniciaisResize.width = vaga.offsetWidth;
+            dimensoesIniciaisResize.height = vaga.offsetHeight;
+            anguloInicialRotacao = posicaoVagas[vaga.id].angle || 0;
+            
+            if (handleType === 'rotate') {
+                rotacionandoVaga = true;
+                vaga.style.cursor = 'crosshair';
+            }
+            
+            document.body.style.cursor = handleType === 'rotate' ? 'crosshair' : `${handleType}-resize`;
+        }
+
+        function processarResize(e) {
+            if (!handleArrastando || !vagaArrastando) return;
+            
+            const container = document.getElementById('mapa-estacionamento');
+            const containerRect = container.getBoundingClientRect();
+            const mouseX = ((e.clientX || e.touches[0].clientX) - containerRect.left) / zoomContainer;
+            const mouseY = ((e.clientY || e.touches[0].clientY) - containerRect.top) / zoomContainer;
+            
+            const deltaX = mouseX - pontoInicialMouse.x;
+            const deltaY = mouseY - pontoInicialMouse.y;
+            
+            const vaga = vagaArrastando;
+            const vagaId = vaga.id;
+            
+            if (handleArrastando === 'rotate') {
+                const centerX = posicaoVagas[vagaId].x + vaga.offsetWidth / 2;
+                const centerY = posicaoVagas[vagaId].y + vaga.offsetHeight / 2;
+                const angle = Math.atan2(mouseY - centerY, mouseX - centerX) * 180 / Math.PI;
+                const novoAngulo = Math.round(angle / 15) * 15; // Snap a cada 15 graus
+                
+                posicaoVagas[vagaId].angle = novoAngulo;
+                const transformProps = vaga.style.transform.replace(/rotate\([^)]*\)/, '').trim();
+                vaga.style.transform = `${transformProps} rotate(${novoAngulo}deg)`;
+                return;
+            }
+            
+            let novaWidth = dimensoesIniciaisResize.width;
+            let novaHeight = dimensoesIniciaisResize.height;
+            let novoX = posicaoVagas[vagaId].x;
+            let novoY = posicaoVagas[vagaId].y;
+            
+            switch (handleArrastando) {
+                case 'se':
+                    novaWidth = Math.max(20, dimensoesIniciaisResize.width + deltaX);
+                    novaHeight = Math.max(20, dimensoesIniciaisResize.height + deltaY);
+                    break;
+                case 'sw':
+                    novaWidth = Math.max(20, dimensoesIniciaisResize.width - deltaX);
+                    novaHeight = Math.max(20, dimensoesIniciaisResize.height + deltaY);
+                    novoX = posicaoVagas[vagaId].x + deltaX;
+                    break;
+                case 'ne':
+                    novaWidth = Math.max(20, dimensoesIniciaisResize.width + deltaX);
+                    novaHeight = Math.max(20, dimensoesIniciaisResize.height - deltaY);
+                    novoY = posicaoVagas[vagaId].y + deltaY;
+                    break;
+                case 'nw':
+                    novaWidth = Math.max(20, dimensoesIniciaisResize.width - deltaX);
+                    novaHeight = Math.max(20, dimensoesIniciaisResize.height - deltaY);
+                    novoX = posicaoVagas[vagaId].x + deltaX;
+                    novoY = posicaoVagas[vagaId].y + deltaY;
+                    break;
+                case 'e':
+                    novaWidth = Math.max(20, dimensoesIniciaisResize.width + deltaX);
+                    break;
+                case 'w':
+                    novaWidth = Math.max(20, dimensoesIniciaisResize.width - deltaX);
+                    novoX = posicaoVagas[vagaId].x + deltaX;
+                    break;
+                case 's':
+                    novaHeight = Math.max(20, dimensoesIniciaisResize.height + deltaY);
+                    break;
+                case 'n':
+                    novaHeight = Math.max(20, dimensoesIniciaisResize.height - deltaY);
+                    novoY = posicaoVagas[vagaId].y + deltaY;
+                    break;
+            }
+            
+            // Aplicar limites do container
+            novoX = Math.max(0, Math.min(novoX, container.offsetWidth - novaWidth));
+            novoY = Math.max(0, Math.min(novoY, container.offsetHeight - novaHeight));
+            
+            // Atualizar vaga
+            vaga.style.width = `${novaWidth}px`;
+            vaga.style.height = `${novaHeight}px`;
+            vaga.style.left = `${novoX}px`;
+            vaga.style.top = `${novoY}px`;
+            
+            // Atualizar dados
+            posicaoVagas[vagaId].width = novaWidth;
+            posicaoVagas[vagaId].height = novaHeight;
+            posicaoVagas[vagaId].x = novoX;
+            posicaoVagas[vagaId].y = novoY;
+        }
+
+        function finalizarResize() {
+            if (handleArrastando) {
+                handleArrastando = null;
+                rotacionandoVaga = false;
+                if (vagaArrastando) {
+                    vagaArrastando.style.cursor = 'move';
+                    vagaArrastando = null;
+                }
+                document.body.style.cursor = 'default';
+                salvarLocal();
+                sincronizarLayoutCompleto();
+            }
+        }
+
+        function duplicarVagaRapida(vagaId) {
+            const vaga = document.getElementById(vagaId);
+            if (vaga) {
+                vagaSelecionada = vaga;
+                duplicarVaga();
+            }
+        }
+
+        function rotacionarVagaRapida(vagaId, graus) {
+            const vaga = document.getElementById(vagaId);
+            if (vaga) {
+                rotacionarVagaIndividual(vaga, graus);
+                salvarLocal();
+                sincronizarLayoutCompleto();
+            }
+        }
+
+        function excluirVagaRapida(vagaId) {
+            const vaga = document.getElementById(vagaId);
+            if (vaga && confirm(`Excluir vaga ${vagaId}?`)) {
+                vagaSelecionada = vaga;
+                excluirVagasSelecionadas();
+            }
+        }
+
         function moverVaga(deltaX, deltaY) {
             if (!vagaSelecionada || tipoUsuario !== 'admin') return;
             moverVagaIndividual(vagaSelecionada, deltaX, deltaY);
@@ -630,10 +842,24 @@
         function iniciarArraste(e) {
             if (!modoEdicao || tipoUsuario !== 'admin') return;
             const vagaClicada = e.target.closest('.vaga');
-            if (!vagaClicada) return;
+            if (!vagaClicada || handleArrastando) return;
+
+            // Verificar se clicou em um handle ou toolbar
+            if (e.target.classList.contains('handle') || e.target.classList.contains('quick-btn')) {
+                return;
+            }
 
             e.preventDefault();
             e.stopPropagation();
+
+            // Rotação com scroll + clique
+            if (e.shiftKey || (e.type === 'wheel' && e.ctrlKey)) {
+                const graus = e.deltaY > 0 ? 15 : -15;
+                rotacionarVagaIndividual(vagaClicada, graus);
+                salvarLocal();
+                sincronizarLayoutCompleto();
+                return;
+            }
 
             if (selecaoMultipla && (e.ctrlKey || e.metaKey)) {
                 adicionarVagaSelecaoMultipla(vagaClicada);
@@ -655,10 +881,10 @@
             }
 
             const containerRect = document.getElementById('mapa-estacionamento').getBoundingClientRect();
-            pontoInicialMouse.x = (e.clientX - containerRect.left) / zoomContainer;
-            pontoInicialMouse.y = (e.clientY - containerRect.top) / zoomContainer;
+            pontoInicialMouse.x = ((e.clientX || e.touches[0].clientX) - containerRect.left) / zoomContainer;
+            pontoInicialMouse.y = ((e.clientY || e.touches[0].clientY) - containerRect.top) / zoomContainer;
 
-            (isArrastandoMultiplos ? vagasMultiplasSelecao : [vagaArrastando]).forEach(v => {
+                     (isArrastandoMultiplos ? vagasMultiplasSelecao : [vagaArrastando]).forEach(v => {
                 v.classList.add('arrastando');
                 v.style.pointerEvents = 'none';
             });
@@ -667,12 +893,13 @@
 
         function arrastar(e) {
             if (painelArrastando) { arrastarPainel(e); return; }
+            if (handleArrastando) { processarResize(e); return; }
             if (!vagaArrastando) return;
 
             var container = document.getElementById('mapa-estacionamento');
             var containerRect = container.getBoundingClientRect();
-            const mouseX = (e.clientX - containerRect.left) / zoomContainer;
-            const mouseY = (e.clientY - containerRect.top) / zoomContainer;
+            const mouseX = ((e.clientX || e.touches[0].clientX) - containerRect.left) / zoomContainer;
+            const mouseY = ((e.clientY || e.touches[0].clientY) - containerRect.top) / zoomContainer;
             const deltaX = mouseX - pontoInicialMouse.x;
             const deltaY = mouseY - pontoInicialMouse.y;
 
@@ -706,6 +933,7 @@
                 sincronizarLayoutCompleto();
             }
             if (painelArrastando) finalizarArrastePainel();
+            if (handleArrastando) finalizarResize();
         }
 
         function lidarComTeclado(e) {
@@ -844,7 +1072,8 @@
             totalVagas = 0;
             proximoIdVaga = 1;
             document.getElementById('mapa-estacionamento').innerHTML = '<div class="planta-baixa" id="planta-baixa"></div>';
-                        var posicoesParaUsar = Object.keys(posicaoVagas).length > 0 ? posicaoVagas : {};
+            
+            var posicoesParaUsar = Object.keys(posicaoVagas).length > 0 ? posicaoVagas : {};
             if (Object.keys(posicoesParaUsar).length === 0) {
                 posicoesDefault.forEach(p => { 
                     posicoesParaUsar[p.id] = { 
@@ -887,6 +1116,10 @@
 
             vaga.addEventListener('mousedown', iniciarArraste);
             vaga.addEventListener('touchstart', iniciarArraste, {passive: false});
+            vaga.addEventListener('wheel', iniciarArraste, {passive: false});
+
+            // Criar handles de redimensionamento
+            criarHandlesVaga(vaga);
 
             document.getElementById('mapa-estacionamento').appendChild(vaga);
             
@@ -1339,4 +1572,3 @@
     </script>
 </body>
 </html>
-
