@@ -7,7 +7,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        /* ... (todo o CSS permanece igual) ... */
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--r:clamp(8px,1vw,15px)}
         body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:var(--p);font-size:var(--f);-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;touch-action:manipulation}
@@ -210,7 +209,6 @@
     </style>
 </head>
 <body>
-    <!-- ... (todo o HTML permanece igual) ... -->
     <div class="modal-login" id="modal-login">
         <div class="login-box">
             <button class="close-modal" onclick="fecharModalLogin()">×</button>
@@ -403,7 +401,7 @@
         var painelArrastando = null;
         var offsetPainelX = 0;
         var offsetPainelY = 0;
-        var sincronizandoFirebase = false; // NOVA VARIÁVEL PARA CONTROLAR SINCRONIZAÇÃO
+        var sincronizandoFirebase = false;
 
         var isArrastandoMultiplos = false;
         var posicoesIniciaisArrastar = [];
@@ -514,29 +512,54 @@
             }
         }
 
+        // FUNÇÃO LOGOUT CORRIGIDA - SALVA ANTES DE SAIR
         function logout() {
             if (confirm('Sair do modo administrador?')) {
-                usuarioAtual = 'viewer';
-                tipoUsuario = 'viewer';
-                modoEdicao = false;
-                selecaoMultipla = false;
-                editandoPlanta = false;
-                document.getElementById('user-name').textContent = 'Visualizador Público';
-                document.getElementById('user-badge').textContent = 'VIEWER';
-                document.getElementById('user-badge').className = 'user-badge';
-                document.getElementById('admin-login-btn').style.display = 'inline-block';
-                document.getElementById('logout-btn').style.display = 'none';
-                document.getElementById('admin-panel').classList.remove('show');
-                document.getElementById('edit-controls').style.display = 'none';
-                document.getElementById('zoom-controls').style.display = 'none';
-                document.getElementById('planta-controls').style.display = 'none';
-                document.getElementById('mapa-estacionamento').classList.remove('modo-edicao');
-                document.getElementById('planta-baixa').classList.remove('ajustavel');
-                limparSelecaoMultipla();
-                desabilitarControlesAdmin();
-                aplicarModoVisualizacao();
-                mostrarNotificacao('👋 Logout realizado', 'info');
+                // SALVA TUDO ANTES DE FAZER LOGOUT
+                salvarLocal();
+                sincronizarEstadoFirebase();
+                sincronizarLayoutCompleto();
+                
+                // Aguarda um pouco para garantir que salvou
+                setTimeout(() => {
+                    usuarioAtual = 'viewer';
+                    tipoUsuario = 'viewer';
+                    modoEdicao = false;
+                    selecaoMultipla = false;
+                    editandoPlanta = false;
+                    
+                    document.getElementById('user-name').textContent = 'Visualizador Público';
+                    document.getElementById('user-badge').textContent = 'VIEWER';
+                    document.getElementById('user-badge').className = 'user-badge';
+                    document.getElementById('admin-login-btn').style.display = 'inline-block';
+                    document.getElementById('logout-btn').style.display = 'none';
+                    document.getElementById('admin-panel').classList.remove('show');
+                    document.getElementById('edit-controls').style.display = 'none';
+                    document.getElementById('zoom-controls').style.display = 'none';
+                    document.getElementById('planta-controls').style.display = 'none';
+                    document.getElementById('mapa-estacionamento').classList.remove('modo-edicao');
+                    document.getElementById('planta-baixa').classList.remove('ajustavel');
+                    
+                    limparSelecaoMultipla();
+                    desabilitarControlesAdmin();
+                    aplicarModoVisualizacao();
+                    
+                    // FORÇA ATUALIZAÇÃO DAS VAGAS APÓS LOGOUT
+                    setTimeout(() => {
+                        atualizarTodasVagasVisuais();
+                        atualizarEstatisticas();
+                    }, 500);
+                    
+                    mostrarNotificacao('👋 Logout realizado - Estados preservados', 'info');
+                }, 300);
             }
+        }
+
+        // NOVA FUNÇÃO PARA ATUALIZAR TODAS AS VAGAS VISUAIS
+        function atualizarTodasVagasVisuais() {
+            Object.keys(estadoVagas).forEach(id => {
+                atualizarStatusVagaVisual(id, estadoVagas[id]);
+            });
         }
 
         function aplicarModoVisualizacao() {
@@ -744,7 +767,7 @@
             document.getElementById('vaga-selecionada').textContent = vaga.id;
         }
 
-        function criarHandlesVaga(vaga) {
+            function criarHandlesVaga(vaga) {
             const handles = document.createElement('div');
             handles.className = 'vaga-handles';
             
@@ -757,7 +780,7 @@
                 handles.appendChild(handle);
             });
             
-                   const toolbar = document.createElement('div');
+            const toolbar = document.createElement('div');
             toolbar.className = 'quick-toolbar';
             toolbar.innerHTML = `
                 <button class="quick-btn duplicate" onclick="duplicarVagaRapida('${vaga.id}')">📋</button>
@@ -1140,7 +1163,6 @@
             sincronizarLayoutCompleto();
         }
 
-        // FUNÇÃO CORRIGIDA - Remove apenas vagas, mantém planta baixa
         function inicializarVagas() {
             const container = document.getElementById('mapa-estacionamento');
             Array.from(container.children).forEach(child => {
@@ -1199,7 +1221,7 @@
 
         function criarVaga(id, posicao) {
             var vaga = document.createElement('div');
-            vaga.className = 'vaga livre';
+            vaga.className = `vaga ${estadoVagas[id] || 'livre'}`;
             vaga.id = id;
             vaga.innerHTML = criarIconeCarro() + `<div class="car-text">${id}</div>`;
             vaga.style.left = `${posicao.x}px`;
@@ -1231,46 +1253,31 @@
             proximoIdVaga = Math.max(proximoIdVaga, parseInt(id.replace(/\D/g, '')) + 1);
         }
 
-        // FUNÇÃO CORRIGIDA PARA SINCRONIZAÇÃO EM TEMPO REAL
         function alternarStatusVaga(id) {
             if (tipoUsuario !== 'admin') return;
             var vaga = document.getElementById(id);
             if (!vaga) return;
             
-            // Evita loop de sincronização
             if (sincronizandoFirebase) return;
             
-            // Alterna o status
             estadoVagas[id] = estadoVagas[id] === 'livre' ? 'ocupada' : 'livre';
-            
-            // Atualiza visual localmente
             atualizarStatusVagaVisual(id, estadoVagas[id]);
             
             atualizarEstatisticas();
             salvarLocal();
-            
-            // Sincroniza com Firebase IMEDIATAMENTE
             sincronizarEstadoFirebase();
             
             const statusTexto = estadoVagas[id] === 'livre' ? 'liberada' : 'ocupada';
             mostrarNotificacao(`🚗 Vaga ${id} ${statusTexto}`, 'info');
         }
 
-        // NOVA FUNÇÃO PARA ATUALIZAR VISUAL DAS VAGAS
         function atualizarStatusVagaVisual(id, novoStatus) {
             var vaga = document.getElementById(id);
             if (!vaga) return;
             
-            // Remove todas as classes de status
             vaga.classList.remove('livre', 'ocupada');
-            
-            // Adiciona a nova classe
             vaga.classList.add(novoStatus);
-            
-            // Força atualização da className
             vaga.className = `vaga ${novoStatus}`;
-            
-            // Atualiza estado interno
             estadoVagas[id] = novoStatus;
         }
 
@@ -1545,7 +1552,6 @@
             }
         }
 
-        // FUNÇÃO FIREBASE CORRIGIDA PARA SINCRONIZAÇÃO EM TEMPO REAL
         function inicializarFirebase() {
             try {
                 firebase.initializeApp(firebaseConfig);
@@ -1553,7 +1559,6 @@
                 firebaseConectado = true;
                 atualizarStatusFirebase('conectado', 'Firebase Conectado');
                 
-                // LISTENER MELHORADO PARA SINCRONIZAÇÃO EM TEMPO REAL
                 database.ref('estacionamento/estados').on('value', function(snapshot) {
                     if (snapshot.exists() && !sincronizandoFirebase) {
                         var dadosRemoto = snapshot.val();
@@ -1568,10 +1573,7 @@
                         
                         if (houveMudanca) {
                             atualizarEstatisticas();
-                            // Só salva local se não for admin para evitar conflitos
-                            if (tipoUsuario !== 'admin') {
-                                salvarLocal();
-                            }
+                            salvarLocal();
                         }
                     }
                 });
@@ -1604,7 +1606,6 @@
             textoEl.textContent = texto;
         }
 
-        // FUNÇÃO DE SINCRONIZAÇÃO MELHORADA
         function sincronizarEstadoFirebase() {
             if (!firebaseConectado || !database) return;
             try {
