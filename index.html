@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
+        /* ... (todo o CSS permanece igual) ... */
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--p:clamp(10px,2vw,30px);--f:clamp(0.8rem,1.5vw,1rem);--r:clamp(8px,1vw,15px)}
         body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:var(--p);font-size:var(--f);-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;touch-action:manipulation}
@@ -209,6 +210,7 @@
     </style>
 </head>
 <body>
+    <!-- ... (todo o HTML permanece igual) ... -->
     <div class="modal-login" id="modal-login">
         <div class="login-box">
             <button class="close-modal" onclick="fecharModalLogin()">×</button>
@@ -401,6 +403,7 @@
         var painelArrastando = null;
         var offsetPainelX = 0;
         var offsetPainelY = 0;
+        var sincronizandoFirebase = false; // NOVA VARIÁVEL PARA CONTROLAR SINCRONIZAÇÃO
 
         var isArrastandoMultiplos = false;
         var posicoesIniciaisArrastar = [];
@@ -754,7 +757,7 @@
                 handles.appendChild(handle);
             });
             
-                        const toolbar = document.createElement('div');
+                   const toolbar = document.createElement('div');
             toolbar.className = 'quick-toolbar';
             toolbar.innerHTML = `
                 <button class="quick-btn duplicate" onclick="duplicarVagaRapida('${vaga.id}')">📋</button>
@@ -1139,7 +1142,6 @@
 
         // FUNÇÃO CORRIGIDA - Remove apenas vagas, mantém planta baixa
         function inicializarVagas() {
-            // Remove apenas as vagas, mantendo a planta-baixa
             const container = document.getElementById('mapa-estacionamento');
             Array.from(container.children).forEach(child => {
                 if (!child.classList.contains('planta-baixa')) {
@@ -1229,44 +1231,47 @@
             proximoIdVaga = Math.max(proximoIdVaga, parseInt(id.replace(/\D/g, '')) + 1);
         }
 
-        // FUNÇÃO CORRIGIDA - Atualiza status visual corretamente
+        // FUNÇÃO CORRIGIDA PARA SINCRONIZAÇÃO EM TEMPO REAL
         function alternarStatusVaga(id) {
             if (tipoUsuario !== 'admin') return;
             var vaga = document.getElementById(id);
             if (!vaga) return;
             
-            // Alterna o status no objeto
+            // Evita loop de sincronização
+            if (sincronizandoFirebase) return;
+            
+            // Alterna o status
             estadoVagas[id] = estadoVagas[id] === 'livre' ? 'ocupada' : 'livre';
             
-            // CORREÇÃO: Remove todas as classes de status e aplica a nova
-            vaga.classList.remove('livre', 'ocupada');
-            vaga.classList.add(estadoVagas[id]);
-            
-            // Força a atualização visual
-            vaga.className = `vaga ${estadoVagas[id]}`;
+            // Atualiza visual localmente
+            atualizarStatusVagaVisual(id, estadoVagas[id]);
             
             atualizarEstatisticas();
             salvarLocal();
+            
+            // Sincroniza com Firebase IMEDIATAMENTE
             sincronizarEstadoFirebase();
             
-            // Notificação visual do status
             const statusTexto = estadoVagas[id] === 'livre' ? 'liberada' : 'ocupada';
             mostrarNotificacao(`🚗 Vaga ${id} ${statusTexto}`, 'info');
         }
 
-        // FUNÇÃO CORRIGIDA - Atualiza status em lote corretamente
-        function atualizarStatusVaga(id, novoStatus) {
+        // NOVA FUNÇÃO PARA ATUALIZAR VISUAL DAS VAGAS
+        function atualizarStatusVagaVisual(id, novoStatus) {
             var vaga = document.getElementById(id);
             if (!vaga) return;
             
-            estadoVagas[id] = novoStatus;
-            
-            // Remove todas as classes de status e aplica a nova
+            // Remove todas as classes de status
             vaga.classList.remove('livre', 'ocupada');
+            
+            // Adiciona a nova classe
             vaga.classList.add(novoStatus);
             
-            // Força a atualização visual
+            // Força atualização da className
             vaga.className = `vaga ${novoStatus}`;
+            
+            // Atualiza estado interno
+            estadoVagas[id] = novoStatus;
         }
 
         function atualizarEstatisticas() {
@@ -1285,7 +1290,7 @@
             if (tipoUsuario !== 'admin') return;
             if (confirm('Resetar todas as vagas para LIVRE?')) {
                 Object.keys(estadoVagas).forEach(id => {
-                    atualizarStatusVaga(id, 'livre');
+                    atualizarStatusVagaVisual(id, 'livre');
                 });
                 atualizarEstatisticas();
                 salvarLocal();
@@ -1298,7 +1303,7 @@
             if (tipoUsuario !== 'admin') return;
             if (confirm('Ocupar todas as vagas?')) {
                 Object.keys(estadoVagas).forEach(id => {
-                    atualizarStatusVaga(id, 'ocupada');
+                    atualizarStatusVagaVisual(id, 'ocupada');
                 });
                 atualizarEstatisticas();
                 salvarLocal();
@@ -1311,7 +1316,7 @@
             if (tipoUsuario !== 'admin') return;
             if (confirm('Liberar todas as vagas?')) {
                 Object.keys(estadoVagas).forEach(id => {
-                    atualizarStatusVaga(id, 'livre');
+                    atualizarStatusVagaVisual(id, 'livre');
                 });
                 atualizarEstatisticas();
                 salvarLocal();
@@ -1540,6 +1545,7 @@
             }
         }
 
+        // FUNÇÃO FIREBASE CORRIGIDA PARA SINCRONIZAÇÃO EM TEMPO REAL
         function inicializarFirebase() {
             try {
                 firebase.initializeApp(firebaseConfig);
@@ -1547,17 +1553,26 @@
                 firebaseConectado = true;
                 atualizarStatusFirebase('conectado', 'Firebase Conectado');
                 
-                // CORREÇÃO: Listener melhorado para sincronização de estados
+                // LISTENER MELHORADO PARA SINCRONIZAÇÃO EM TEMPO REAL
                 database.ref('estacionamento/estados').on('value', function(snapshot) {
-                    if (snapshot.exists()) {
+                    if (snapshot.exists() && !sincronizandoFirebase) {
                         var dadosRemoto = snapshot.val();
+                        var houveMudanca = false;
+                        
                         Object.keys(dadosRemoto).forEach(id => {
                             if (estadoVagas[id] !== dadosRemoto[id]) {
-                                estadoVagas[id] = dadosRemoto[id];
-                                atualizarStatusVaga(id, dadosRemoto[id]);
+                                atualizarStatusVagaVisual(id, dadosRemoto[id]);
+                                houveMudanca = true;
                             }
                         });
-                        atualizarEstatisticas();
+                        
+                        if (houveMudanca) {
+                            atualizarEstatisticas();
+                            // Só salva local se não for admin para evitar conflitos
+                            if (tipoUsuario !== 'admin') {
+                                salvarLocal();
+                            }
+                        }
                     }
                 });
                 
@@ -1589,11 +1604,19 @@
             textoEl.textContent = texto;
         }
 
+        // FUNÇÃO DE SINCRONIZAÇÃO MELHORADA
         function sincronizarEstadoFirebase() {
             if (!firebaseConectado || !database) return;
             try {
-                database.ref('estacionamento/estados').set(estadoVagas);
+                sincronizandoFirebase = true;
+                database.ref('estacionamento/estados').set(estadoVagas).then(() => {
+                    sincronizandoFirebase = false;
+                }).catch((error) => {
+                    sincronizandoFirebase = false;
+                    console.error('Erro ao sincronizar estados:', error);
+                });
             } catch (error) {
+                sincronizandoFirebase = false;
                 console.error('Erro ao sincronizar estados:', error);
             }
         }
