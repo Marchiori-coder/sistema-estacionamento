@@ -50,39 +50,45 @@
         .zoom-btn{background:#3498db}
         .planta-btn{background:#e67e22;display:block;width:100%;margin-bottom:5px}
         
-        .vaga{position:absolute;width:clamp(35px,6vw,55px);height:clamp(25px,4vw,40px);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1vw,9px);font-weight:bold;color:white;cursor:pointer;transition:all 0.3s;z-index:10;user-select:none;border-radius:8px;overflow:visible}
-        .vaga:hover{transform:scale(1.1);z-index:100}
+        .vaga{position:absolute;width:clamp(35px,6vw,55px);height:clamp(25px,4vw,40px);display:flex!important;justify-content:center;align-items:center;font-size:clamp(6px,1vw,9px);font-weight:bold;color:white;cursor:pointer;transition:all 0.4s ease;z-index:10;user-select:none;border-radius:12px;overflow:visible;padding:3px}
+        .vaga:hover{transform:scale(1.15);z-index:100}
         .vaga.viewer-mode{cursor:default!important}
         .vaga.viewer-mode:hover{transform:none!important}
         
-        .car-icon{width:100%;height:100%;transition:all 0.3s}
-        .car-text{position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:clamp(8px,1.2vw,10px);font-weight:bold;color:#2c3e50;background:rgba(255,255,255,0.9);padding:1px 4px;border-radius:3px;white-space:nowrap}
+        .car-icon{width:100%;height:100%;transition:all 0.4s ease;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.4))}
+        .car-text{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:clamp(8px,1.2vw,10px);font-weight:bold;color:#2c3e50;background:rgba(255,255,255,0.95);padding:2px 6px;border-radius:4px;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
         
-        .livre .car-icon{fill:#27ae60;filter:drop-shadow(0 2px 4px rgba(39,174,96,0.3))}
-        .ocupada .car-icon{fill:#e74c3c;filter:drop-shadow(0 2px 4px rgba(231,76,60,0.3))}
+        .livre{background:radial-gradient(circle,rgba(39,174,96,0.9),rgba(39,174,96,0.6));box-shadow:0 0 20px rgba(39,174,96,0.8),inset 0 0 15px rgba(255,255,255,0.3);border:2px solid rgba(39,174,96,0.9)}
+        .livre .car-icon{fill:#27ae60;filter:drop-shadow(0 3px 8px rgba(39,174,96,0.6)) drop-shadow(0 0 12px rgba(39,174,96,0.4))}
+        .livre:hover{box-shadow:0 0 30px rgba(39,174,96,1),inset 0 0 20px rgba(255,255,255,0.4);background:radial-gradient(circle,rgba(39,174,96,1),rgba(39,174,96,0.8))}
         
-        .modo-edicao .vaga{border:2px dashed #f39c12!important;background:rgba(243,156,18,0.1)!important}
-        .vaga.selecionada{border:3px solid #9b59b6!important;background:rgba(155,89,182,0.1)!important;z-index:1000!important}
-        .vaga.multipla-selecionada{border:3px solid #e67e22!important;background:rgba(230,126,34,0.1)!important;z-index:999!important}
-        .vaga.arrastando{z-index:1001!important;transform:scale(1.2)!important;opacity:0.8;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
+        .ocupada{background:radial-gradient(circle,rgba(231,76,60,0.9),rgba(231,76,60,0.6));box-shadow:0 0 20px rgba(231,76,60,0.8),inset 0 0 15px rgba(255,255,255,0.3);border:2px solid rgba(231,76,60,0.9)}
+        .ocupada .car-icon{fill:#e74c3c;filter:drop-shadow(0 3px 8px rgba(231,76,60,0.6)) drop-shadow(0 0 12px rgba(231,76,60,0.4))}
+        .ocupada:hover{box-shadow:0 0 30px rgba(231,76,60,1),inset 0 0 20px rgba(255,255,255,0.4);background:radial-gradient(circle,rgba(231,76,60,1),rgba(231,76,60,0.8))}
+        
+        .modo-edicao .vaga{border:3px dashed #f39c12!important;background:radial-gradient(circle,rgba(243,156,18,0.8),rgba(243,156,18,0.4))!important;box-shadow:0 0 25px rgba(243,156,18,0.9),inset 0 0 15px rgba(255,255,255,0.4)!important}
+        .vaga.selecionada{border:4px solid #9b59b6!important;background:radial-gradient(circle,rgba(155,89,182,0.9),rgba(155,89,182,0.6))!important;box-shadow:0 0 35px rgba(155,89,182,1),inset 0 0 20px rgba(255,255,255,0.5)!important;z-index:1000!important;transform:scale(1.1)!important}
+        .vaga.multipla-selecionada{border:4px solid #e67e22!important;background:radial-gradient(circle,rgba(230,126,34,0.9),rgba(230,126,34,0.6))!important;box-shadow:0 0 35px rgba(230,126,34,1),inset 0 0 20px rgba(255,255,255,0.5)!important;z-index:999!important}
+        .vaga.arrastando{z-index:1001!important;transform:scale(1.3)!important;opacity:0.9;box-shadow:0 12px 30px rgba(0,0,0,0.5),0 0 40px rgba(52,152,219,0.8)!important}
         
         .vaga-handles{position:absolute;display:none;pointer-events:none}
         .vaga.selecionada .vaga-handles{display:block!important;pointer-events:auto}
-        .handle{position:absolute;width:8px;height:8px;background:#9b59b6;border:2px solid white;border-radius:50%;cursor:pointer;z-index:1002}
-        .handle.nw{top:-6px;left:-6px;cursor:nw-resize}
-        .handle.ne{top:-6px;right:-6px;cursor:ne-resize}
-        .handle.sw{bottom:-6px;left:-6px;cursor:sw-resize}
-        .handle.se{bottom:-6px;right:-6px;cursor:se-resize}
-        .handle.n{top:-6px;left:50%;transform:translateX(-50%);cursor:n-resize}
-        .handle.s{bottom:-6px;left:50%;transform:translateX(-50%);cursor:s-resize}
-        .handle.w{top:50%;left:-6px;transform:translateY(-50%);cursor:w-resize}
-        .handle.e{top:50%;right:-6px;transform:translateY(-50%);cursor:e-resize}
-        .handle.rotate{top:-20px;left:50%;transform:translateX(-50%);background:#e74c3c;cursor:crosshair;border-radius:3px;width:12px;height:6px}
+        .handle{position:absolute;width:10px;height:10px;background:#9b59b6;border:3px solid white;border-radius:50%;cursor:pointer;z-index:1002;box-shadow:0 2px 6px rgba(0,0,0,0.3);transition:all 0.3s}
+        .handle:hover{transform:scale(1.3);background:#8e44ad;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
+        .handle.nw{top:-8px;left:-8px;cursor:nw-resize}
+        .handle.ne{top:-8px;right:-8px;cursor:ne-resize}
+        .handle.sw{bottom:-8px;left:-8px;cursor:sw-resize}
+        .handle.se{bottom:-8px;right:-8px;cursor:se-resize}
+        .handle.n{top:-8px;left:50%;transform:translateX(-50%);cursor:n-resize}
+        .handle.s{bottom:-8px;left:50%;transform:translateX(-50%);cursor:s-resize}
+        .handle.w{top:50%;left:-8px;transform:translateY(-50%);cursor:w-resize}
+        .handle.e{top:50%;right:-8px;transform:translateY(-50%);cursor:e-resize}
+        .handle.rotate{top:-25px;left:50%;transform:translateX(-50%);background:#e74c3c;cursor:crosshair;border-radius:4px;width:16px;height:8px}
         
-        .quick-toolbar{position:absolute;top:-35px;left:0;background:rgba(52,73,94,0.95);padding:5px;border-radius:5px;display:none;white-space:nowrap;z-index:1003}
+        .quick-toolbar{position:absolute;top:-40px;left:0;background:rgba(52,73,94,0.95);padding:6px;border-radius:6px;display:none;white-space:nowrap;z-index:1003;box-shadow:0 4px 12px rgba(0,0,0,0.3)}
         .vaga.selecionada .quick-toolbar{display:block!important}
-        .quick-btn{padding:3px 6px;margin:0 2px;background:#3498db;color:white;border:none;border-radius:3px;cursor:pointer;font-size:10px}
-        .quick-btn:hover{background:#2980b9}
+        .quick-btn{padding:4px 8px;margin:0 2px;background:#3498db;color:white;border:none;border-radius:4px;cursor:pointer;font-size:11px;transition:all 0.3s}
+        .quick-btn:hover{background:#2980b9;transform:scale(1.1)}
         .quick-btn.delete{background:#e74c3c}
         .quick-btn.duplicate{background:#27ae60}
         
@@ -118,6 +124,12 @@
         .edit-hint{position:fixed;bottom:20px;left:20px;background:rgba(52,73,94,0.9);color:white;padding:10px 15px;border-radius:8px;font-size:0.8rem;z-index:1000;display:none}
         .modo-edicao .edit-hint{display:block!important}
         
+        @keyframes glow-pulse{0%,100%{box-shadow:0 0 20px rgba(39,174,96,0.8),inset 0 0 15px rgba(255,255,255,0.3)}50%{box-shadow:0 0 35px rgba(39,174,96,1),inset 0 0 25px rgba(255,255,255,0.5)}}
+        @keyframes glow-pulse-red{0%,100%{box-shadow:0 0 20px rgba(231,76,60,0.8),inset 0 0 15px rgba(255,255,255,0.3)}50%{box-shadow:0 0 35px rgba(231,76,60,1),inset 0 0 25px rgba(255,255,255,0.5)}}
+        
+        .livre:active{animation:glow-pulse 0.6s ease-in-out}
+        .ocupada:active{animation:glow-pulse-red 0.6s ease-in-out}
+        
         @media (max-width:768px){
             body{padding:5px;overflow-x:hidden}
             .container{border-radius:0;margin:0;width:100vw;max-width:100vw}
@@ -146,12 +158,12 @@
             .controles{grid-template-columns:repeat(2,1fr);gap:8px;padding:10px}
             .btn{min-width:auto;padding:12px 8px;font-size:0.8rem}
             .vaga{width:clamp(45px,12vw,65px);height:clamp(30px,8vw,45px);touch-action:manipulation}
-            .vaga:active{transform:scale(1.05)!important}
-            .handle{width:12px;height:12px}
-            .handle.nw,.handle.ne,.handle.sw,.handle.se{width:12px;height:12px}
-            .handle.n,.handle.s,.handle.w,.handle.e{width:10px;height:10px}
-            .quick-toolbar{top:-40px;font-size:12px}
-            .quick-btn{padding:5px 8px;font-size:11px}
+            .vaga:active{transform:scale(1.2)!important}
+            .handle{width:14px;height:14px}
+            .handle.nw,.handle.ne,.handle.sw,.handle.se{width:14px;height:14px}
+            .handle.n,.handle.s,.handle.w,.handle.e{width:12px;height:12px}
+            .quick-toolbar{top:-45px;font-size:12px}
+            .quick-btn{padding:6px 10px;font-size:12px}
             .notificacao{bottom:10px;right:10px;left:10px;max-width:none;padding:12px 15px;font-size:0.8rem}
             .modal-login .login-box{width:95%;padding:20px;margin:10px}
             .login-input{padding:15px;font-size:1rem;border-radius:10px}
@@ -191,7 +203,7 @@
         @media (hover:none) and (pointer:coarse){
             .vaga:hover{transform:none!important}
             .btn:hover{transform:none!important}
-            .vaga:active{transform:scale(1.1)!important;transition:transform 0.1s}
+            .vaga:active{transform:scale(1.2)!important;transition:transform 0.1s}
             .btn:active{transform:scale(0.95)!important;transition:transform 0.1s}
         }
     </style>
@@ -397,33 +409,81 @@
         var anguloInicialRotacao = 0;
 
         function criarIconeCarro() {
-            return `<svg class="car-icon" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+            return `<svg class="car-icon" viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <linearGradient id="carGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <linearGradient id="carBodyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" style="stop-opacity:1" />
-                        <stop offset="100%" style="stop-opacity:0.8" />
+                        <stop offset="50%" style="stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-opacity:0.7" />
+                    </linearGradient>
+                    <linearGradient id="carRoofGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-opacity:0.6" />
                     </linearGradient>
                 </defs>
-                <!-- Corpo principal do carro -->
-                <rect x="10" y="25" width="80" height="20" rx="8" fill="url(#carGradient)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <!-- Teto do carro -->
-                <rect x="25" y="15" width="50" height="15" rx="6" fill="url(#carGradient)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                
+                <!-- Sombra do carro -->
+                <ellipse cx="60" cy="65" rx="45" ry="8" fill="rgba(0,0,0,0.3)"/>
+                
+                <!-- Corpo principal -->
+                <rect x="15" y="30" width="90" height="25" rx="12" fill="url(#carBodyGradient)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                
+                <!-- Teto -->
+                <rect x="30" y="18" width="60" height="18" rx="8" fill="url(#carRoofGradient)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+                
+                <!-- Para-choque dianteiro -->
+                <rect x="8" y="35" width="10" height="15" rx="3" fill="url(#carBodyGradient)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                
+                <!-- Para-choque traseiro -->
+                <rect x="102" y="35" width="10" height="15" rx="3" fill="url(#carBodyGradient)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                
                 <!-- Rodas -->
-                <circle cx="25" cy="50" r="6" fill="#2c3e50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                <circle cx="75" cy="50" r="6" fill="#2c3e50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                <!-- Detalhes das rodas -->
-                <circle cx="25" cy="50" r="3" fill="#34495e"/>
-                <circle cx="75" cy="50" r="3" fill="#34495e"/>
+                <circle cx="30" cy="58" r="8" fill="#2c3e50" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                <circle cx="90" cy="58" r="8" fill="#2c3e50" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                
+                <!-- Aros das rodas -->
+                <circle cx="30" cy="58" r="5" fill="#34495e" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+                <circle cx="90" cy="58" r="5" fill="#34495e" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+                
+                <!-- Detalhes dos aros -->
+                <circle cx="30" cy="58" r="2" fill="#7f8c8d"/>
+                <circle cx="90" cy="58" r="2" fill="#7f8c8d"/>
+                
                 <!-- Para-brisa -->
-                <rect x="30" y="18" width="15" height="8" rx="2" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/>
+                <rect x="35" y="22" width="20" height="12" rx="3" fill="rgba(173,216,230,0.8)" stroke="rgba(255,255,255,0.9)" stroke-width="0.8"/>
+                
                 <!-- Janela traseira -->
-                <rect x="55" y="18" width="15" height="8" rx="2" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/>
-                <!-- Faróis -->
-                <circle cx="15" cy="30" r="3" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,1)" stroke-width="0.5"/>
-                <circle cx="15" cy="40" r="3" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,1)" stroke-width="0.5"/>
+                <rect x="65" y="22" width="20" height="12" rx="3" fill="rgba(173,216,230,0.8)" stroke="rgba(255,255,255,0.9)" stroke-width="0.8"/>
+                
+                <!-- Janelas laterais -->
+                <rect x="32" y="25" width="8" height="8" rx="2" fill="rgba(173,216,230,0.7)" stroke="rgba(255,255,255,0.7)" stroke-width="0.5"/>
+                <rect x="80" y="25" width="8" height="8" rx="2" fill="rgba(173,216,230,0.7)" stroke="rgba(255,255,255,0.7)" stroke-width="0.5"/>
+                
+                <!-- Faróis dianteiros -->
+                <circle cx="12" cy="38" r="4" fill="rgba(255,255,255,0.95)" stroke="rgba(255,255,255,1)" stroke-width="1"/>
+                <circle cx="12" cy="47" r="4" fill="rgba(255,255,255,0.95)" stroke="rgba(255,255,255,1)" stroke-width="1"/>
+                
+                <!-- Luzes internas dos faróis -->
+                <circle cx="12" cy="38" r="2" fill="rgba(255,255,200,0.9)"/>
+                <circle cx="12" cy="47" r="2" fill="rgba(255,255,200,0.9)"/>
+                
                 <!-- Lanternas traseiras -->
-                <circle cx="85" cy="30" r="2" fill="rgba(255,100,100,0.8)"/>
-                <circle cx="85" cy="40" r="2" fill="rgba(255,100,100,0.8)"/>
+                <circle cx="108" cy="38" r="3" fill="rgba(255,80,80,0.9)" stroke="rgba(255,100,100,1)" stroke-width="0.8"/>
+                <circle cx="108" cy="47" r="3" fill="rgba(255,80,80,0.9)" stroke="rgba(255,100,100,1)" stroke-width="0.8"/>
+                
+                <!-- Grade frontal -->
+                <rect x="10" y="40" width="6" height="8" rx="1" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <line x1="11" y1="42" x2="15" y2="42" stroke="rgba(255,255,255,0.4)" stroke-width="0.3"/>
+                <line x1="11" y1="44" x2="15" y2="44" stroke="rgba(255,255,255,0.4)" stroke-width="0.3"/>
+                <line x1="11" y1="46" x2="15" y2="46" stroke="rgba(255,255,255,0.4)" stroke-width="0.3"/>
+                
+                <!-- Maçanetas -->
+                <rect x="28" y="40" width="2" height="3" rx="1" fill="rgba(192,192,192,0.8)"/>
+                <rect x="90" y="40" width="2" height="3" rx="1" fill="rgba(192,192,192,0.8)"/>
+                
+                <!-- Antena -->
+                <line x1="45" y1="18" x2="45" y2="12" stroke="rgba(100,100,100,0.8)" stroke-width="1"/>
+                <circle cx="45" cy="12" r="1" fill="rgba(100,100,100,0.8)"/>
             </svg>`;
         }
         
@@ -693,8 +753,7 @@
                 handle.addEventListener('touchstart', (e) => iniciarResize(e, type, vaga), {passive: false});
                 handles.appendChild(handle);
             });
-            
-            const toolbar = document.createElement('div');
+                        const toolbar = document.createElement('div');
             toolbar.className = 'quick-toolbar';
             toolbar.innerHTML = `
                 <button class="quick-btn duplicate" onclick="duplicarVagaRapida('${vaga.id}')">📋</button>
@@ -749,7 +808,7 @@
                 const centerX = posicaoVagas[vagaId].x + vaga.offsetWidth / 2;
                 const centerY = posicaoVagas[vagaId].y + vaga.offsetHeight / 2;
                 const angle = Math.atan2(mouseY - centerY, mouseX - centerX) * 180 / Math.PI;
-                const novoAngulo = Math.round(angle / 15) * 15; // Snap a cada 15 graus
+                const novoAngulo = Math.round(angle / 15) * 15;
                 
                 posicaoVagas[vagaId].angle = novoAngulo;
                 const transformProps = vaga.style.transform.replace(/rotate\([^)]*\)/, '').trim();
@@ -799,17 +858,14 @@
                     break;
             }
             
-            // Aplicar limites do container
             novoX = Math.max(0, Math.min(novoX, container.offsetWidth - novaWidth));
             novoY = Math.max(0, Math.min(novoY, container.offsetHeight - novaHeight));
             
-            // Atualizar vaga
             vaga.style.width = `${novaWidth}px`;
             vaga.style.height = `${novaHeight}px`;
             vaga.style.left = `${novoX}px`;
             vaga.style.top = `${novoY}px`;
             
-            // Atualizar dados
             posicaoVagas[vagaId].width = novaWidth;
             posicaoVagas[vagaId].height = novaHeight;
             posicaoVagas[vagaId].x = novoX;
@@ -860,7 +916,7 @@
             moverVagaIndividual(vagaSelecionada, deltaX, deltaY);
         }
 
-                function rotacionarVaga(graus) {
+        function rotacionarVaga(graus) {
             if (!vagaSelecionada || tipoUsuario !== 'admin') return;
             rotacionarVagaIndividual(vagaSelecionada, graus);
         }
@@ -1607,3 +1663,5 @@
     </script>
 </body>
 </html>
+
+          
